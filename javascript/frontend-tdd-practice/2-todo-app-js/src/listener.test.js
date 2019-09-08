@@ -19,4 +19,6 @@ test('bind', () => {
   bindEvents(state, { bind, update });
 
   expect(events['button-add-task.click']).toBeTruthy();
+  expect(events['button-remove-task-1.click']).toBeTruthy();
+  expect(events['checkbox-task-1.click']).toBeTruthy();
 });

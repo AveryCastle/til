@@ -26,8 +26,23 @@ export const addTask = title => {
   const { counter } = state;
   state.tasks = [
     ...state.tasks,
-    { id: counter(), title }
+    { id: counter(), title, completed: false }
   ];
+
+  return state.tasks;
+}
+
+export const removeTask = id => {
+  state.tasks = state.tasks.filter(task => task.id !== id);
+  return state.tasks;
+}
+
+export const toggleTask = id => {
+  state.tasks.forEach(task => {
+    if (task.id === id) {
+      task.completed = !task.completed;
+    }
+  });
 
   return state.tasks;
 }

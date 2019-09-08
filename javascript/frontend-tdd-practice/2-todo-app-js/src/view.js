@@ -4,7 +4,16 @@ export const render = ({ tasks }) => {
       <ul>
       ${tasks.map(task =>`
         <li>
+        <input type="checkbox"
+            id="checkbox-task-${task.id}"
+            ${task.completed ? 'checked' : ''}
+            />
           ${task.title}   
+          ${task.completed ? '[DONE]' : ''}
+          <button type="button"
+                  id="button-remove-task-${task.id}">
+          Remove
+          </button>
         </li>
       `).join('')}
       </ul>
