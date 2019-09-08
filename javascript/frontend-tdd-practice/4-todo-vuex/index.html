@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>TODO App with Vuex</title>
+</head>
+<body>
+  <div id="app">
+      <ul v-for="task in tasks" v-bind:key="task.id">
+        <li>
+          <input type="checkbox" 
+                :checked="task.completed" 
+                @input="toggleTask(task.id)"
+          />
+          {{ task.title }}
+          <span v-if="task.completed">[Done]</span>
+          <button type="button" @click="removeTask(task.id)">
+            Remove
+          </button>
+        </li>
+      </ul>
+      <div>
+        <input type="text" :value="taskTitle" 
+                @input="updateTaskTitle($event.target.value)"/>
+        <button type="button" @click="addTask">
+          Add Task
+        </button>
+      </div>
+    </div>
+  <script src="main.js"></script>
+</body>
+</html>
