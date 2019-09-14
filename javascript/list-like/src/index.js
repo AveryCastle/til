@@ -1,3 +1,11 @@
+import { 
+  courseRender, likeRender,
+} from './view.js';
+
+import {
+  bindEvent,
+} from './listener.js';
+
 const courses = [
   {
     id: 1,
@@ -31,6 +39,11 @@ const courses = [
   }
 ];
 
+function bind(id, eventType, callback) {
+  const el = document.getElementById(id);
+  el.addEventListener(eventType, callback);
+}
+
 function getCourses() {
   return courses;
 }
@@ -52,45 +65,7 @@ function fetchLikeCourses() {
 function update() {
   fetchCourses();
   fetchLikeCourses();
-  bindEvent(courses, update);
-}
-
-function courseRender(courses) {
-  return `
-    <ul>
-      ${courses.map(course => `
-        <li>
-          ${ course.title }
-          <button type="button" id="btn-like-${ course.id }">${ course.like ? '찜 해제' : '찜하기' }</button>
-        </li>
-      `
-      ).join('')}
-    </ul>
-  `;
-}
-
-function likeRender(courses) {
-  return `
-    ${courses.filter(course => course.like)
-              .map(course => `
-              <li>${course.title}</li>
-              `).join('')}
-  `;
-}
-
-function bindEvent(courses, callback) {
-  toggleLike(courses, callback);
-}
-
-function toggleLike(courses, callback) {
-  courses.forEach(course => {
-    const id = course.id;
-    const el = document.getElementById(`btn-like-${id}`);
-    el.addEventListener('click', () => {
-      course.like = !course.like;
-      callback();
-    });
-  });
+  bindEvent(courses, bind, update);
 }
 
 (() => {
