@@ -1,0 +1,195 @@
+<script src="lib/fx.js"></script>
+
+<script>
+const products = [
+  { name: '반팔티', price: 15000 },
+  { name: '청바지', price: 45000 },
+  { name: '반바지', price: 5000 },
+  { name: '코트', price: 95000 },
+];
+
+const add = (a, b) => a + b;
+
+log(
+  reduce(add,
+        0,
+        map(product => product.price, 
+            filter(product => product.price > 20000, products)))
+);
+</script>
+
+# 코드를 값으로 다루어 표현력 높이기.
+
+## go
+<script>
+  // 내가 푼 것.
+  const myGo = (acc, ...fn) => {
+    for (const f of fn) {
+      acc = f(acc)
+    }
+    return acc;
+  };
+
+  log(
+    myGo(0,
+      a => a + 1,
+      a => a + 10,
+      a => a + 100
+    )
+  );
+  // 111
+
+  // 선생님이 푼 것.
+  const go = (...args) => reduce((a, fn) => fn(a), args);
+
+  go(0,
+      a => a + 1,
+      a => a + 10,
+      a => a + 100,
+      log
+  );
+
+  go(
+    add(0, 1),
+    a => a + 1,
+    a => a + 10,
+    a => a + 100,
+    log
+  );
+</script>
+
+## pipe
+<script>
+// 내가 짠 것. 못 품.
+
+  // 선생님이 푼 것.
+  const pipe = (...fn) => (inital) => go(inital, ...fn);
+
+  const f = pipe(
+    a => a + 1,
+    a => a + 10,
+    a => a + 100,
+  );
+  
+  log(f(0));
+
+  const pipe2 = (f, ...fs) => (...args) => go(f(...args), ...fs);
+
+  const f2 = pipe2(
+    (a, b) => a + b,
+    a => a + 10,
+    a => a + 100,
+  );
+
+  log(f2(1, 1));
+</script>
+
+## 개선하기.
+<script>
+// log(
+//   reduce(add,
+//         0,
+//         map(product => product.price, 
+//             filter(product => product.price > 20000, products)))
+// );
+
+go(
+  products,
+  products => map(product => product.price, products),
+  prices => filter(price => price > 20000, prices),
+  prices => reduce(add, 0, prices),
+  log
+);
+
+</script>
+
+## curry
+<script>
+const curry = f => (a, ..._) => _.length ? f(a, ..._) : (..._) => f(a, ..._);
+
+const multi = curry((a, b) => a * b);
+log(multi(1)(2));
+
+const multi2 = multi(2);
+log(multi2);
+log(multi2(1));
+log(multi2(2));
+log(multi2(3));
+</script>
+
+<script>
+go(
+  products,
+  products => map2(product => product.price)(products),
+  prices => filter2(price => price > 20000)(prices),
+  prices => reduce2(add)(prices),
+  log
+);
+
+go(
+  products,
+  map2(product => product.price),
+  filter2(price => price > 20000),
+  reduce2(add),
+  log
+);
+</script>
+
+## 함수 조합으로 함수 만들기.
+<script>
+  // step1.
+  // go(
+  //   products,
+  //   filter2(product => product.price > 20000),
+  //   map2(product => product.price),
+  //   reduce2(add),
+  //   log
+  // );
+
+  // go(
+  //   products,
+  //   filter2(product => product.price <= 20000),
+  //   map2(product => product.price),
+  //   reduce2(add),
+  //   log
+  // );
+
+  // step2.
+  const total_price = pipe2(
+    map2(product => product.price),
+    reduce2(add),
+  );
+
+go(
+  products,
+  filter2(product => product.price > 20000),
+  total_price,
+  log
+);
+
+go(
+  products,
+  filter2(product => product.price <= 20000),
+  total_price,
+  log
+);
+
+// step3.
+const base_total_price = predic => pipe2(
+  filter2(predic),
+  total_price,
+);
+
+go(
+  products,
+  base_total_price(product => product.price > 20000),
+  log
+);
+
+go(
+  products,
+  base_total_price(product => product.price <= 20000),
+  log
+);
+
+</script>
