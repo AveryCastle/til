@@ -72,3 +72,70 @@ const test = (name, time, f) => {
 log(test('range', 10, () => reduce(add, range(100_000))));
 log(test('L.range', 10, () => reduce(add, L.range(100_000))));
 </script>
+
+# take
+<script>
+console.clear();
+
+// 내가 짠 것.
+const myTake = (limit, iterable) => {
+  const res = [];
+  iterable = iterable[Symbol.iterator]();
+  let i = -1;
+  while(++i < limit) {
+    res.push(iterable.next().value);
+  }
+  return res;
+};
+
+log(myTake(3, range(100)));
+log(myTake(3, L.range(100)));
+log(myTake(3, new Set([1, 2, 3, 4, 5])));
+log(myTake(3, new Map([['a', 1], ['a', 2], ['a', 3], ['a', 4], ['a', 5]])));
+
+// 선생님이 짠 것.
+const take = (limit, iter) => {
+  const res = [];
+  for(const a of iter) {
+    res.push(a);
+    if (res.length === limit) return res;
+  }
+};
+
+console.time('range');
+log(take(3, range(100_000)));
+console.timeEnd('range');
+
+console.time('L.range');
+log(take(3, L.range(Infinity)));
+console.timeEnd('L.range');
+log(take(3, new Set([1, 2, 3, 4, 5])));
+log(take(3, new Map([['a', 1], ['a', 2], ['a', 3], ['a', 4], ['a', 5]])));
+
+
+const take2 = curry((limit, iter) => {
+  const res = [];
+  for (const a of iter) {
+    res.push(a);
+    if (res.length === limit) return res;
+  }
+});
+
+console.time('range');
+go(
+  range(100_000),
+  take2(10),
+  reduce(add),
+  log
+);
+console.timeEnd('range');
+
+console.time('L.range');
+go(
+  L.range(100_000),
+  take2(10),  // <-- 100_000 배열 만들지 않고 있다가 실제 여기서 10개만 꺼내와서 계산하게 됨.
+  reduce(add),  // <-- 실제 여기서 계산하게 됨.
+  log
+);
+console.timeEnd('L.range');
+</script>
