@@ -122,14 +122,15 @@ const take = curry((l, iter) => {
 
 // log('common range, map, filter, take ===> ');
 // 평가 순서: range(10)을 다 만든 후, map을 다 평가한 후, filter를 다 평가한 후, take를 하게 됨.
-// go(
-//   range(10),
-//   map(a => a + 10),
-//   filter(a => a % 2),
-//   take(2),
-//   log
-// );
-
+console.time('common');
+go(
+  range(10000),
+  map(a => a + 10),
+  filter(a => a % 2),
+  take(10),
+  log
+);
+console.timeEnd('common');
 </script>
 
 
@@ -169,11 +170,23 @@ const take = curry((l, iter) => {
   // filter에서 yield를 해서 값이 평가되고, take로 내려감.
   // take에서는 자기 자신 조건을 확인하면서 충족이 안됐으면 다시 iter.next()를 위해서 다시 map으로 올라감.
   // 즉, 평가를 해야 하는 함수가 제일 먼저 호출되고, 아래 --> 위, 위 --> 아래, 아래 --> 위, 위 --> 아래 이런 순서로 호출됨.
+  console.time('L');
   go(
-    L.range(10),
+    L.range(10000),
     L.map(a => a + 10),
     L.filter(a => a % 2),
-    take(2),
+    take(10),
     log
-  )
+  );
+  console.timeEnd('L');
 </script>
+
+### map, filter 계열 함수들이 가지는 결합 법칙.
+
+- 사용하는 데이터가 무엇이든지
+- 사용하는 보조 함수가 순수 함수라면 무엇이든지
+- 아래와 같이 사용한다면 둘 다 결과가 같다.
+
+[[mapping, mapping], [filtering, filtering], [mapping, mapping]]
+
+[[mapping, filtering, mapping], [mapping, filtering, mapping]]
