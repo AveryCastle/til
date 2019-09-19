@@ -10,6 +10,16 @@ const map = curry((fn, iter) => {
   return res;
 });
 
+const filter = curry((fn, iter) => {
+  const res = [];
+  for (const a of iter) {
+    if (fn(a)) {
+      res.push(a);
+    }
+  }
+  return res;
+});
+
 const L = {};
 
 L.range = function *(limit) {

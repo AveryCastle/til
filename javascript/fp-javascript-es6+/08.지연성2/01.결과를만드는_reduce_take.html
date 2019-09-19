@@ -74,3 +74,36 @@ log(
 ### take
 - 몇 개의 원소를 갖고 있는지 모르는 상태에서 특정 갯수만큼 값을 꺼내오는 축약을 하는 성질이 있어서 지연을 시키기보다 연산을 통해서 꺼내오는 게
   프로그래밍적으로 더 낫다고 생각함.
+
+### find
+- take를 통해서 값을 가져올 수 있음.
+
+<script>
+  const users = [
+    { age: 10 },
+    { age: 28 },
+    { age: 5 },
+    { age: 15 },
+    { age: 43 },
+    { age: 33 },
+    { age: 22 },
+    { age: 78 },
+  ];
+
+  const find = curry((f, iter) => go(
+    iter,
+    L.filter(f),
+    take(1),
+    ([a]) => a
+  ));
+
+  log(find(u => u.age < 20)(users));
+
+  go(
+    users,
+    L.map(u => u.age),
+    L.filter(n => n < 20),
+    ([...a]) => log([...a])
+  );
+
+</script>
