@@ -1,0 +1,62 @@
+<script src="./fx.js"></script>
+
+## L.flatten
+<script>
+  log(...[1, 2], 3, 4, ...[5, 6, 7], ...[8, 9]);
+
+  const isIterable = a => a && a[Symbol.iterator];
+
+  L.flatten = function *(iter) {
+    for (const a of iter) {
+      if (isIterable(a)) {
+        for (const b of a) yield b;
+      } else {
+        yield a;
+      }
+    }
+  };
+
+  const it1 = L.flatten([[1, 2, 3], 4, 5, [6, 7], [8], [9, 10]]);
+  // log(it1.next());
+  // log(it1.next());
+  // log(it1.next());
+  // log(it1.next());
+  log([...it1]);
+  log(take(4, L.flatten([[1, 2, 3], 4, 5, [6, 7], [8], [9, 10]])));
+
+
+  const flatten = pipe(L.flatten, takeAll);
+  log(flatten([[1, 2, 3], 4, 5, [6, 7], [8], [9, 10]]));
+
+  // yield*을 활용하면 위 코드를 아래와 같이 변경할 수 있습니다. 
+  // yield* iterable은 for (const val of iterable) yield val; 과 같습니다.
+  L.flatten2 = function *(iter) {
+    for (const a of iter) {
+      if (isIterable(a)) yield* a
+      else yield a;
+    }
+  };
+  const it2 = L.flatten2([[1, 2, 3], 4, 5, [6, 7], [8], [9, 10]]);
+  log([...it2]);
+
+</script>
+
+
+## L.deepFlat
+- 만일 깊은 Iterable을 모두 펼치고 싶다면 아래와 같이 L.deepFlat을 구현하여 사용할 수 있습니다. L.deepFlat은 깊은 Iterable을 펼쳐줍니다.
+<script>
+L.deepFlat = function *f(iter) {
+    for (const a of iter) {
+      if (isIterable(a)) yield* f(a) // 재귀적으로 호출.
+      else yield a;
+    }
+  };
+
+  log([...L.deepFlat([1, [2, [3, 4], [[5]]]])]);
+</script>
+
+## L.flatMap
+<script>
+
+</script>
+
