@@ -41,34 +41,69 @@
 - 비동기 상황을 값으로 다룰 수 있다는 것은 1급의 성질을 갖고 있다는 것
 - 비동기 상황이 값이라는 것은 함수에 전달할 수 있음.
 <script>
+//   console.clear();
+// const go2 = (a, f) => f(a);
+// const add5 = a => a + 5;
+
+// log('go2 ==> ', go2(10, add5));
+
+// const delay500 = a => new Promise(resolve =>
+//   setTimeout(() => resolve(a), 500)
+// );
+
+// log('go2 ==>', go2(delay500(5), add5));
+
+// const go3 = (a, f) => a instanceof Promise ? a.then(f) : f(a);   
+
+// const r1 = go3(5, add5);
+// log('r1 => ', r1);
+
+// const r2 = go3(delay500(5), add5);
+// r2.then(r => log('r2 ==> ', r));
+
+// go3(go3(5, add5), log);
+// go3(go3(delay500(5), add5), log);
+
+// const n1 = 5;
+// go3(go3(n1, add5), log);
+// log(go3(go3(n1, add5), log)); // undefined!!
+
+// const n2 = delay500(5);
+// go3(go3(n2, add5), log);
+// log(go3(go3(n2, add5), log)); // Promise
+</script>
+
+## Composition
+- Promise는 비동기 상황에서 함수 합성을 안전하게 해주는 도구.
+- 비동기 값을 가지고 연속적인 함수 실행을 안전하게 해주는(함수 합성을 안전하게 하는) Monad라고도 할 수 있음.
+- Monad
+- 함수 합성
+<script type="module">
   console.clear();
-const go2 = (a, f) => f(a);
-const add5 = a => a + 5;
+  // f.g
+  // f(g(x))
+  // - g를 실행하고 그 결과값을 f에 넘겨줘서 f가 실행됨. 함수 합성.
 
-log('go2 ==> ', go2(10, add5));
+  const g = a => a + 1;
+  const f = a => a * a;
+  
+  log('f(g(1)) => ', f(g(1)));
+  log('f(g()) => ', f(g()));
 
-const delay500 = a => new Promise(resolve =>
-  setTimeout(() => resolve(a), 500)
-);
+  // Array는 map을 통해 함수 합성을 함.
+  [1].map(g).map(f).forEach(a => log('[1] => ', a));
+  Array.of(1).map(g).map(f).forEach(a => log('[1] => ', a));
+  // forEach는 아예 효과가 일어나지 않아서 실행이 되지 않음.
+  [].map(g).map(f).forEach(a => log('[] => ', a));
 
-log('go2 ==>', go2(delay500(5), add5));
+  // Promise는 then을 통해 함수 합성을 함.
+  // Promise는 비동기 상황을 안전하게 합성하기 위한 도구임.
+  Promise.resolve(1).then(g).then(f).then(r => log('Promise(1) composition ==> ', r));
 
-const go3 = (a, f) => a instanceof Promise ? a.then(f) : f(a);   
-
-const r1 = go3(5, add5);
-log('r1 => ', r1);
-
-const r2 = go3(delay500(5), add5);
-r2.then(r => log('r2 ==> ', r));
-
-go3(go3(5, add5), log);
-go3(go3(delay500(5), add5), log);
-
-const n1 = 5;
-go3(go3(n1, add5), log);
-log(go3(go3(n1, add5), log)); // undefined!!
-
-const n2 = delay500(5);
-go3(go3(n2, add5), log);
-log(go3(go3(n2, add5), log)); // Promise
+  new Promise(resolve => setTimeout(() => resolve(2), 500))
+    .then(g).then(f).then(r => log('Promise delay resolve composition ==>', r));
+  
+  // 끝까지 효과가 나타나게 됨.
+  // Promise는 안에 값이 있거나 없거나에 대한 안전한 합성을 하기 위한 도구가 아님.
+  Promise.resolve().then(g).then(f).then(r => log('Promise() composition ==> ', r));
 </script>
