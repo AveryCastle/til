@@ -1,0 +1,74 @@
+<script src="./fx.js"></script>
+
+# Promise
+- Promise라는 값은 대기, 성공, 실패를 다루는 1급 값으로 이루어져 있음. callback과 차이점이 있음.
+- 비동기 상황을 1급 값으로 다룸.
+- 비동기 상황에 대한 값을 return한다는 게 중요함.
+
+## 일급
+
+<script>
+// function add10(a, callback) {
+//   setTimeout(() => callback(a + 10), 1000);
+// }
+
+// add10(10, res => log(res));
+
+// var a = add10(10, res => {
+//   add10(res, res => {
+//     add10(res, res => {
+//       log(res);
+//     })
+//   })  
+// });
+
+// log(a); // <-- undefined!!
+
+// function add20(a) {
+//   return new Promise(resolve => setTimeout(() => resolve(a + 20), 100));
+// }
+
+// var b = add20(10)
+//   .then(add20)
+//   .then(add20)
+//   .then(log);
+
+// log(b); // <-- Promise라는 값을 반환함!! callback과 큰 차이점!!!
+
+</script>
+
+## 일급 활용
+- 비동기 상황을 값으로 다룰 수 있다는 것은 1급의 성질을 갖고 있다는 것
+- 비동기 상황이 값이라는 것은 함수에 전달할 수 있음.
+<script>
+  console.clear();
+const go2 = (a, f) => f(a);
+const add5 = a => a + 5;
+
+log('go2 ==> ', go2(10, add5));
+
+const delay500 = a => new Promise(resolve =>
+  setTimeout(() => resolve(a), 500)
+);
+
+log('go2 ==>', go2(delay500(5), add5));
+
+const go3 = (a, f) => a instanceof Promise ? a.then(f) : f(a);   
+
+const r1 = go3(5, add5);
+log('r1 => ', r1);
+
+const r2 = go3(delay500(5), add5);
+r2.then(r => log('r2 ==> ', r));
+
+go3(go3(5, add5), log);
+go3(go3(delay500(5), add5), log);
+
+const n1 = 5;
+go3(go3(n1, add5), log);
+log(go3(go3(n1, add5), log)); // undefined!!
+
+const n2 = delay500(5);
+go3(go3(n2, add5), log);
+log(go3(go3(n2, add5), log)); // Promise
+</script>
