@@ -16,3 +16,32 @@
   const r = add10(a);
   log(r);
 </script>
+
+# 일급 함수
+- 함수를 값으로 다룰 수 있다.
+ - 변수에 함수를 담을 수 있다.
+- 조합성과 추상화의 도구.
+<script>
+  // const add5 = function(a) {
+  //   return a + 5;
+  // };
+  // equivalent to
+  const add5 = a => a + 5;
+  log(add5);
+  log(add5(10));
+
+  // 함수의 결과값으로 함수가 사용될 수 있다.
+  // f1이라는 함수는 실행되었을 때, 함수를 리턴할 수 있다.
+  // const f = function() {
+  //   return function() {
+  //     return 1;
+  //   };
+  // };
+  const f1 = () => () => 1;
+  log(f1()); // f1()을 실행하면 그 결과가 함수임.
+  log(f1()());
+
+  const f2 = f1(); // 함수의 결과를 변수에 담을 수 있음.
+  log(f2);
+  log(f2()); // f2라는 함수를 내가 원하는 시점에 평가해서 결과를 얻을 수 있음.
+</script>
