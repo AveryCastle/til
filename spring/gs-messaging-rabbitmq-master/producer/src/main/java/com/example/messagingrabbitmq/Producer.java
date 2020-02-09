@@ -20,7 +20,7 @@ public class Producer {
             new Thread(() -> {
                 IntStream.range(0, 100).forEach(index -> {
                     String message = String.format("%s - %d", "Hello from RabbitMQ!", index);
-                    rabbitTemplate.convertAndSend(RabbitConfiguration.queueName1, message);
+                    rabbitTemplate.convertAndSend(RabbitConfiguration.topicExchangeName, "foo.bar.baz", message);
                 });
             }).start();
         }

@@ -2,25 +2,25 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Spittr</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
 <body>
-    <h1>Spittr List</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>MESSAGE</th>
-                <th>DATETIME</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="spittle: ${spittles}">
-                <td th:text="${spittle.id}">1</td>
-                <td th:text="${spittle.message}">message</td>
-                <td th:text="${spittle.dateTime}">2016-04-01 00:00:00</td>
-            </tr>
-        </tbody>
-    </table>
+<h1>Spittr List</h1>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>MESSAGE</th>
+        <th>DATETIME</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="spittle: ${spittles}">
+        <td th:text="${spittle.id}">1</td>
+        <td th:text="${spittle.message}">message</td>
+        <td th:text="${spittle.dateTime}">2016-04-01 00:00:00</td>
+    </tr>
+    </tbody>
+</table>
 </body>
 </html>
