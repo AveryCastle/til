@@ -248,6 +248,7 @@ NaturalOrder{name='V', age=27}
   - 상속
     - 상속은 새로운 클래스가 기존의 클래스의 자료와 연산을 이용할 수 있게 하는 기능이다. 상속을 통해서 기존의 클래스를 상속받은 하위 클래스를 이용해 프로그램의 요구에 맞추어 클래스를 수정할 수 있고 클래스 간의 종속 관계를 형성함으로써 객체를 조직화할 수 있다.
   - 다형성
+    - 하나의 객체가 여러 가지 타입을 가질 수 있는 것을 의미한다.
     - 어떤 한 요소에 여러 개념을 넣어 놓는 것으로 일반적으로 오버라이딩(같은 이름의 메소드가 여러 클래스에서 다른 기능을 하는 것)이나 오버로딩(같은 이름의 메소드가 인자의 개수나 자료형에 따라서 다른 기능을 하는 것)을 의미한다. 다형 개념을 통해서 프로그램 안의 객체 간의 관계를 조직적으로 나타낼 수 있다.
   - 동적 바인딩
     - 동적 바인딩은 실행 시간 중에 일어나거나 실행 과정에서 변경될 수 있는 바인딩으로 컴파일 시간에 완료되어 변화하지 않는 정적 바인딩과 대비되는 개념이다. 동적 바인딩은 프로그램의 한 개체나 기호를 실행 과정에 여러 속성이나 연산에 바인딩함으로써 다형 개념을 실현한다.
@@ -391,6 +392,9 @@ NaturalOrder{name='V', age=27}
 > Q. 행위 주도 개발이란 무엇인가?
 > - BDD(Behavior-Driven Development)은 가능한한 자연 언어에 가깝게 작성된 테스트 스크립트와 테스트 스크립트 위에서 실행되는 코드라는 두개의 요소로 이뤄져 있다.
 
+> Q. TDD vs BDD? 
+> - TDD는 테스트 자체에 집중하여 개발하는 반면, BDD는 비즈니스 요구사항에 집중하여 테스트 케이스를 개발한다는 것이다 
+
 > Q. Proxy란 무엇인가?
 > - Proxy란 사전적으로는 대리인이라는 뜻을 가지고 있다. Java 에서 프록시는 RealSubject는 자신의 기능에만 집중을 하고 그 이외 부가 기능을 제공하거나 접근을 제어하는 역할을 Proxy 객체에게 위임한다.
 > - https://velog.io/@dev_leewoooo/Proxy-pattern%EC%9D%B4%EB%9E%80-with-Java
@@ -398,7 +402,7 @@ NaturalOrder{name='V', age=27}
 # 자바 가상머신 이해하기
 
 **JVM**
-- 자바 가상머신(Java Virtual Machine)은 여러분의 프로그램이 실행되는 플랫폼이다. 각각의 운영체제와 아키텍처용으로 만들어져 있고, 운영체제와 애플리케이션 사이에 위치하면서 애플리케이션이 플랫폼에 상관없이 독립적을로 실행될 수 있도록 만들어준다.
+- 자바 가상머신(Java Virtual Machine)은 Java 프로그램이 실행되는 플랫폼이다. 각각의 운영체제와 아키텍처용으로 만들어져 있고, 운영체제와 애플리케이션 사이에 위치하면서 애플리케이션이 플랫폼에 상관없이 독립적을로 실행될 수 있도록 만들어준다.
 - 자바 프로그램은 javac를 이용해 bytecode로 컴파일된다. 이 byetcode는 JVM에서 명령어들을 아키텍처와 운영체제용으로 해석한다.
 
 
@@ -419,7 +423,7 @@ NaturalOrder{name='V', age=27}
 > Q. 동기/비동기, 블로킹/논블로킹이란?
 >
 > **동기/비동기**
-> - 호출 되는 함수의 작업 완료 여부를 호출한 함수가 신경 쓰느냐 안 쓰느냐가 관심사이다.
+> - 호출한 함수가 호출 되는 함수의 작업 완료 여부를 신경 쓰느냐 안 쓰느냐가 관심사이다.
 > - 작업을 수행하는 주체가 2개 이상이어야 한다. 이때 작업의 시간(시작, 종료 등)을 서로 맞춘다면 동기라고 부르고, 서로 작업의 시간이 관계가 없다면 비동기라고 부른다.
 > - 동기 작업
 >   - 작업을 수행하는 2개 이상의 주체가 서로 동시에 수행해서 동시에 끝나거나, 끝나는 동시에 시작할 때를 의미한다.
@@ -439,7 +443,7 @@ NaturalOrder{name='V', age=27}
 
 ###Spring Framework
 - 등장 배경
-  - 2004년에 출시된 스프링 프레임워크 v1.0은 무거운 배포 설명자로 악명 높은 J2EE(Java 2 Platforms, Enterprise Edition)를 대체하여 개발을 더 쉽게 만들겠다는 목적으로 만들어졌다.
+  - 2004년에 출시된 스프링 프레임워크 v1.0은 무거운 배포 설명자로 악명 높은 J2EE(Java 2 Platforms, Enterprise Edition)를 대체하여 Java 개발을 더 쉽게 만들겠다는 목적으로 만들어졌다.
   - 의존성 주입(DI: Dependency Injection) 개념을 기반으로 매우 가벼운 개발 모델을 제공하며 J2EE의 배포 설명자와 비교해 훨씬 가벼운 XML 구성 파일을 사용한다.
 - 개념
   - Java 엔터프라이즈 애플리케이션 개발의 복잡함을 해소하기 위해 만들어진 오픈 소스 프레임워크이다.
@@ -694,30 +698,6 @@ NaturalOrder{name='V', age=27}
 - 성능(대기 시간)이나 데이터 일관성을 저해하지 않을 정도의 규모(다른 마이크로서비스에 저장된 데이터와 SQL 외래 키를 맺는 것은 더이상 당연한 것이 아니다.)
 
 
-
-# 경력 기반
-### RabbitMQ
-- AMQP 프로토콜을 구현한 메세지 브로커
-- 메시지를 생산하는 생산자(Producer)가 메시지를 큐에 저장해 두면, 메시지를 수신하는 소비자(Consumer)가 메시지를 가져와 처리하는 Publish/Subscribe 방식의 메시지 전달 브로커이다.
-- 참고
-  - AMQP(Advanced Message Queuing Protocol, 어드밴스트 메시지 큐잉 프로토콜)는 메시지 지향 미들웨어를 위한 개방형 표준 응용 계층 프로토콜이다. AMQP의 정의 기능들은 메시지 지향, 큐잉, 라우팅(P2P 및 발행-구독), 신뢰성, 보안이다
-
-**구성 요소**
-- Publisher : 메세지를 보내는 Application
-- Exchange : Producer 가 전달한 메세지를 Queue 에 전달하는 역할
-- Queue : 메세지를 저장하는 버퍼
-- Consumer : 메세지를 받는 User Application
-
-**특이점/장점**
-- 유연한 라우팅이 가능
-- 제품 성숙도가 높은편
-- 개방형 프로토콜을 위한 AMQP(Advanced Message Queuing Protocol)를 구현하기 위해 개발
-  - AMQP : Client 어플리케이션과 middleware broker 간에 메시지를 주고받기 위한 프로토콜
-- broker 중심적, producer/consumer간의 보장되는 메세지 전달에 초점
-- 클러스터 구성이 쉽고, Manage UI가 제공되며 플러그인도 제공되어 확장성이 뛰어남
-- borker상에서 전달 상태를 확인하기 위한 메세지 표식을 사용
-- 데이터 처리보단 관리적 측면이나 다양한 기능 구현을 위한 서비스를 구축할 때 사용
-
 # 암호/보안
 > Q. CSRS(Cross-Site Request Forgery) vs XSS(Cross-Site Scripting)
 > XSS는 공격대상이 Client이고, CSRF는 Server이다. XSS는 사이트변조나 백도어를 통해 클라이언트에 대한 악성공격을 한다.
@@ -742,11 +722,40 @@ NaturalOrder{name='V', age=27}
 > - 라이브러리: 특정 기능을 하는 도구라고 보면 된다. 즉, 톱, 망치, 칼과 같은 특정 기능을 하는 연장과 같은 것이다.
 > - 참조
 >   - https://kldp.org/comment/560991#comment-560991
->
+
+# 경력 기반
+### RabbitMQ
+- AMQP 프로토콜을 구현한 메세지 브로커
+- 메시지를 생산하는 생산자(Producer)가 메시지를 큐에 저장해 두면, 메시지를 수신하는 소비자(Consumer)가 메시지를 가져와 처리하는 Publish/Subscribe 방식의 메시지 전달 브로커이다.
+- 참고
+  - AMQP(Advanced Message Queuing Protocol, 어드밴스트 메시지 큐잉 프로토콜)는 메시지 지향 미들웨어를 위한 개방형 표준 응용 계층 프로토콜이다. AMQP의 정의 기능들은 메시지 지향, 큐잉, 라우팅(P2P 및 발행-구독), 신뢰성, 보안이다
+
+**구성 요소**
+- Publisher : 메세지를 보내는 Application
+- Exchange : Producer 가 전달한 메세지를 Queue 에 전달하는 역할
+- Queue : 메세지를 저장하는 버퍼
+- Consumer : 메세지를 받는 User Application
+
+**특이점/장점**
+- 유연한 라우팅이 가능
+- 제품 성숙도가 높은편
+- 개방형 프로토콜을 위한 AMQP(Advanced Message Queuing Protocol)를 구현하기 위해 개발
+  - AMQP : Client 어플리케이션과 middleware broker 간에 메시지를 주고받기 위한 프로토콜
+- broker 중심적, producer/consumer간의 보장되는 메세지 전달에 초점
+- 클러스터 구성이 쉽고, Manage UI가 제공되며 플러그인도 제공되어 확장성이 뛰어남
+- borker상에서 전달 상태를 확인하기 위한 메세지 표식을 사용
+- 데이터 처리보단 관리적 측면이나 다양한 기능 구현을 위한 서비스를 구축할 때 사용
+
+**SMLC vs DMLC**
+- SMLC: 내부 큐를 갖고 전용 쓰레드를 사용함. 
+- DMLC: 동일 consumer사이에 쓰레드를 공유함. 런타임에 큐를 추가하고 삭제하는게 더 효율적임.(추가, 삭제할 때 SMLC는 전체 취소하고 재시작함.). RabbitMQ Client에서 직접 리스너를 직접 호출한다. multiple concurrent 지원함.
+- [choose-container](https://docs.spring.io/spring-amqp/reference/html/#choose-container)
+- [SMLC vs DMLC](https://stackoverflow.com/questions/56438819/whats-the-difference-between-simplemessagelistenercontainer-and-directmessageli)
 
 #### DB Sharding
 - 같은 스키마 테이블을 여러 데이터베이스에 분산하여 저장하는 방법을 말한다. 
 - https://nesoy.github.io/articles/2018-05/Database-Shard
+
 
 # 그 해 이슈
 > Q. Log4JShell Vulnerable 이슈는?
