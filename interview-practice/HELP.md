@@ -630,11 +630,13 @@ NaturalOrder{name='V', age=27}
 > **장애 허용 시스템/결함 감내 시스템(Fault tolerant system)**
 > - 장애 허용 시스템/결함 감내 시스템(Fault tolerant system)은 시스템을 구성하는 부품의 일부에서 결함(fault) 또는 고장(failure)이 발생하여도 정상적 혹은 부분적으로 기능을 수행할 수 있는 시스템이다.
 > - 장애 허용 시스템/결함 감내 시스템은 부품의 고장이 발생하면 부분적인 기능을 사용할 수 없게되며, 계속적으로 부품의 결함이나 고장이 발생하면 점진적으로 사용할 수 없는 기능이 증가하며, 치명적인 결함이나 고장이 발생하면 시스템이 정지한다. 이런 측면에서 결함 감내 시스템은 graceful degradation (단계별 성능저하) 특징이 있다.
+>
 > **장애 복구 방식**
 > - 이중화 시스템 (Fault-tolerance by replication)
 >   - 리플리케이션(Replication)：동일한 시스템을 복수로 준비하여 병렬로 실행시켜 다수를 만족한 결과를 올바른 결과적으로 적용한다.
 >     - 다중화(Redundancy) : 동일한 시스템의 복수로 준비하여 장애가 일어나면 보조 시스템으로 전환한다.
 >     - 다양화(Diversity)：같은 사양에 다른 하드웨어 시스템을 복수로 준비하여 복제화와 같이 그것을 운용한다. 이 경우, 각 시스템이 똑같은 장애를 일으키지 않는다.
+>
 > **무중단 배포 전략**
 > - Rolling
 >   - L4 스위치에서 배포 대상 서버로 트래픽이 들어오는 것을 차단하고 서버별로 순차적으로 배포를 진행한다. 회사에서는 인프라팀의 지원을 받아 직접 특정 서버로의 L4를 차단하는데
@@ -666,12 +668,12 @@ NaturalOrder{name='V', age=27}
       - 상위모듈은 하위모듈에 의존해서는 안된다. 상위모듈과 하위모듈 모두 추상화에 의존해야 한다.
       - 추상화는 세부구현에 의존해서는 안된다. 세부구현이 추상화에 의존해야 한다.
 - 구성요소
-  - Entity
+  - Domain
     - 비지니스 로직이 다 들어있다.
   - UseCase
     - 비지니스 규칙을 검증할 책임이 있다.
   - Port
-    - 인터페이스 분리 원칙(Interface Segregation Principle: ISP) 적용하여 좁은 범위의 포트를 만드는게 더 바람직하다.
+    - 인터페이스 분리 원칙(Interface Segregation Principle: ISP)을 적용하여 좁은 범위의 포트를 만드는게 더 바람직하다.
   - Adapter
     - 웹 어댑터, 영속성 어댑터
 
@@ -733,6 +735,10 @@ NaturalOrder{name='V', age=27}
 **구성 요소**
 - Publisher : 메세지를 보내는 Application
 - Exchange : Producer 가 전달한 메세지를 Queue 에 전달하는 역할
+  - Direct: routing key 를 기반으로 메세지 전달
+  - Fanout: broadcast 방식, 모듵 큐에 메세지 전달
+  - Topic: routing key 패턴 기반으로 메세지 전달
+  - Headers: routing key 대신 메세지 헤더에 다양한 속성을 추가하여 메세지 전달
 - Queue : 메세지를 저장하는 버퍼
 - Consumer : 메세지를 받는 User Application
 
@@ -743,7 +749,7 @@ NaturalOrder{name='V', age=27}
   - AMQP : Client 어플리케이션과 middleware broker 간에 메시지를 주고받기 위한 프로토콜
 - broker 중심적, producer/consumer간의 보장되는 메세지 전달에 초점
 - 클러스터 구성이 쉽고, Manage UI가 제공되며 플러그인도 제공되어 확장성이 뛰어남
-- borker상에서 전달 상태를 확인하기 위한 메세지 표식을 사용
+- borker 상에서 전달 상태를 확인하기 위한 메세지 표식을 사용
 - 데이터 처리보단 관리적 측면이나 다양한 기능 구현을 위한 서비스를 구축할 때 사용
 
 **SMLC vs DMLC**
