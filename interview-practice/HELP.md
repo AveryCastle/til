@@ -88,7 +88,7 @@ NaturalOrder{name='V', age=27}
 
 ### 2. 배열과 리스트의 관계
 - 배열을 정의할 때는 크기를 지정해야 한다.
-- 배열의 원소에는 *인덱스* 값을 이용해서 직접 접근할 수 있다. 이를 *랜덤 접근*이라고 한다.
+- 배열의 원소에는 *인덱스* 값을 이용해서 직접 접근할 수 있다. 이를 **랜덤 접근(random access)**이라고 한다.
 
 > Q. ArrayList와 LinkedList의 관계는?
 >
@@ -110,7 +110,7 @@ NaturalOrder{name='V', age=27}
 > - Queue 인터페이스의 확장이며 자료구조의 양끝에 원소를 추가하고 삭제할 수 있다.
 
 ## 트리(Tree)
-- 이진 검색 트리(Binary Search Tree)에서는 주어진 노드의 값보다 '작은 자식'은 왼쪽에, '큰 원소'는 오른쪽에 위치한다.
+- 이진 검색 트리(Binary Search Tree)에서는 주어진 노드의 값보다 '작은 원소'은 왼쪽에, '큰 원소'는 오른쪽에 위치한다.
 
 ## 맵(Map)
 - 해쉬(Hash)라고도 하며, 배열이나 사전(Dictionary)과 관련 있는 'Key-Value' 쌍의 저장소다.
@@ -140,7 +140,7 @@ NaturalOrder{name='V', age=27}
 
 **ConcurrentHashMap**
 - 많은 스레드에서 공유하고자 할 때 사용할 수 있다.
-- Thread Safe 하고, 맵에 값을 쓰는 도중이라도 값을 읽어서 반환할 수 있도록 설계되어 있다. 값을 쓰는 동안에는 테이블의 지정된 줄만 lock되고, 나머지는 읽기 가능한 상탤로 남겨둔다.
+- Thread Safe 하고, 맵에 값을 쓰는 도중이라도 값을 읽어서 반환할 수 있도록 설계되어 있다. 값을 쓰는 동안에는 테이블의 지정된 줄만 lock되고, 나머지는 읽기 가능한 상태로 남겨둔다.
 
 ## 집합(Set)
 - 중복을 허용하지 않는 순서 없는 객체들의 모음이다.
@@ -149,6 +149,7 @@ NaturalOrder{name='V', age=27}
 - HashMap 클래스에 기반을 두고 구현되어 있으므로 값을 Map 키로 저장한다.
 
 **TreeSet**
+- 원소가 정렬되어 있다.
 
 **LinkedHashSet**
 
@@ -163,18 +164,18 @@ NaturalOrder{name='V', age=27}
 - 따라서, 멤버필드가 많거나 생성과정이 복잡한 경우 사용하면 좋다.
 
 #### 팩토리 메소드(Factory Method Pattern)
-- 최종 생성된 객체의 종류가 달라질 때 사용하면 좋음
+- 최종 생성된 객체의 종류가 달라질 때 사용하면 좋다.
 - 참조
   - [java-abstract-factory-pattern](https://blog.seotory.com/post/java-abstract-factory-pattern)
 
 #### 스트레티지 패턴(Strategy Pattern)
-- 지정된 알고리즘의 세부 구현을 변경할 필요 없이 쉽게 교환할 수 있게 해주는 디자인 패턴이다. 실행 중이ㄹ라도 구현된 알고리즘을 교환할 수 있으므로 의존성 주입(Dependency Injection)에 자주 사용된다.
-- 장점은 실행하기 전까지 어떤 구현을 사용할ㄹ지 결정을 미룰 수 있다는 점이다.
+- 지정된 알고리즘의 세부 구현을 변경할 필요 없이 쉽게 교환할 수 있게 해주는 디자인 패턴이다. 실행 중이라도 구현된 알고리즘을 교환할 수 있으므로 의존성 주입(Dependency Injection)에 자주 사용된다.
+- 장점은 실행하기 전까지 어떤 구현을 사용할지 결정을 미룰 수 있다는 점이다.
 - Spring Framework에서 사용되는 예시
   - [ResourceLoader](https://sabarada.tistory.com/32)
 
 #### 템플릿 메서드 패턴(Template Method Pattern)
-- 알고리즘의 일부 또는 전부를 하위 클래스에서 구현하거나 위임하는데 사용한다.즉, 공통으로 사용하는 안고리즘은 부모 클래스에 정의하고 특정 부분에서 사용하는 알고리즘은 하위 클래스에서 수행하도록 설계하는 것이다.
+- 알고리즘의 일부 또는 전부를 하위 클래스에서 구현하거나 위임하는데 사용한다. 즉, 공통으로 사용하는 안고리즘은 부모 클래스에 정의하고 특정 부분에서 사용하는 알고리즘은 하위 클래스에서 수행하도록 설계하는 것이다.
 - Spring Framework에서 사용되는 예시
   - JdbcTemplate, JpaTemplate
 
@@ -225,7 +226,6 @@ NaturalOrder{name='V', age=27}
 
 
 # 자주 묻는 면접 알고리즘 구현하기
-
 - FizzBuzz 구현하기
 - Fibonacci 수열 구현하기
 - Factorial 수열 구현하기
@@ -333,61 +333,60 @@ NaturalOrder{name='V', age=27}
 >    - isBlank(): 문자열이 비어있거나, 공백만 포함되어 있을 경우 true를 반환한다.
 >    - String.trim().isEmpty() 와 결과가 동일함.
 >    - repeat(n): n개만큼 문자열을 반복하여 붙여서 반환함.
-- java.nio.file.Files 클래스에 새로운 메소드 추가
-  - Path writeString(Path, String, Charset, OpenOption): 파일에 문자열을 작성하고 Path로 반환한다. 파일 오픈 옵션에 따라 작동 방식을 달리하며, charset을 지정하지 않으면 UTF-8이 사용된다.
-  - String readString(Path, Charset): 파일 전체 내용을 읽어서 String으로 반환하고, 파일 내용을 모두 읽거나 예외가 발생하면 알아서 close를 한다. charset을 지정하지 않으면 UTF-8이 사용된다.
-  - boolean isSameFile(Path, Path): 두 Path가 같은 파일을 가리키며, true, 아니면 false를 반환한다.
-  - 컬렉션 인터페이스에 새로운 메소드 추가
-    - toArray() 메소드를 오버 로딩하는 메소드가 추가되었고, 원하는 타입의 배열을 선택하여 반환할 수 있게 되었다.
-      - ```java
-        List sampleList = Arrays.asList("Java", "Kotlin");
-        String[] sampleArray = sampleList.toArray(String[]::new);
-        assertThat(sampleArray).containsExactly("Java", "Kotlin");
-        ```
-  - Predicate 인터페이스에 새로운 메소드 추가
-    - Predicate 인터페이스에 부정을 나타내는 not() 메소드가 추가되었다.
-    - ```java
-      List<String> sampleList = Arrays.asList("Java", "\n \n", "Kotlin", " "); 
-      List withoutBlanks = sampleList.stream()
-                                     .filter(Predicate.not(String::isBlank))
-                                     .collect(Collectors.toList());
-      assertThat(withoutBlanks).containsExactly("Java", "Kotlin");
-      ```
-  - 람다 파라미터를 위한 로컬 변수 var 사용
-    - java 10버전에서 편리한 var 구문이 생겨난 상황에서, 11버전에서는 람다 파라미터에서 좀 더 명시적으로 var 를 이용 할 수 있게 되었다.
-    - ```java
-      List<String> sampleList = Arrays.asList("Java", "Kotlin"); 
-      String resultString = sampleList.stream()
-                                      .map((@Nonnull var x) -> x.toUpperCase())
-                                      .collect(Collectors.joining(", "));
-      assertThat(resultString).isEqualTo("JAVA, KOTLIN");
-    ```
-  - 자바 파일 실행
-    - javac를 통해 컴파일 하지 않고도, 바로 java 파일을 실행할 수 있게 되었다.
-    - ```shell
-      // Java 11 이전
-      $ javac HelloWorld.java
-      $ java Helloworld
-      Hello Java 8!
-  
-      // Java 11 이후
-      $ java HelloWorld.java
-      Hello Java 11!
-      ```
-  - Garbage Collector
-    - Java 11의 Default GC는 G1GC(Garbage First Garbage Collector)이다.
-    - G1GC: Eden, Survivor, Old 영역이 존재하지만, 해당 영역은 고정된 크기가 아니며 전체 Heap 메모리 영역을 Region 이라는 특정한 크기로 나눈 것이고 Region의 상태에 따라 그 Region의 역할(Eden, Survivor, Old)가 동적으로 변동한다.
-    - 참고
-      - G1GC(https://huisam.tistory.com/entry/jvmgc)
-- [Java11 특징](https://okky.kr/article/784365)
+> - java.nio.file.Files 클래스에 새로운 메소드 추가
+>   - Path writeString(Path, String, Charset, OpenOption): 파일에 문자열을 작성하고 Path로 반환한다. 파일 오픈 옵션에 따라 작동 방식을 달리하며, charset을 지정하지 않으면 UTF-8이 사용된다.
+>   - String readString(Path, Charset): 파일 전체 내용을 읽어서 String으로 반환하고, 파일 내용을 모두 읽거나 예외가 발생하면 알아서 close를 한다. charset을 지정하지 않으면 UTF-8이 사용된다.
+>   - boolean isSameFile(Path, Path): 두 Path가 같은 파일을 가리키며, true, 아니면 false를 반환한다.
+>   - 컬렉션 인터페이스에 새로운 메소드 추가
+>     - toArray() 메소드를 오버 로딩하는 메소드가 추가되었고, 원하는 타입의 배열을 선택하여 반환할 수 있게 되었다.
+>       - ```java
+>        List sampleList = Arrays.asList("Java", "Kotlin");
+>        String[] sampleArray = sampleList.toArray(String[]::new);
+>        assertThat(sampleArray).containsExactly("Java", "Kotlin");
+>        ```
+>  - Predicate 인터페이스에 새로운 메소드 추가
+>    - Predicate 인터페이스에 부정을 나타내는 not() 메소드가 추가되었다.
+>    - ```java
+>      List<String> sampleList = Arrays.asList("Java", "\n \n", "Kotlin", " ");
+>      List withoutBlanks = sampleList.stream()
+>                                     .filter(Predicate.not(String::isBlank))
+>                                     .collect(Collectors.toList());
+>      assertThat(withoutBlanks).containsExactly("Java", "Kotlin");
+>      ```
+>  - 람다 파라미터를 위한 로컬 변수 var 사용
+>    - java 10버전에서 편리한 var 구문이 생겨난 상황에서, 11버전에서는 람다 파라미터에서 좀 더 명시적으로 var 를 이용 할 수 있게 되었다.
+>    - ```java
+>      List<String> sampleList = Arrays.asList("Java", "Kotlin"); 
+>      String resultString = sampleList.stream()
+>                                      .map((@Nonnull var x) -> x.toUpperCase())
+>                                      .collect(Collectors.joining(", "));
+>      assertThat(resultString).isEqualTo("JAVA, KOTLIN");
+>    ```
+>  - 자바 파일 실행
+>    - javac를 통해 컴파일 하지 않고도, 바로 java 파일을 실행할 수 있게 되었다.
+>    - ```shell
+>      // Java 11 이전
+>      $ javac HelloWorld.java
+>      $ java Helloworld
+>      Hello Java 8!
+>  
+>      // Java 11 이후
+>      $ java HelloWorld.java
+>      Hello Java 11!
+>      ```
+> - Garbage Collector
+>    - Java 11의 Default GC는 G1GC(Garbage First Garbage Collector)이다.
+>    - G1GC: Eden, Survivor, Old 영역이 존재하지만, 해당 영역은 고정된 크기가 아니며 전체 Heap 메모리 영역을 Region 이라는 특정한 크기로 나눈 것이고 Region의 상태에 따라 그 Region의 역할(Eden, Survivor, Old)가 동적으로 변동한다.
+>    - 참고
+>      - G1GC(https://huisam.tistory.com/entry/jvmgc)
+>
+> - 참조
+>   - [Java8과 Java11 특징](https://steady-coding.tistory.com/598)
+>   - [Java11 특징](https://okky.kr/article/784365)
 
 > Q. Java11 로 전환해야 하는 이유는?
 > - 향후 몇 년 안에 Java8은 더 이상 지원하지 않고, Java11이 LTS(Long Term Support: 장기 지원 버전)이다.
-- [Java11로 전환해야 하는 이유](https://docs.microsoft.com/ko-kr/java/openjdk/reasons-to-move-to-java-11)
-- 
-
-- 참조
->   - [Java8과 Java11 특징](https://steady-coding.tistory.com/598)
+> - [Java11로 전환해야 하는 이유](https://docs.microsoft.com/ko-kr/java/openjdk/reasons-to-move-to-java-11)
 
 > Q. 행위 주도 개발이란 무엇인가?
 > - BDD(Behavior-Driven Development)은 가능한한 자연 언어에 가깝게 작성된 테스트 스크립트와 테스트 스크립트 위에서 실행되는 코드라는 두개의 요소로 이뤄져 있다.
@@ -439,6 +438,21 @@ NaturalOrder{name='V', age=27}
 > - 참고
 >  - [동기/비동기 블로킹/논블로킹](https://inpa.tistory.com/entry/%F0%9F%91%A9%E2%80%8D%F0%9F%92%BB-%EB%8F%99%EA%B8%B0%EB%B9%84%EB%8F%99%EA%B8%B0-%EB%B8%94%EB%A1%9C%ED%82%B9%EB%85%BC%EB%B8%94%EB%A1%9C%ED%82%B9-%EA%B0%9C%EB%85%90-%EC%A0%95%EB%A6%AC#%EB%B8%94%EB%A1%9C%ED%82%B9_&_%EB%85%BC%EB%B8%94%EB%A1%9C%ED%82%B9)
 
+> Q. 프로세스와 쓰레드 차이점은?
+> 
+> 프로세스는 실행 중인 프로그램이다. 운영체제로부터 시스템 자원을 할당받는 작업의 단위이다. 기본적으로 1개 프로세스 당 1개의 쓰레드를 할당받는다.
+> ![프로세스](src/main/resources/프로세스.png)
+> 쓰레드는 프로세스 내에서 처리되고 있는 여러 작업 흐름의 단위이다. 프로세스가 할당받은 자원을 이용하는 실행의 단위이다. 쓰레드는 Stack 만 개별 할당받고 나머지는 프로세스 자원을 공유한다.
+> ![쓰레드](src/main/resources/쓰레드.png)
+
+> Q. HTTP Method
+> GET:
+> POST:
+> PUT, PATH
+> OPTION: 해당 URL 또는 서버에서 허용하는 HTTP Method 정보를 반환한다.
+> HEAD: 
+> TRACE: Client가 보낸 Request 내용을 그대로 반환한다. 웹 브라우저가 보내는 HTTP 통신을 반사하는 역할을 한다. 그런데 HTTP 통신 상에는 클라이언트가 보내는 쿠키가 포함되므로 이 통신을 가로채면 HttpOnly로 선언된 쿠키값도 탈취를 할 수 있다.
+
 # 스프링 프레임워크
 
 ###Spring Framework
@@ -488,6 +502,8 @@ NaturalOrder{name='V', age=27}
 > 오토와이어링이란 무엇인가?
 > - autowiring 은 애플리케이션 컨텍스트가 클래스 사이의 의존성을 알아내는 과정이다.
 > - 의존성을 갖는 빈을 생성하려면 가끔은 의존성에 대한 연결 고리를 직접 명시하지 않아도 된다. 애플리케이션 컨텍스트 내에서 해당 Bean이 1개만 존재할 경우 알아서 자동으로 연결해주기 때문이다.
+
+
 
 # Reactive / WebFlux
 - WebFlux는 Spring5에 새롭게 추가된 Reactive-stack의 웹 프레임워크다.
@@ -579,6 +595,52 @@ NaturalOrder{name='V', age=27}
 - 새로운 버전의 애플리케이션을 무정지로 업그레이드할 수 있다.
 - 하드웨어 가동률을 높여 자원 낭비를 줄인다.
 
+# 데이터베이스
+> Q. ACID 설명하기
+> 
+> - 원자성(Atomicity)은 트랜잭션과 관련된 작업들이 부분적으로 실행되다가 중단되지 않는 것을 보장하는 능력이다. 예를 들어, 자금 이체는 성공할 수도 실패할 수도 있지만 보내는 쪽에서 돈을 빼 오는 작업만 성공하고 받는 쪽에 돈을 넣는 작업을 실패해서는 안된다. 원자성은 이와 같이 중간 단계까지 실행되고 실패하는 일이 없도록 하는 것이다.
+> - 일관성(Consistency)은 트랜잭션이 실행을 성공적으로 완료하면 언제나 일관성 있는 데이터베이스 상태로 유지하는 것을 의미한다. 무결성 제약이 모든 계좌는 잔고가 있어야 한다면 이를 위반하는 트랜잭션은 중단된다.
+> - 독립성(Isolation)은 트랜잭션을 수행 시 다른 트랜잭션의 연산 작업이 끼어들지 못하도록 보장하는 것을 의미한다. 이것은 트랜잭션 밖에 있는 어떤 연산도 중간 단계의 데이터를 볼 수 없음을 의미한다. 은행 관리자는 이체 작업을 하는 도중에 쿼리를 실행하더라도 특정 계좌간 이체하는 양 쪽을 볼 수 없다. 공식적으로 고립성은 트랜잭션 실행내역은 연속적이어야 함을 의미한다. 성능관련 이유로 인해 이 특성은 가장 유연성 있는 제약 조건이다. 자세한 내용은 관련 문서를 참조해야 한다.
+> - 지속성(Durability)은 성공적으로 수행된 트랜잭션은 영원히 반영되어야 함을 의미한다. 시스템 문제, DB 일관성 체크 등을 하더라도 유지되어야 함을 의미한다. 전형적으로 모든 트랜잭션은 로그로 남고 시스템 장애 발생 전 상태로 되돌릴 수 있다. 트랜잭션은 로그에 모든 것이 저장된 후에만 commit 상태로 간주될 수 있다.
+
+> Q. 트랜잭션 격리 수준(Transaction Isolation Levels)
+> 
+> 트랜잭션 격리수준은 고립도와 성능의 트레이드 오프를 조절한다.
+> - READ UNCOMMITTED: 다른 트랜잭션에서 커밋되지 않은 내용도 참조할 수 있다.
+> - READ COMMITTED: 다른 트랜잭션에서 커밋된 내용만 참조할 수 있다.
+> - REPEATABLE READ: 트랜잭션에 진입하기 이전에 커밋된 내용만 참조할 수 있다.
+> - SERIALIZABLE: 트랜잭션에 진입하면 락을 걸어 다른 트랜잭션이 접근하지 못하게 한다.(성능 매우 떨어짐)
+
+
+# 네트워크 전반
+> Q. 웹 브라우저에서 URL 호출해서 응답받는 흐름을 설명하시오.
+> 
+> | 종류  | 역할  |   |
+> |----|---|---|
+> | Application  |  DATA  |   |
+> | TCP/UDP  | SEGMENT(PORT+DATA)  |    |
+> | IP  | PACKET(IP+PORT+DATA)  | 도메인에 맵핑되는 IP를 DNS에 물어봐서 획득한다.  |
+> | Ethernet  | FRAME(MACAddress+IP+PORT+DATA)  |  |
+> 1. Application Layer: 브라우저에 www.youtube.com 을 입력하면 브라우저가 URL에 적힌 값을 파싱해서 HTTP Request Message를 만듭니다. Data를 만들고 아래 레이어로 보냅니다.
+> 2. TCP/UDP Layer: socket을 통해서 데이터를 받은 후에 DATA 앞에 PORT를 붙여서 SEGMENT를 붙이고 아래 레이어로 보낸다.
+> 3. IP Layer: DNS에 도메인에 맵핑되는 IP를 획득한다. LocalDNS Cache에 맵핑되는 IP가 있으면 해당 IP를 돌려주고, 없으면 DNS Lookup 과정(RootDNS를 시작으로 서브 도메인 DNS를 거쳐 원하는 IP를 찾는 과정)을 거쳐 IP 주소를 얻는다. 이렇게 획득한 SourceIP, DestinationIP를 Header에 붙여서 패킷을 만든 후 아래 레이어로 보낸다.
+> 4. Ethernet Layer: Source MAC Address + Destination MAC Address를 헤더에 붙어서 Frame을 만든 후 LAN을 따라 전기적 신호를 보낸다.
+> 5. Frame 은 스위치 등을 경유하여 인터넷 접속용 라우터에서 ISP로 전달되고 인터넷으로 이동한다.
+> 6. 목적지 LAN에 도착하면 방화벽이 패킷을 검사하고 캐시 서버에 보내어 웹 서버에 갈 필요가 있는지 검사한다.
+> 7. 웹서버에 도착한 패킷은 프로토콜 스택이 패킷을 추출하여 메세지를 복원하고 웹 서버 애플리케이션에 전달한다.
+> 8. 애플리케이션 서버는 요청에 대한 응답을 만든 후 데이터를 작성하여 같은 방식으로 클라이언트에 데이터를 전송한다.
+
+
+> Q. IPC 란?
+> IPC(Inter Process Call)은 프로세스 간에 데이터를 주고 받는 것을 말합니다. 서버와 클라이언트간에 데이터를 주고 받기 위한 방법은 2가지가 있습니다.
+> IPC 통신 방법
+> - Socket 방식: 소켓은 통신하고자 하는 상대의 목적지를 특정할 수 있는 IP와 프로세스간 통신을 위한 Pipeline을 Port로 연결하여 통신합니다. TCP, UPD가 속한다.
+> - 원격 플로시저 콜: RPC(Remote Procedure Call)은 원격 프로시저 함수 호출을 마치 로컬에 위치한 함수를 호출할 수 있게 해줍니다. MSA의 경우 각각의 서비스가 Polyglot 으로 구현되는데, 서로 다른 언어로 구현된 서비스들끼리 IDL을 이용하여 서로 통신할 수 있게 해줍니다.
+> IDL(Interface Definition Language)
+> 참고
+> - [IPC-Inter-Process-Communication](https://deveun.tistory.com/entry/OS-%ED%94%84%EB%A1%9C%EC%84%B8%EC%8A%A4%EC%9D%98-%ED%86%B5%EC%8B%A0-IPC-Inter-Process-Communication)
+> - [RPC](https://velog.io/@jakeseo_me/RPC%EB%9E%80)
+
 # 인프라/클라우드
 > Q. 포워드 프록시(Forward Proxy) 란?
 > ![포워드 프록시](src/main/resources/포워드프록시.png)
@@ -613,7 +675,7 @@ NaturalOrder{name='V', age=27}
 >    | 종류  | 역할  |   |
 >    |---|---|---|
 >    | L2  | Data link 계층을 사용, Mac주소 기반 부하 분산  |   |
->    | L3  | Network 계층을 사용, IP주소 기반 부하 분산  |   |
+>    | L3  | Network 계층을 사용, IP주소 기반 부하 분산  |  IP |
 >    | L4  | Transport 계층을 사용, Port 기반 부하 분산  | TCP, UDP  |
 >    | L7  | Application 계층을 사용, 요청(URL) 기반 부하 분산  | HTTP, HTTPS 등  |
 > 
@@ -699,6 +761,15 @@ NaturalOrder{name='V', age=27}
 - 개발자가 다룰 수 있을 만한 크기
 - 성능(대기 시간)이나 데이터 일관성을 저해하지 않을 정도의 규모(다른 마이크로서비스에 저장된 데이터와 SQL 외래 키를 맺는 것은 더이상 당연한 것이 아니다.)
 
+**시스템 확장하는 방법**
+> - XYZ 확장
+>   - X축: 같은 서비스를 여러 개 복제하여 장비 확장
+>   - Y축: 기능별로 분할하여 작게 쪼개기
+>   - Z축: 같은 성질을 가진 것들끼리 묶어서 분리하는 방법(데이터를 나누어 저장)
+> - 마이크로서비스에서는 기존 모놀리식 서비스를 기능별로 분할하여 여러 개의 서비스로 분리합니다(Y축). 
+> - 그리고 각 서비스마다 요청의 부하가 다른데, 모놀리스에서는 특정 서비스가 아니라 전체를 스케일할 수 밖에 없었습니다. 이에 반해 마이크로서비스에서는 서비스가 나뉘어져 있기 때문에 부하가 몰리는 서비스 별로 복제해 스케일 아웃을 할 수 있습니다(X축).
+> - Z축은 데이터를 나누어 저장하는 것입니다. 마이크로서비스에서는 DB도 서비스별로 나뉘게 됩니다. DB를 각각 사용하기 때문에 자신만의 스키마를 가지고 DB 종류도 다르게 가져갈 수 있습니다. 하지만 서비스가 동작하면서 여러 데이터에 영향을 미치기 때문에 각 서비스별로 중복되는 데이터도 생기고, 한 쪽에서 업데이트가 되었는데 다른 쪽에서는 업데이트가 되지 않을 수도 있습니다. 이러한 중복과 정합성 문제가 있지만 결합도를 낮추기 위해서 각각의 DB를 사용합니다.
+
 
 # 암호/보안
 > Q. CSRS(Cross-Site Request Forgery) vs XSS(Cross-Site Scripting)
@@ -724,6 +795,12 @@ NaturalOrder{name='V', age=27}
 > - 라이브러리: 특정 기능을 하는 도구라고 보면 된다. 즉, 톱, 망치, 칼과 같은 특정 기능을 하는 연장과 같은 것이다.
 > - 참조
 >   - https://kldp.org/comment/560991#comment-560991
+
+> Q. SBT vs Maven vs Gradle
+> - SBT: 매우 간단하며 종속성 관리를 위해 Ivy에 의존하는 Scala에 중점을 둡니다.
+>   - Ivy: dependency 관리자, 프로젝트에서 의존하는 JAR 파일을 관리하고 제어(컨트롤)한다.
+> - Maven: 훌륭한 빌드 도구이며 XML 파일로 전체 소프트웨어 수명 주기를 제어할 수 있습니다. POM(Project Object Model)을 사용하면 컴파일에서 테스트, 패키징 및 배포에 이르기까지 소프트웨어 생명 주기의 모든 지점을 가로챌 수 있습니다. Maven에는 자체 종속성 관리자가 있습니다. 다만, 단점으로 거로되는 사항은 XML 구문이며, POM을 작성하는 것이 성가시고 비용이 많이 들 수 있습니다.
+> - Gradle은 Maven, Ant 및 Ivy를 기반으로 구축되었습니다. Maven Repository 를 사용합니다. Gradle은 XML을 사용하지 않으며 다중(Polyglot) 언어 빌드 도구입니다. Ant API와 Groovy 언어를 결합하여 개발자가 직관적인 DSL로 빌드 스크립트를 작성할 수 있도록 합니다. 몇 줄의 코드로 Maven이 수행할 수 있는 것과 동일한 작업을 수행할 수 있는 Gradle 빌드 스크립트를 작성할 수 있습니다. Gradle을 사용하면 Groovy 언어로 자신의 작업을 정의하고 프로그래밍 방식으로 빌드 실행을 가로챌 수 있습니다. 이 기능적 접근 방식은 모든 개발자를 위한 것은 아닙니다. 실제로 Maven은 빌드 환경에서 이 동작을 원하지 않는 경우에 좋습니다. Maven과 Gradle 모두 프로젝트에서 사용되는 기술과 빌드를 통합하기 위한 플러그인이 있습니다.
 
 # 경력 기반
 ### RabbitMQ
