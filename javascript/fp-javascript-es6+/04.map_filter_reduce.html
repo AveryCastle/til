@@ -1,0 +1,221 @@
+<script>
+const log = console.log;
+</script>
+
+<script>
+const products = [
+  { name: '반팔티', price: 15000 },
+  { name: '청바지', price: 45000 },
+  { name: '반바지', price: 5000 },
+  { name: '코트', price: 95000 },
+];
+</script>
+
+# Map
+<script>
+const names = [];
+for(const product of products) {
+  names.push(product.name);
+}
+log(names);
+
+const prices = [];
+for(const product of products) {
+  prices.push(product.price);
+}
+log(prices);
+
+function map(func, iter) {
+  const res = [];
+  for(const elelment of iter) {
+    res.push(func(elelment));
+  }
+  return res;
+}
+
+log(map(product => product.name, products));
+log(map(product => product.price, products));
+</script>
+
+# 이터러블 프로토콜을 따른 Map의 다형성.
+<script>
+console.clear();
+
+log([1, 2, 3].map(i => i + 1));
+
+log(document.querySelectorAll('*'));
+// log(document.querySelectorAll('*').map(el => el.nodeName)); // error occurs!!
+const elIter = document.querySelectorAll('*')[Symbol.iterator]();
+log(elIter.next());
+log(elIter.next());
+log(elIter.next());
+
+log(map(el => el.nodeName, document.querySelectorAll('*')));
+
+function *gen() {
+  yield 1;
+  yield 2;
+  if (false) yield 3;
+}
+
+log(map(a => a*a, gen()));
+
+const myMap = new Map();
+myMap.set('a', 10);
+myMap.set('b', 20);
+log(myMap);
+
+const myMapIter = myMap[Symbol.iterator]();
+log(myMapIter.next());
+log(myMapIter.next());
+log(myMapIter.next());
+
+log(new Map(map(([key, value]) => [key, value * 2], myMap)));
+</script>
+
+# filter
+<script>
+console.clear();
+
+const under20000 = [];
+
+for(const product of products) {
+  if (product.price < 20000) {
+    under20000.push(product);
+  }
+}
+log(...under20000);
+
+const pants = [];
+for(const product of products) {
+  if (product.name.includes('바지')) {
+    pants.push(product);
+  }
+}
+log(...pants);
+
+const filter = (func, iter) => {
+  const res = [];
+  for(const element of iter) {
+    if (func(element)) {
+      res.push(element);
+    }
+  }
+  return res;
+}
+
+log(...filter(product => product.price < 20000, products));
+log(...filter(product => product.name.includes('바지'), products));
+
+log(filter(a => a % 2, [1,2,3,4,5]));
+log(filter(a => a % 2, function *() {
+  yield 1;
+  yield 2;
+  yield 3;
+  yield 4;
+  yield 5;
+}()));
+</script>
+
+# reduce
+<script>
+  console.clear();
+
+  const numbers = [1,2,3,4,5];
+  let sum = 0;
+  for(const num of numbers) {
+    sum += num;
+  }
+  log(sum);
+
+  const strings = ['hello', 'friend', 'how', 'are', 'you?'];
+  let concated = '';
+  for(const str of strings) {
+    concated += str;
+  }
+  log(concated);
+
+  const reduce = (initial, iter) => {
+    let res = initial;
+    for(const element of iter) {
+      res += element;
+    }
+    return res;
+  };
+
+  log(reduce(0, [1, 2, 3, 4, 5]));
+  log(reduce('', ['hello', 'friend', 'how', 'are', 'you?']));
+
+  console.log('reduce2 =====================>');
+  const reduce2 = (func, acc, iter) => {
+    for (const element of iter) {
+      acc = func(acc, element);
+    }
+    return acc;
+  };
+
+  const add = (a, b) => a + b;
+  log(reduce2(add, 0, [1,2,3,4,5])); // log(add(add(add(add(add(0, 1), 2), 3), 4), 5));
+  log(reduce2(add, '', ['hello', 'friend', 'how', 'are', 'you?']));
+
+  console.log('reduce3 =====================>');
+  // 내가 구현한 거.
+  const reduce3 = (func, iter) => {
+    const [first, ...rest] = iter;
+    let acc = first;
+    for (const element of rest) {
+      acc = func(acc, element);
+    }
+    return acc;
+  };
+
+  log(reduce3(add, [1,2,3,4,5])); // reduce3(add, 1, [2,3,4,5])
+
+  console.log('reduce4 =====================>');
+  // 선생님 구현.
+  const reduce4 = (func, acc, iter) => {
+    if (!iter) {
+      iter = acc[Symbol.iterator]();
+      acc = iter.next().value;
+    }
+
+    for (const element of iter) {
+      acc = func(acc, element);
+    }
+    return acc;
+  };
+  log(reduce4(add, [1,2,3,4,5])); // reduce4(add, 1, [2,3,4,5])
+</script>
+
+### products 내에 있는 모든 상품의 가격의 합계를 구하기.
+<script>
+  console.log('product price sum =====================>');
+  const priceSum = (a, b) => a + b.price;
+
+  log(reduce4(priceSum, 0, products));
+</script>
+
+## map, filter, reduce 종합
+<script>
+  console.clear();
+  console.log('map, filter, reduce 종합 =====================>');
+// 가격 정보만 뽑기.
+log(map(product => product.price, products));
+
+// 20,000 미만 가격 정보만 뽑기.
+log(map(product => product.price, filter(product => product.price < 20000, products)));
+
+// 20,000 미만 가격 합계 구하기.
+log(
+  reduce4(add, 
+            0, 
+          map(product => product.price, 
+              filter(product => product.price < 20000, products))));
+
+// 20,000 이상 가격 합계 구하기.
+log(
+  reduce4(add, 
+            0, 
+            filter(price => price >= 20000, 
+                  map(product => product.price, products))));
+</script>

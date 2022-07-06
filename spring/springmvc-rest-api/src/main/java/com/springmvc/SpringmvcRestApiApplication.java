@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class SpringmvcRestApiApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(SpringmvcRestApiApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(SpringmvcRestApiApplication.class, args);
+    }
 }

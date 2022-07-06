@@ -36,7 +36,7 @@ public class MessagingRabbitmqApplicationTest {
     @Test
     public void test() throws Exception {
         try {
-            rabbitTemplate.convertAndSend(RabbitConfiguration.queueName1, "Hello from RabbitMQ!");
+            rabbitTemplate.convertAndSend(RabbitConfiguration.queueName, "Hello from RabbitMQ!");
         } catch (AmqpConnectException e) {
             // ignore - rabbit is not running
         }

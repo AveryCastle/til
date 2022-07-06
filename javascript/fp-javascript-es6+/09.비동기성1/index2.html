@@ -1,0 +1,46 @@
+<script src="./fx.js"></script>
+
+## go, pipe, reduce에서 비동기 제어
+
+<script>
+  go(
+    1,
+    a => a + 10,
+    a => a + 100,
+    a => a + 1000,
+    log
+  );
+
+  go(
+    1,
+    a => a + 10,
+    a => Promise.resolve(a + 100),
+    a => a + 1000,
+    log
+  ); // [object Promise]1000 비정상적인 값이 출력됨.
+
+  go(
+    Promise.resolve(1),
+    a => a + 10,
+    a => Promise.resolve(a + 100),
+    a => a + 1000,
+    log
+  );
+
+  go(
+    Promise.resolve(1),
+    a => a + 10,
+    a => Promise.reject('error occurs!!'),
+    a => log('---- 여긴 안 들어옴!! ---'),
+    a => a + 1000,
+    log
+  );
+
+  go(
+    Promise.resolve(1),
+    a => a + 10,
+    a => Promise.reject('error occurs!!'),
+    a => a + 1000,
+    log
+  ).catch(e => log(e));
+</script>

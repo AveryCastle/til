@@ -24,8 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import java.util.Random;
-
 @SpringBootTest
 public class MessagingRabbitmqApplicationTest {
 
@@ -41,16 +39,9 @@ public class MessagingRabbitmqApplicationTest {
     @Test
     public void test() throws Exception {
         try {
-            rabbitTemplate.convertAndSend(RabbitConfiguration.queueName1, "Hello from RabbitMQ!");
+            rabbitTemplate.convertAndSend(RabbitConfiguration.queueName, "Hello from RabbitMQ!");
         } catch (AmqpConnectException e) {
             // ignore - rabbit is not running
         }
-    }
-
-    @Test
-    public void test2() {
-        Random random = new Random();
-        int i = random.nextInt(1);
-        System.out.println(i);
     }
 }

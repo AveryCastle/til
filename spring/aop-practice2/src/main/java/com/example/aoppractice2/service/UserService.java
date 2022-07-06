@@ -2,6 +2,7 @@ package com.example.aoppractice2.service;
 
 import com.example.aoppractice2.domain.User;
 import com.example.aoppractice2.repository.UserRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

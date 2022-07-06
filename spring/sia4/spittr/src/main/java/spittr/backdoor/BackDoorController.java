@@ -24,7 +24,7 @@ public class BackDoorController {
 
     @RequestMapping(value = "/create-spittles", method = RequestMethod.GET)
     @ResponseBody
-    public String create(){
+    public String create() {
         spittleService.create();
         return "create success";
     }

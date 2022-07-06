@@ -1,0 +1,115 @@
+<script>
+const log = console.log;
+</script>
+
+# 제너레이터/이터레이터
+
+## 제터레이터
+- 이터레이터이자 이터러블을 생성하는 함수.
+- well-formed iterator를 반환하는 함수.
+- 제너레이터를 통해 순회할 수 있는 문장을 만들 수 있다는 것은 어떠한 값도 순회할 수 있는 형태로 제너레이터라는 문장을 통해서 조작할 수 있으며, 
+  제너레이터 문장을 통해서 다양한 값들을 순회할 수 있도록 만들 수 있음.
+
+<script>
+function *gen() {
+  yield 1;
+  yield 2;
+  yield 3;
+  return 'finished!'; // done이 처음 true될 때 반환됨. but for...of 에서 출력되지는 않음.
+}
+
+const iter = gen();
+log(iter);
+log(iter.next());
+log(iter.next());
+log(iter.next());
+log(iter.next());
+log(iter.next());
+
+log(iter[Symbol.iterator]() === iter);
+
+for(const value of gen()) log(value);
+</script>
+
+## odds
+
+<script>
+  console.log('odds =====================>');
+
+  function *odds() {
+    yield 1;
+    yield 3;
+    yield 5;
+  }
+  const oddsIter = odds();
+  log(oddsIter[Symbol.iterator]())
+  log(oddsIter.next());
+  log(oddsIter.next());
+  log(oddsIter.next());
+  log(oddsIter.next());
+  for(const element of odds()) log(element);
+
+  console.log('odds2 =====================>');
+  function *odds2(limit) {
+    for(let index = 1; index <= limit; index++) {
+      if(index % 2 !== 0) {
+        yield index;
+      }
+    }
+  }
+  const odds2Iter = odds2(10);
+  for(const element of odds2Iter) log(element);
+
+
+  console.log('odds3 =====================>');
+
+  function *infinity(initial = 0) {
+    while(true) yield initial++;
+  }
+
+  const infinityIter = infinity();
+  log(infinityIter.next());
+  log(infinityIter.next());
+  log(infinityIter.next());
+
+  function *odds3(limit) {
+    for (const element of infinity(1)) {
+      if (element % 2 !== 0) yield element;
+      if (element === limit) return;
+    }
+  }
+
+  for(const element of odds3(10)) log(element);
+
+  console.log('odds4 =====================>');
+
+  function *limit(limit, iter) {
+    for (const element of iter) {
+      yield element;
+      if (element === limit) return;
+    }
+  }
+
+  function *odds4(l) {
+    for (const element of limit(l, infinity(1))) {
+      if (element % 2 !== 0) yield element;
+    }
+  }
+
+  for (const element of odds4(10)) log(element);
+
+</script>
+
+# for...of, spread operator, 구조 분해, 나머지 연산자
+<script>
+  console.log('# for...of, spread operator, 구조 분해, 나머지 연산자 ===========>');
+
+  log(...odds4(20));
+  log([...odds4(10), ...odds4(20)]);
+
+  const [head, ...tail] = odds4(20);
+  log(head, tail);
+
+  const [first, second, ...rest] = odds4(20);
+  log(first, second, rest);
+</script>

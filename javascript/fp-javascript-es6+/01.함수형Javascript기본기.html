@@ -1,0 +1,93 @@
+<script>
+  const log = console.log;
+</script>
+
+<div>
+  <h1>평가</h1>
+  <ul>
+    <li>코드가 계산(Evaluation)되어 값을 만드는 것.</li>
+  </ul>
+</div>
+
+<div>
+  <h1>일급</h1>
+  <ul>
+    <li>값으로 다룰 수 있다.</li>
+    <li>변수에 담을 수 있다.</li>
+    <li>함수의 인수로 사용될 수 있다.</li>
+    <li>함수의 결과로 사용될 수 있다.</li>
+  </ul>
+</div>
+
+<script>
+const ten = 10;
+const add10 = v => v + 10;
+log(add10(ten));
+
+const result = add10(ten);
+log(result);
+</script>
+
+<div>
+  <h1>일급 함수</h1>
+  <ul>
+    <li>함수를 값으로 다룰 수 있다.</li>
+    <li>조합성과 추상화의 도구</li>
+  </ul>
+</div>
+
+<script>
+  const add5 = v => v + 5;
+  log(add5);
+  log(add5(10));
+
+  const f1 = () => () => 1;
+  log(f1());
+  const f2 = f1();
+  log(f2);
+  log(f2()); // evaluation.
+</script>
+
+<div>
+  <h1>고차 함수</h1>
+  <ul>
+    <li>함수를 값으로 다루는 함수.</li>
+  </ul>
+  <h2>함수를 인자로 받아서 실행하는 함수</h2>
+    <ul>
+      <li>apply1</li>
+      <li>time</li>
+    </ul>
+  <h2>함수를 만들어 리턴하는 함수(클로저를 만들어 리턴하는 함수)</h2>
+    <ul>
+      <li>addMaker</li>
+    </ul>
+</div>
+
+<script>
+  log('고차함수================> ');
+  const apply1 = f => f(1); // apply1 = (a => a + 2) => (a => a + 2)(1)
+  const add2 = a => a + 2;
+  log(apply1(add2));
+  log(apply1(a => a - 1));
+
+  // applicative programming.
+  const times = (f, n) => {
+    let count = -1;
+    while(++count < n) f(count);
+  }
+
+  times(log, 3);
+  times(a => log(a * 2), 3);
+</script>
+
+<script>
+  // a를 기억하고 있음.
+  // 클로저를 리턴하는 함수.
+  const addMaker = a => b => a + b;
+  log(addMaker(10)(20));
+  const add100 = addMaker(0);
+  log(add100);
+  const add200 = add100(200);
+  log(add200);
+</script>

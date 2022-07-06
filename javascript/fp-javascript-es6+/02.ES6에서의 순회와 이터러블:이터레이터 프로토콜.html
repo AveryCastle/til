@@ -1,0 +1,186 @@
+<script>
+const log = console.log;
+</script>
+
+# 기존과 달리진 ES6에서의 리스트 순회
+- for i++
+- for of
+
+<script>
+const list = [100, 200, 300];
+for(var i=0; i<list.length; i++) {
+  log(list[i]);
+}
+
+const str = 'hello';
+for(var i=0; i<str.length; i++) {
+  log(str[i]);
+}
+
+for(const element of list) {
+  log(element);
+}
+
+for(const c of str) {
+  log(c);
+}
+
+for(const index in list) {
+  log(list[index]);
+}
+
+for(const index in str) {
+  log(str[index]);
+}
+</script>
+
+### Array를 통해서 알아보기
+<script>
+log(' Array를 통해서 알아보기 ====================> ');
+const array = [1, 2, 3];
+for (const element of array) {
+  log(element);
+}
+log(array[Symbol.iterator]); // 함수 반환...
+</script>
+
+### Set을 통해서 알아보기
+<script>
+log(' Set을 통해서 알아보기 ====================> ');
+const set = new Set([1, 2, 3]);
+for (const element of set) {
+  log(element);
+}
+log(set[Symbol.iterator]);
+</script>
+
+### Map을 통해서 알아보기
+<script>
+log(' Map을 통해서 알아보기 ====================> ');
+const map = new Map([['a', 1], ['b', 2], ['c', 3]]);
+for (const element of map) {
+  log(element);
+}
+log(map[Symbol.iterator]);
+</script>
+
+#### Symbol.iterator 어떤 객체의 key로 사용될 수 있음.
+
+## 이터러블/이터레이터 프로토콜
+- 이터러블: 이터레이터를 리턴하는 [Symbol.iterator]() 를 가진 값.
+- 이터레이터: { value, done } 객체를 리턴하는 next() 를 가진 값.
+- 이터러블/이터레이터 프로토콜: 이터러블을 for...of, 전개 연산자(spread operator) 등과 함께 동작하도록 한 규약.
+- 이거 굉장히 중요하다고 함!!!
+
+
+<script>
+log('이터러블/이터레이터 프로토콜 ================>')
+log(array[Symbol.iterator]);
+
+// array[Symbol.iterator] = null;
+// for (const el of array) { // <-- Uncaught TypeError: array is not iterable
+// 	log(el);
+// } 
+
+const iterator = array[Symbol.iterator]();
+log(iterator);
+log(iterator.next());
+log(iterator.next());
+log(iterator.next());
+log(iterator.next());
+log(iterator.next()); // { value, done } => done이 true일 때 for...of를 빠져나옴.
+
+const setIterator = set[Symbol.iterator]();
+log(setIterator.next());
+log(setIterator.next());
+log(setIterator.next());
+log(setIterator.next());
+
+
+const mapIterator = map[Symbol.iterator]();
+log(mapIterator.next());
+log(mapIterator.next());
+log(mapIterator.next());
+log(mapIterator.next());
+
+log(' iterator.next() ==================>');
+const mapIter2 = map[Symbol.iterator]();
+mapIter2.next();
+for(const element of mapIter2) {
+  log(element);
+}
+
+for(const value of map.values()) {
+  log(value);
+}
+
+for(const key of map.keys()) {
+  log(key);
+}
+
+for(const entry of map.entries()) {
+  log(entry);
+}
+
+const valueIterator = map.values();
+const iter2 = valueIterator[Symbol.iterator]();
+log(iter2.next()); // 자기 자신을 반환함.
+log(iter2.next());
+log(iter2.next());
+log(iter2.next());
+</script>
+
+### 사용자 정의 이터러블을 통해 알아보기.
+<script>
+  log('사용자 정의 이터러블을 통해 알아보기. ==============>');
+  const myIterator = {
+    [Symbol.iterator]() {
+      let i = 3;
+      return {
+        next() {
+          return i === 0 ? { done: true } : { value: i--, done: false };
+        },
+        [Symbol.iterator]() { 
+          return this; 
+        }
+      }
+    }
+  };
+
+  const iter = myIterator[Symbol.iterator]();
+  log(iter.next());
+  log(iter.next());
+  
+
+  for(const element of iter) log(element);
+
+  
+  const array2 = [100, 200, 300];
+  const array2Iter2 = array2[Symbol.iterator]();
+  array2Iter2.next();
+  log(array2Iter2[Symbol.iterator]() === array2Iter2); // well-formed iterator, 순회하다 iterator해도 그 후보다 순회 가능해야 함.
+  for (const element of array2Iter2) log(element);
+
+  const all = document.querySelectorAll('*');
+  for (const element of all) log(element);
+  log(all);
+  log(all[Symbol.iterator]);
+  log(all[Symbol.iterator]());
+  const htmlIter = all[Symbol.iterator]();
+  log(htmlIter.next());
+  log(htmlIter.next());
+</script>
+
+### 전개 연산자(Spread Operator)
+<script>
+console.clear();
+
+const a = [1, 2];
+log(a);
+log([...a, ...[10, 20, 30]]);
+
+// a[Symbol.iterator] = null;
+// log([...a, ...[10, 20, 30]]); // Uncaught TypeError: a is not iterable
+
+log(...array, ...set, ...map, ...map.values());
+</script>

@@ -1,0 +1,149 @@
+<script src="./fx.js"></script>
+
+# Promise
+- Promise라는 값은 대기, 성공, 실패를 다루는 1급 값으로 이루어져 있음. callback과 차이점이 있음.
+- 비동기 상황을 1급 값으로 다룸.
+- 비동기 상황에 대한 값을 return한다는 게 중요함.
+
+## 일급
+
+<script>
+// function add10(a, callback) {
+//   setTimeout(() => callback(a + 10), 1000);
+// }
+
+// add10(10, res => log(res));
+
+// var a = add10(10, res => {
+//   add10(res, res => {
+//     add10(res, res => {
+//       log(res);
+//     })
+//   })  
+// });
+
+// log(a); // <-- undefined!!
+
+// function add20(a) {
+//   return new Promise(resolve => setTimeout(() => resolve(a + 20), 100));
+// }
+
+// var b = add20(10)
+//   .then(add20)
+//   .then(add20)
+//   .then(log);
+
+// log(b); // <-- Promise라는 값을 반환함!! callback과 큰 차이점!!!
+
+</script>
+
+## 일급 활용
+- 비동기 상황을 값으로 다룰 수 있다는 것은 1급의 성질을 갖고 있다는 것
+- 비동기 상황이 값이라는 것은 함수에 전달할 수 있음.
+<script>
+//   console.clear();
+// const go2 = (a, f) => f(a);
+// const add5 = a => a + 5;
+
+// log('go2 ==> ', go2(10, add5));
+
+// const delay500 = a => new Promise(resolve =>
+//   setTimeout(() => resolve(a), 500)
+// );
+
+// log('go2 ==>', go2(delay500(5), add5));
+
+// const go3 = (a, f) => a instanceof Promise ? a.then(f) : f(a);   
+
+// const r1 = go3(5, add5);
+// log('r1 => ', r1);
+
+// const r2 = go3(delay500(5), add5);
+// r2.then(r => log('r2 ==> ', r));
+
+// go3(go3(5, add5), log);
+// go3(go3(delay500(5), add5), log);
+
+// const n1 = 5;
+// go3(go3(n1, add5), log);
+// log(go3(go3(n1, add5), log)); // undefined!!
+
+// const n2 = delay500(5);
+// go3(go3(n2, add5), log);
+// log(go3(go3(n2, add5), log)); // Promise
+</script>
+
+## Composition
+- Promise는 비동기 상황에서 함수 합성을 안전하게 해주는 도구.
+- 비동기 값을 가지고 연속적인 함수 실행을 안전하게 해주는(함수 합성을 안전하게 하는) Monad라고도 할 수 있음.
+- Monad
+- 함수 합성
+<script type="module">
+  // console.clear();
+  // // f.g
+  // // f(g(x))
+  // // - g를 실행하고 그 결과값을 f에 넘겨줘서 f가 실행됨. 함수 합성.
+
+  // const g = a => a + 1;
+  // const f = a => a * a;
+  
+  // log('f(g(1)) => ', f(g(1)));
+  // log('f(g()) => ', f(g()));
+
+  // // Array는 map을 통해 함수 합성을 함.
+  // [1].map(g).map(f).forEach(a => log('[1] => ', a));
+  // Array.of(1).map(g).map(f).forEach(a => log('[1] => ', a));
+  // // forEach는 아예 효과가 일어나지 않아서 실행이 되지 않음.
+  // [].map(g).map(f).forEach(a => log('[] => ', a));
+
+  // // Promise는 then을 통해 함수 합성을 함.
+  // // Promise는 비동기 상황을 안전하게 합성하기 위한 도구임.
+  // Promise.resolve(1).then(g).then(f).then(r => log('Promise(1) composition ==> ', r));
+
+  // new Promise(resolve => setTimeout(() => resolve(2), 500))
+  //   .then(g).then(f).then(r => log('Promise delay resolve composition ==>', r));
+  
+  // // 끝까지 효과가 나타나게 됨.
+  // // Promise는 안에 값이 있거나 없거나에 대한 안전한 합성을 하기 위한 도구가 아님.
+  // Promise.resolve().then(g).then(f).then(r => log('Promise() composition ==> ', r));
+</script>
+
+## Kleisli Composition
+- Promise는 Kleisli Composition을 지원하는 도구.
+- 오류가 발생할 수도 있는 상황에서 안전하게 함수를 합성할 수 있게 해주는 규칙.
+<script>
+  // f . g
+  // f(g(x)) = f(g(x))
+  // f(g(x)) = g(x) // 만약 x에서 또는 g(x)에서 에러가 발생할 경우, 이 결과와 f(g(x)) 결과가 동일하도록 만드는 규칙.
+
+  var users = [
+    { id: 1, name: 'aa' },
+    { id: 2, name: 'bb' },
+    { id: 3, name: 'cc' },
+  ];
+
+  const getUserById = id => find(u => u.id === id, users);
+  const f = ({name}) => name;
+  const g = getUserById;
+  const fg = id => f(g(id));
+
+  log(fg(2));
+
+  log(users);
+  // 외부 상황 변경이 발생함.
+  users.pop();
+  users.pop();
+  log(users);
+
+  // log(fg(2)); // <-- error 발생함!
+
+  const fg1 = id => Promise.resolve(id).then(g).then(f); // <-- error 발생.
+  fg1(2).then(log);
+
+  const getUserById2 = id => find(u => u.id === id, users) || Promise.reject('no exists!');
+  const k = getUserById2;
+  // reject나 error가 발생 시 대기 중인 이후 함수를 실행하지 않고 맨 뒤로 보냄.
+  const fk = id => Promise.resolve(id).then(k).then(f).catch(a => a);
+
+  fk(10).then(log);
+</script>

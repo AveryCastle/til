@@ -1,0 +1,192 @@
+<script src="fx.js"></script>
+
+# 이터러블 중심 프로그래밍에서의 지연 평가(Lazy Evaluation): 필요할 때만 계산함. 똑똑함.
+- 제때 계산법.
+- 느긋한 계산법.
+- 제너레이터/이터레이터 프로토콜 기반으로 구현.
+
+### L.map
+<script>
+  console.clear();
+
+  const L = {};
+  // L.map = curry(function *(f, iter) {
+  //   for (const a of iter) yield f(a)
+  // });
+
+  // const it = L.map(a => a + 10, [1, 2, 3]);
+  // log(it);
+  // log(it.next());
+  // log(it.next());
+  // log(it.next());
+  // log(it.next());
+
+  // const it2 = L.map(a => a + 10, [1, 2, 3])
+  // log([...it2]);
+
+</script>
+
+### L.filter
+<script>
+  // L.filter = curry(function *(f, iter) {
+  //   for (const v of iter) if (f(v)) yield v;
+  // });
+
+  // const it3 = L.filter(a => a % 2, [1, 2, 3]);
+  // log(it3);
+  // log(it3.next());
+  // log(it3.next());
+  // log(it3.next());
+
+  // const it4 = L.filter(a => a % 2, [1, 2, 3]);
+  // log([...it4]);
+  
+</script>
+
+### range, map, filter, take, reduce 중첩
+<script>
+  console.clear();
+
+const range = (l) => {
+  const res = [];
+  let i = -1;
+  while(++i < l) {
+    res.push(i);
+  }
+  return res;
+};
+
+const map = curry((fn, iter) => {
+  const res = [];
+  // for (const a of iter) {
+  //   res.push(fn(a))
+  // };
+  iter = iter[Symbol.iterator]();
+  let cur;
+  while(!(cur = iter.next()).done) {
+    const a = cur.value;
+    res.push(fn(a));
+  }
+  return res;
+});
+
+const filter = curry((fn, iter) => {
+  const res = [];
+  // for (const a of iter) {
+  //   if (fn(a)) res.push(a);
+  // }
+  iter = iter[Symbol.iterator]();
+  let cur;
+  while(!(cur = iter.next()).done) {
+    const a = cur.value;
+    if (fn(a)) {
+      res.push(a);
+    }
+  }
+  return res;
+});
+
+const reduce = curry((fn, acc, iter) => {
+  if (!iter) {
+    iter = acc[Symbol.iterator]();
+    acc = iter.next().value;
+  } else {
+    iter = iter[Symbol.iterator]();
+  }
+  // for (const a of iter) {
+  //   acc = fn(acc, a);
+  // }
+  let cur;
+  while (!(cur = iter.next()).done) {
+    const a = cur.value;
+    acc = fn(acc, a);
+  }
+  return acc;
+});
+
+const take = curry((l, iter) => {
+  const res = [];
+  // for (const a of iter) {
+  //   if (res.length <= l) res.push(a);
+  // }
+  iter = iter[Symbol.iterator]();
+  let cur;
+  while (!(cur = iter.next()).done) {
+    const a = cur.value;
+    if (res.length == l) return res;
+    else res.push(a);
+  }
+  return res;
+});
+
+
+// log('common range, map, filter, take ===> ');
+// 평가 순서: range(10)을 다 만든 후, map을 다 평가한 후, filter를 다 평가한 후, take를 하게 됨.
+console.time('common');
+go(
+  range(10000),
+  map(a => a + 10),
+  filter(a => a % 2),
+  take(10),
+  log
+);
+console.timeEnd('common');
+</script>
+
+
+### L.range, L.map, L.filter, take, reduce 중첩
+- 평가 순서가 상관없는 함수형 프로그래밍의 이점을 살펴봄.
+<script>
+  L.range = function *(l) {
+    let i = -1;
+    while (++i < l) yield i;
+  };
+
+  L.map = curry(function *(fn, iter) {
+    iter = iter[Symbol.iterator]();
+    let cur;
+    // for (const a of iter) yield fn(a)
+    while(!(cur = iter.next()).done) {
+      const a = cur.value;
+      yield fn(a);
+    }
+  });
+
+  L.filter = curry(function *(fn, iter) {
+    iter = iter[Symbol.iterator]();
+    let cur;
+    while (!(cur = iter.next()).done) {
+      const a = cur.value;
+      if (fn(a)) yield a;
+    }
+  });
+
+
+  log('L.range, L.map, L.filter, take ===> ');
+  // 평가 순서: take로 제일 먼저 들어간 후, iter.next()가 filter에서 온 거라서 filter로 올라감.
+  // filter에서 iter.next()를 하려고 하면 iter가 map에서 온 suspended된 거라서 map으로 올라감.
+  // map 안에서 iter.next()를 하려고 하면 iter가 reduce에서 온 suspended라서 range로 올라감.
+  // range에서 yield를 하면 값이 평가되서 다시 map 으로 내려가서 yield를 함. map에서 yield한 값이 filter로 내려감.
+  // filter에서 yield를 해서 값이 평가되고, take로 내려감.
+  // take에서는 자기 자신 조건을 확인하면서 충족이 안됐으면 다시 iter.next()를 위해서 다시 map으로 올라감.
+  // 즉, 평가를 해야 하는 함수가 제일 먼저 호출되고, 아래 --> 위, 위 --> 아래, 아래 --> 위, 위 --> 아래 이런 순서로 호출됨.
+  console.time('L');
+  go(
+    L.range(10000),
+    L.map(a => a + 10),
+    L.filter(a => a % 2),
+    take(10),
+    log
+  );
+  console.timeEnd('L');
+</script>
+
+### map, filter 계열 함수들이 가지는 결합 법칙.
+
+- 사용하는 데이터가 무엇이든지
+- 사용하는 보조 함수가 순수 함수라면 무엇이든지
+- 아래와 같이 사용한다면 둘 다 결과가 같다.
+
+[[mapping, mapping], [filtering, filtering], [mapping, mapping]]
+
+[[mapping, filtering, mapping], [mapping, filtering, mapping]]

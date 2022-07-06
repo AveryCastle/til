@@ -5,7 +5,8 @@
     <title>Recipe Form</title>
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" crossorigin="anonymous"
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+          crossorigin="anonymous"
           th:href="@{/webjars/bootstrap/4.3.1/css/bootstrap.min.css}">
 </head>
 <body>
@@ -30,7 +31,8 @@
                                 <div class="col-md-3 form-group" th:class="${#fields.hasErrors('description')}
                                 ? 'col-md-3 form-group has-error' : 'col-md-3 form-group'">
                                     <label>Recipe Description:</label>
-                                    <input type="text" class="form-control" th:field="*{description}" th:errorclass="has-error"/>
+                                    <input type="text" class="form-control" th:field="*{description}"
+                                           th:errorclass="has-error"/>
                                     <span class="help-block" th:if="${#fields.hasErrors('description')}">
                                         <ul>
                                             <li th:each="err : ${#fields.errors('description')}" th:text="${err}"/>
@@ -61,7 +63,8 @@
                                 <div class="col-md-3 form-group" th:class="${#fields.hasErrors('prepTime')}
                                 ? 'col-md-3 form-group has-error' : 'col-md-3 form-group'">
                                     <label>Prep Time:</label>
-                                    <input type="text" class="form-control" th:field="*{prepTime}" th:errorclass="has-error"/>
+                                    <input type="text" class="form-control" th:field="*{prepTime}"
+                                           th:errorclass="has-error"/>
                                     <span class="help-block" th:if="${#fields.hasErrors('prepTime')}">
                                         <ul>
                                             <li th:each="err : ${#fields.errors('prepTime')}" th:text="${err}"/>
@@ -71,7 +74,8 @@
                                 <div class="col-md-3 form-group" th:class="${#fields.hasErrors('cookTime')}
                                 ? 'col-md-3 form-group has-error' : 'col-md-3 form-group'">
                                     <label>Cooktime:</label>
-                                    <input type="text" class="form-control" th:field="*{cookTime}" th:errorclass="has-error"/>
+                                    <input type="text" class="form-control" th:field="*{cookTime}"
+                                           th:errorclass="has-error"/>
                                     <span class="help-block" th:if="${#fields.hasErrors('cookTime')}">
                                         <ul>
                                             <li th:each="err : ${#fields.errors('cookTime')}" th:text="${err}"/>
@@ -81,11 +85,11 @@
                                 <div class="col-md-3 form-group">
                                     <label>Difficulty:</label>
                                     <!--<select class="form-control" th:field="*{difficulty}">-->
-                                        <!--<option th:each="difficultyValue : ${T(guru.springframework.domain.Difficulty).values()}"-->
-                                                <!--th:value="${difficultyValue.name()}"-->
-                                                <!--th:text="${difficultyValue.name()}">-->
-                                            <!--val-->
-                                        <!--</option>-->
+                                    <!--<option th:each="difficultyValue : ${T(guru.springframework.domain.Difficulty).values()}"-->
+                                    <!--th:value="${difficultyValue.name()}"-->
+                                    <!--th:text="${difficultyValue.name()}">-->
+                                    <!--val-->
+                                    <!--</option>-->
                                     <!--</select>-->
                                     <select class="form-control" th:remove="all">
                                         <option>Easy</option>
@@ -98,7 +102,8 @@
                                 <div class="col-md-3 form-group" th:class="${#fields.hasErrors('servings')}
                                 ? 'col-md-3 form-group has-error' : 'col-md-3 form-group'">
                                     <label>Servings:</label>
-                                    <input type="text" class="form-control" th:field="*{servings}" th:errorclass="has-error"/>
+                                    <input type="text" class="form-control" th:field="*{servings}"
+                                           th:errorclass="has-error"/>
                                     <span class="help-block" th:if="${#fields.hasErrors('servings')}">
                                         <ul>
                                             <li th:each="err : ${#fields.errors('servings')}" th:text="${err}"/>
@@ -112,7 +117,8 @@
                                 <div class="col-md-3 form-group" th:class="${#fields.hasErrors('url')}
                                 ? 'col-md-3 form-group has-error' : 'col-md-3 form-group'">
                                     <label>URL:</label>
-                                    <input type="text" class="form-control" th:field="*{url}" th:errorclass="has-error"/>
+                                    <input type="text" class="form-control" th:field="*{url}"
+                                           th:errorclass="has-error"/>
                                     <span class="help-block" th:if="${#fields.hasErrors('url')}">
                                         <ul>
                                             <li th:each="err : ${#fields.errors('url')}" th:text="${err}"/>
@@ -189,11 +195,11 @@
 
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"  crossorigin="anonymous"
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" crossorigin="anonymous"
         th:src="@{/webjars/jquery/3.3.1-2/jquery.min.js}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" crossorigin="anonymous"
         th:src="@{/webjars/popper.js/1.14.3/umd/popper.min.js}"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"  crossorigin="anonymous"
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" crossorigin="anonymous"
         th:src="@{/webjars/bootstrap/4.3.1/js/bootstrap.min.js}"></script>
 </body>
 </html>
