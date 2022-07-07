@@ -1,10 +1,10 @@
 # 기본 알고리즘
 
-1. Comparable과 Comparator 인터페이스의 차이는 무엇인가?
-   1. Comparable: 자연스러운 순서로 정렬할 때 사용한다.
-   2. Comparator: 원하는 대로 정렬 순서를 지정하고 싶을 때 사용한다.
+> Q. Comparable과 Comparator 인터페이스의 차이는 무엇인가?
+> - Comparable: 자연스러운 순서로 정렬할 때 사용한다.
+> - Comparator: 원하는 대로 정렬 순서를 지정하고 싶을 때 사용한다.
 
-   example:
+example:
 ```java
 private static class MyList implements Comparable<MyList> {
 
@@ -75,8 +75,8 @@ NaturalOrder{name='SUGA', age=29}
 NaturalOrder{name='V', age=27}
 ```
 
-2. 이진 검색(Binary Search)은 어떻게 구현하는가?
-- 정렬된 리스트가 있거나 이미 정렬ㄹ이 수행된 상태일 때, 리스트에서 값을 찾을 때는 이진 검색(Binary Search)를 사용하는 것이 효율적이다.
+> Q. 이진 검색(Binary Search)은 어떻게 구현하는가?
+> - 정렬된 리스트가 있거나 이미 정렬이 수행된 상태일 때, 리스트에서 값을 찾을 때는 이진 검색(Binary Search)를 사용하는 것이 효율적이다.
 
 # 자료구조
 ## 리스트(List)
@@ -88,7 +88,7 @@ NaturalOrder{name='V', age=27}
 
 ### 2. 배열과 리스트의 관계
 - 배열을 정의할 때는 크기를 지정해야 한다.
-- 배열의 원소에는 *인덱스* 값을 이용해서 직접 접근할 수 있다. 이를 **랜덤 접근(random access)**이라고 한다.
+- 배열의 원소에는 *인덱스* 값을 이용해서 직접 접근할 수 있다. 이를 **랜덤 접근(random access)** 이라고 한다.
 
 > Q. ArrayList와 LinkedList의 관계는?
 >
@@ -386,7 +386,26 @@ NaturalOrder{name='V', age=27}
 
 > Q. Java11 로 전환해야 하는 이유는?
 > - 향후 몇 년 안에 Java8은 더 이상 지원하지 않고, Java11이 LTS(Long Term Support: 장기 지원 버전)이다.
+> - 프로파일링 및 진단을 더 수월하게 해준다.
+> - G1GC를 기본으로 사용한다.
+> - Docker 컨테이너 사용자가 Java 힙에 사용되는 시스템 메모리 양을 세부적으로 제어할 수 있도록 JVM 옵션도 추가되었다.
 > - [Java11로 전환해야 하는 이유](https://docs.microsoft.com/ko-kr/java/openjdk/reasons-to-move-to-java-11)
+
+> Q. JPA 와 쿼리 중심으로 개발할 때의 차이점은?
+> 
+> - ORM: 객체와 관계형 데이터베이스를 맵핑한다는 뜻.
+> - ORM 프레임워크: 객체와 테이블을 매핑해서 패러다임의 불일치 문제를 개발자 대신 해결해준다.
+> - JPA는 지루하고 반복적인 CRUD SQL을 알아서 처리해줌.
+> - 객체 모델링과 관계형 데이터베이스 사이의 차이도 해결해줌.
+> - 조회된 결과를 객체로 매핑하는 작업도 대부분 자동으로 처리해줌.
+> - JPA는 실행시점에 자동으로 SQL을 만들어서 실행하는데, JPA를 사용하는 개발자 입장에서는 SQL을 직접 작성하는 것이 아니라 어떤 SQL이 실행될지 생각만 하면 됨.
+> - 성능에 대한 대안이 있음
+> - Native SQL을 이용해서 직접 SQL을 작성할 수 있고, 쿼리 힌트도 사용할 수 있는 방법 존재
+> - 애플리케이션보다는 데이터베이스 조회 성능 이슈인데, 이건 JPA 문제라기보다는 SQL을 직접 사용해도 발생하는 문제들임.
+> - JPA 사용해서 얻은 성과
+>   - 애플리케이션을 SQL이 아닌 객체 중심으로 개발하여 생산성과 유지보수가 확연히 좋아짐.
+>   - 테스트 작성하기 편리해짐.
+>   - Database 손쉽게 변경할 수 있음.
 
 > Q. 행위 주도 개발이란 무엇인가?
 > - BDD(Behavior-Driven Development)은 가능한한 자연 언어에 가깝게 작성된 테스트 스크립트와 테스트 스크립트 위에서 실행되는 코드라는 두개의 요소로 이뤄져 있다.
@@ -418,7 +437,6 @@ NaturalOrder{name='V', age=27}
 > - REST의 요소: 리소스, 메소드(행위), 메세지 3가지 요소로 구성된다.
 
 # CS
-
 > Q. 동기/비동기, 블로킹/논블로킹이란?
 >
 > **동기/비동기**
@@ -446,16 +464,17 @@ NaturalOrder{name='V', age=27}
 > ![쓰레드](src/main/resources/쓰레드.png)
 
 > Q. HTTP Method
-> GET:
-> POST:
-> PUT, PATH
-> OPTION: 해당 URL 또는 서버에서 허용하는 HTTP Method 정보를 반환한다.
-> HEAD: 
-> TRACE: Client가 보낸 Request 내용을 그대로 반환한다. 웹 브라우저가 보내는 HTTP 통신을 반사하는 역할을 한다. 그런데 HTTP 통신 상에는 클라이언트가 보내는 쿠키가 포함되므로 이 통신을 가로채면 HttpOnly로 선언된 쿠키값도 탈취를 할 수 있다.
+> 
+> - GET: 
+> - POST:
+> - PUT:
+> - PATCH:
+> - OPTION: 해당 URL 또는 서버에서 허용하는 HTTP Method 정보를 반환한다.
+> - HEAD: 
+> - TRACE: Client가 보낸 Request 내용을 그대로 반환한다. 웹 브라우저가 보내는 HTTP 통신을 반사하는 역할을 한다. 그런데 HTTP 통신 상에는 클라이언트가 보내는 쿠키가 포함되므로 이 통신을 가로채면 HttpOnly로 선언된 쿠키값도 탈취를 할 수 있다.
 
 # 스프링 프레임워크
-
-###Spring Framework
+### Spring Framework
 - 등장 배경
   - 2004년에 출시된 스프링 프레임워크 v1.0은 무거운 배포 설명자로 악명 높은 J2EE(Java 2 Platforms, Enterprise Edition)를 대체하여 Java 개발을 더 쉽게 만들겠다는 목적으로 만들어졌다.
   - 의존성 주입(DI: Dependency Injection) 개념을 기반으로 매우 가벼운 개발 모델을 제공하며 J2EE의 배포 설명자와 비교해 훨씬 가벼운 XML 구성 파일을 사용한다.
@@ -488,22 +507,54 @@ NaturalOrder{name='V', age=27}
 - logging이나 transaction 관리, 보안 등의 횡단 관심사(cross-cutting concern)을 한 곳에 모아 처리를 한다.
 - 장점
   - 재사용성을 높임
+  
+> Q. 중요! 스프링 Container 가 Bean 들의 생명주기를 어떻게 관리해주는지? & Circular Dependency 랑 엮어서 생각해보기(중요!!)
+> ![spring_bean_lifecycle](src/main/resources/Spring_Bean_Lifecycle.png)
+> - 생성과정
+>  - 빈 생성에 필요한 Property 정보 수집(XML, JavaConfig, 컴포넌트 스캔해서 annotation 정보 수집): BeanFactoryPostProcessor 가 수행
+>  - 빈 생성되었으면 의존성 관계 주입(Constructor DI, Field DI, Setter DI)
+>  - 빈 의존관계까지 엮어졌으면 빈 생성 후 초기화 작업(@PostConstruct -> InitializingBean:afterPropertiesSet, @Bean의 initMethod(XML 기반이면  <bean> 요소의 init-method): BeanPostProcessor 에서 일부 수행됨.
+> - Spring context 모든 bean들을 load할 때, 완전히 동작할 수 있는 순서로 bean을 생성하려고 한다. 
+> - Circular Dependency가 없는 Bean A -> Bean B -> Bean C 로 참조하는 경우를 예를 들어 설명을 해보자. Spring Context는 bean C를 생성하고, bean B를 만들 때, bean C를 주입해주고, bean A를 만들 때, bean B를 주입해준다. 그러나 만일 `bean A -> bean B -> bean C -> bean A` 처럼 Circular 관계가 있다면, Spring Context는 어느 bean을 먼저 생성해야 하는지 결정을 할 수가 없다. 이 경우, `BeanCurrentlyInCreationException` 에러가 발생하게 된다. 이는 **constructor injection**을 사용할 때 발생한다. 만약 다른 종류의 injection을 사용하면 이 문제는 겪지 않는다. 왜냐하면 종속성 주입은 Context Loading이 아닌 필요할 때 주입이 되기 때문이다.
+> - 해결 방법
+>  - 디자인 설계 다시하기: Circular Dependency(순환참조)가 발생했다면 디자인 설계를 잘못 했을 가능성이 크다. 책임을 잘 분리하지 못 했을 가능성이 크다. 그러나 복잡한 레거시 코드 환경이거나 개선할 충분한 리소스가 없거나 시간이 부족한 등의 상황이 안될 때 다른 선택지를 사용할 수 있다.
+>  - @Lazy를 사용하기: Spring Context한테 그 중 1가지는 Lasy initialize하라고 설정하는 것이다. 일단 Proxy를 주입하고 실제로 처음으로 사용될 때 완전히 만들어진다.
+>  - Setter/Field Injection 사용하기: Spring Context가 일단 Bean을 생성하고 wiring은 해주지 않는다. 실제 Bean이 사용될 때 주입을 시켜준다.
+>  - @PostConstructor 사용하기: 하나는 @Autowired를 사용하여 필요한 Bean을 정의하고, 그 필요한 빈에 자기 자신을 @PostConstructor를 이용하여 주입시킨다.
+>  - ApplicationContextAware, InitializingBean: Circular Dependency가 발생하는 Bean 중에 ApplicationContextAware를 구현한 Bean이 있다면, 이 Bean은 ApplicationContext에 접근할 수 있고, 다른 Bean들을 추출할 수 있다. InitializingBean 을 구현해서 Bean이 Properties가 세팅된 후에 어떤 작업을 해야 한다고 가리켜야 한다. 개발자가 dependecy를 setting해줘야 한다.
+>  - 참고
+>   - https://programming.vip/docs/spring-s-solution-to-circular-dependency-and-consideration-of-three-level-cache.html
+>   - https://developpaper.com/does-spring-need-l3-cache-to-solve-circular-dependency/
+>   - https://docs.spring.io/spring-framework/docs/current/reference/html/core.html
+>   - https://www.baeldung.com/circular-dependencies-in-spring
+>   - https://kgvovc.tistory.com/50
+
+- 질문모임: https://howtodoinjava.com/interview-questions/top-spring-interview-questions-with-answers/
+
 
 ### Spring MVC Flow
 > - ![Spring MVC Flow](src/main/resources/SpringMVC_Flow2.png)
 > - ![Spring MVC Flow](src/main/resources/SpringMVC_Flow.png)
 
-> 스코프란 무엇인가?
-> - Singleton scope: ApplicationContext 상의 getBean 메서드를 여러 번 호출할 수 있으며 항상 같은 인스턴스를 반환한다. 기본적으로 스프링 Bean은 애플리케이션 컨텍스트가 초기화될 때 생성되는데, 이를 eager instantiation 이라고 한다. 추가로 지정된 정의에 관한 스프링 빈의 인스턴스는 하나만 생성된다. 이를 싱글턴 스코프(Singleton Scope)라고 한다.
+> Q. 스코프란 무엇인가?
+> 
+> - Singleton scope: ApplicationContext 상의 getBean 메서드를 여러 번 호출할 수 있으며 항상 같은 인스턴스를 반환한다. 기본적으로 스프링 Bean은 애플리케이션 컨텍스트가 초기화될 때 생성되는데, 이를 eager instantiation 이라고 한다. 이 싱글 인스턴스는 싱글 빈즈 캐시에 저장이 되고, 요청이 있을 때 여기서 꺼내서 반환한다. 추가로 지정된 정의에 관한 스프링 빈의 인스턴스는 하나만 생성된다. 이를 싱글턴 스코프(Singleton Scope)라고 한다.
 > - Bean scope: ApplicationContext 에서 getBean 메서드를 호출할 때마다 새로운 인스턴스를 반환한다.
 > - Request scope: 특정 HTTP 요청이 살아있는 동안 빈이 살아있는 경우
 > - Session scope: HTTP 세션이 존재하는 동안 존재하는 경우
+> - 참고
+>   - [Scope](https://charming-jung.tistory.com/54)
 
-> 오토와이어링이란 무엇인가?
+> Q. 오토와이어링이란 무엇인가?
 > - autowiring 은 애플리케이션 컨텍스트가 클래스 사이의 의존성을 알아내는 과정이다.
 > - 의존성을 갖는 빈을 생성하려면 가끔은 의존성에 대한 연결 고리를 직접 명시하지 않아도 된다. 애플리케이션 컨텍스트 내에서 해당 Bean이 1개만 존재할 경우 알아서 자동으로 연결해주기 때문이다.
 
+> Q. Spring Boot와 Spring Framework의 차이 및 장점, 아쉬운 점은?
 
+- Job은 여러 개의 Step으로 나눌 수 있다.
+- Step은 여러 개의 Tasklet 또는 ItemReader, (Processor), ItemWriter 로 나뉠 수 있다.
+- Tasklet과 ItemReader, Processor, ItemWriter 3개의 묶음이 동일 레벨이라고 보면 된다.
+- ![spring batch job](src/main/resources/spring_batch_job.png)
 
 # Reactive / WebFlux
 - WebFlux는 Spring5에 새롭게 추가된 Reactive-stack의 웹 프레임워크다.
@@ -513,7 +564,6 @@ NaturalOrder{name='V', age=27}
 - WebFlux 논블로킹으로 동작하는 웹 스택의 필요성 때문에 등장하게 되었다. 기존 SpringMVC의 Servlet API는 v3.1 부터 논블로킹 I/O를 위한 API를 제공했었다. 하지만, 이외의 동기적으로 처리하는 모듈(Filter, Servlet)과 블로킹 방식의 API(getParameter, getPart)들이 있기에 완벽한 논블로킹 환경의 개발을 할 수 없었다. 또한, 비동기 논블로킹 환경의 서버로 Netty가 부상하고 있었으며 이 Netty와의 연동을 위해 Spring은 새로운 API가 필요했다.
 - 1970년대에 이미 reactive programming 기술을 있었으나 각광을 받지 못 했다.Facebook 2005년 550만 -> 2014년 13.5억 유저 확보하게 됨. 24시간 가동 끊임없이 서비스 제공을 해야 하다보니까 요구에 빨리 빨리 반응을 하는 리액티브 프로그래밍 관심이 생기게 됨.
 - 기존의 모놀리틱 하나의 큰 서비스로 사용자 요구 반영하는데 아무래도 시간이 더 오래 걸리니까 더 작은 서비스로 쪼개서 시간 사례가 있으면 좋으니까.
-
 # [데브옵스(DevOps)](https://ko.wikipedia.org/wiki/%EB%8D%B0%EB%B8%8C%EC%98%B5%EC%8A%A4)
 - 데브옵스(DevOps)는 Development와 Operation의 합성어로서, 소프트웨어 개발자와 정보 기술 전문가간의 소통, 협업 및 통합을 강조하는 개발 환경이나 문화를 말한다. 데브옵스는 소프트웨어 개발조직과 운영조직간의 상호의존적 대응이며 조직이 소프트웨어 제품과 서비스를 빠른 시간에 개발 및 배포하는 것을 목적으로 한다.
 - 데브옵스는 애플리케이션과 서비스를 빠른 속도로 제공할 수 있도록 조직의 역량을 향상시키는 문화 철학, 방식 및 도구의 조합이다. 기존의 소프트웨어 개발 및 인프라 관리 프로세스를 사용하는 조직보다 제품을 더 빠르게 혁신하고 개선할 수 있습니다. 이러한 빠른 속도를 통해 조직은 고객을 더 잘 지원하고 시장에서 좀 더 효과적으로 경쟁할 수 있습니다.
@@ -632,10 +682,11 @@ NaturalOrder{name='V', age=27}
 
 
 > Q. IPC 란?
+> 
 > IPC(Inter Process Call)은 프로세스 간에 데이터를 주고 받는 것을 말합니다. 서버와 클라이언트간에 데이터를 주고 받기 위한 방법은 2가지가 있습니다.
 > IPC 통신 방법
 > - Socket 방식: 소켓은 통신하고자 하는 상대의 목적지를 특정할 수 있는 IP와 프로세스간 통신을 위한 Pipeline을 Port로 연결하여 통신합니다. TCP, UPD가 속한다.
-> - 원격 플로시저 콜: RPC(Remote Procedure Call)은 원격 프로시저 함수 호출을 마치 로컬에 위치한 함수를 호출할 수 있게 해줍니다. MSA의 경우 각각의 서비스가 Polyglot 으로 구현되는데, 서로 다른 언어로 구현된 서비스들끼리 IDL을 이용하여 서로 통신할 수 있게 해줍니다.
+> - 원격 프로시저 콜: RPC(Remote Procedure Call)은 원격 프로시저 함수 호출을 마치 로컬에 위치한 함수를 호출할 수 있게 해줍니다. MSA의 경우 각각의 서비스가 Polyglot 으로 구현되는데, 서로 다른 언어로 구현된 서비스들끼리 IDL을 이용하여 서로 통신할 수 있게 해줍니다.
 > IDL(Interface Definition Language)
 > 참고
 > - [IPC-Inter-Process-Communication](https://deveun.tistory.com/entry/OS-%ED%94%84%EB%A1%9C%EC%84%B8%EC%8A%A4%EC%9D%98-%ED%86%B5%EC%8B%A0-IPC-Inter-Process-Communication)
@@ -761,11 +812,11 @@ NaturalOrder{name='V', age=27}
 - 개발자가 다룰 수 있을 만한 크기
 - 성능(대기 시간)이나 데이터 일관성을 저해하지 않을 정도의 규모(다른 마이크로서비스에 저장된 데이터와 SQL 외래 키를 맺는 것은 더이상 당연한 것이 아니다.)
 
-**시스템 확장하는 방법**
-> - XYZ 확장
+**어플리케이션을 확장하는 데 필요한 세 가지 주요 접근 방식**
+> - 확장 큐브/스케일 큐브(Scale Cube) XYZ 확장
 >   - X축: 같은 서비스를 여러 개 복제하여 장비 확장
 >   - Y축: 기능별로 분할하여 작게 쪼개기
->   - Z축: 같은 성질을 가진 것들끼리 묶어서 분리하는 방법(데이터를 나누어 저장)
+>   - Z축: 같은 성질을 가진 것들끼리 묶어서 분리하는 방법(데이터를 나누어 저장), partitioning 또는 sharding을 말함.
 > - 마이크로서비스에서는 기존 모놀리식 서비스를 기능별로 분할하여 여러 개의 서비스로 분리합니다(Y축). 
 > - 그리고 각 서비스마다 요청의 부하가 다른데, 모놀리스에서는 특정 서비스가 아니라 전체를 스케일할 수 밖에 없었습니다. 이에 반해 마이크로서비스에서는 서비스가 나뉘어져 있기 때문에 부하가 몰리는 서비스 별로 복제해 스케일 아웃을 할 수 있습니다(X축).
 > - Z축은 데이터를 나누어 저장하는 것입니다. 마이크로서비스에서는 DB도 서비스별로 나뉘게 됩니다. DB를 각각 사용하기 때문에 자신만의 스키마를 가지고 DB 종류도 다르게 가져갈 수 있습니다. 하지만 서비스가 동작하면서 여러 데이터에 영향을 미치기 때문에 각 서비스별로 중복되는 데이터도 생기고, 한 쪽에서 업데이트가 되었는데 다른 쪽에서는 업데이트가 되지 않을 수도 있습니다. 이러한 중복과 정합성 문제가 있지만 결합도를 낮추기 위해서 각각의 DB를 사용합니다.
@@ -773,8 +824,8 @@ NaturalOrder{name='V', age=27}
 
 # 암호/보안
 > Q. CSRS(Cross-Site Request Forgery) vs XSS(Cross-Site Scripting)
-> XSS는 공격대상이 Client이고, CSRF는 Server이다. XSS는 사이트변조나 백도어를 통해 클라이언트에 대한 악성공격을 한다.
-> [CSRS vs XSS](https://program-developer.tistory.com/99)
+> - XSS는 공격대상이 Client이고, CSRF는 Server이다. XSS는 사이트변조나 백도어를 통해 클라이언트에 대한 악성공격을 한다.
+> - [CSRS vs XSS](https://program-developer.tistory.com/99)
 
 > Q. SQL Injection 이란?
 > SQL Injection은 응용 프로그램 보안 상의 허점을 의도적으로 이용해, 악의적인 SQL문을 실행되게 함으로써 데이터베이스를 비정상적으로 조작하는 코드 인젝션 공격 방법이다.
@@ -830,8 +881,13 @@ NaturalOrder{name='V', age=27}
 - 데이터 처리보단 관리적 측면이나 다양한 기능 구현을 위한 서비스를 구축할 때 사용
 
 **SMLC vs DMLC**
-- SMLC: 내부 큐를 갖고 전용 쓰레드를 사용함. 
-- DMLC: 동일 consumer사이에 쓰레드를 공유함. 런타임에 큐를 추가하고 삭제하는게 더 효율적임.(추가, 삭제할 때 SMLC는 전체 취소하고 재시작함.). RabbitMQ Client에서 직접 리스너를 직접 호출한다. multiple concurrent 지원함.
+- SMLC: 내부 큐를 갖고 Consumer에 대한 전용 쓰레드를 사용함. 그래서 여러 개의 Queue를 만들어서 Listen하게 Container를 구성해도 동일한 Consumer Thread가 모든 Queue를 처리하는데 사용된다.  
+- DMLC: RabbitMQ Client가 직접 ListenerContaier를 호출할 수 있어서 SMLC보다 더 간단하다.
+  - 장점
+    - Runtime에 Queue 추가/삭제가 가능하다(추가/삭제할 때 SMLC는 전체 취소하고 재시작한다.)
+    - RabbitMQ Client thread와 Consumer Thread 사이의 ContextSwitching 을 피할 수 있다.
+    - Consumer끼리 Thread를 공유한다.
+    - multiple concurrent 지원한다.
 - [choose-container](https://docs.spring.io/spring-amqp/reference/html/#choose-container)
 - [SMLC vs DMLC](https://stackoverflow.com/questions/56438819/whats-the-difference-between-simplemessagelistenercontainer-and-directmessageli)
 
