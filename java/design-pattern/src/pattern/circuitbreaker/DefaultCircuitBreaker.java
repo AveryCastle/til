@@ -2,125 +2,83 @@ package pattern.circuitbreaker;
 
 public class DefaultCircuitBreaker implements CircuitBreaker {
 
-    private final long timeout;
-    private final long retryTimePeriod;
-    private final RemoteService service;
-    long lastFailureTime;
-    private String lastFailureResponse;
-    int failureCount;
-    private final int failureThreshold;
+    private final RemoteService remoteService;
+    private final long timeout; // millisecond
+    private final int threshold; // 횟수
+    private final long retryTimePeriod; // millisecond
+    private int failCount;
     private State state;
-    private final long futureTime = 1000 * 1000 * 1000 * 1000;
+    private long lastFailTime;
+    private String lastFailureResponse;
+    private final long FUTURE_TIME = 1000 * 1000 * 1000 * 1000;
 
-    /**
-     * Constructor to create an instance of Circuit Breaker.
-     *
-     * @param timeout          Timeout for the API request. Not necessary for this simple example
-     * @param failureThreshold Number of failures we receive from the depended service before changing
-     *                         state to 'OPEN'
-     * @param retryTimePeriod  Time period after which a new request is made to remote service for
-     *                         status check.
-     */
-    DefaultCircuitBreaker(RemoteService serviceToCall, long timeout, int failureThreshold, long retryTimePeriod) {
-        this.service = serviceToCall;
-        // We start in a closed state hoping that everything is fine
-        this.state = State.CLOSED;
-        // Timeout for the API request.
-        // Used to break the calls made to remote resource if it exceeds the limit
+    public DefaultCircuitBreaker(RemoteService RemoteService, long timeout, int failThreshold, long retryTimePeriod) {
+        this.remoteService = RemoteService;
         this.timeout = timeout;
-        this.failureThreshold = failureThreshold;
-        this.retryTimePeriod = retryTimePeriod;
-        // An absurd amount of time in future which basically indicates the last failure never happened
-        this.lastFailureTime = System.nanoTime() + futureTime;
-        this.failureCount = 0;
+        this.threshold = failThreshold;
+        this.retryTimePeriod = retryTimePeriod * 1000 * 1000;
+        this.failCount = 0;
+        this.state = State.CLOSED;
+        this.lastFailTime = System.nanoTime() + FUTURE_TIME;
     }
 
-    // Reset everything to defaults
     @Override
     public void recordSuccess() {
-        this.failureCount = 0;
-        this.lastFailureTime = System.nanoTime() + futureTime;
+        this.failCount = 0;
         this.state = State.CLOSED;
+        this.lastFailTime = System.nanoTime() + FUTURE_TIME;
     }
 
     @Override
-    public void recordFailure(String response) {
-        failureCount = failureCount + 1;
-        this.lastFailureTime = System.nanoTime();
-        // Cache the failure response for returning on open state
+    public void recordFail(String response) {
+        this.failCount += 1;
+        this.state = State.OPEN;
+        this.lastFailTime = System.nanoTime();
         this.lastFailureResponse = response;
-    }
-
-    // Evaluate the current state based on failureThreshold, failureCount and lastFailureTime.
-    protected void evaluateState() {
-        if (failureCount >= failureThreshold) { //Then something is wrong with remote service
-            if ((System.nanoTime() - lastFailureTime) > retryTimePeriod) {
-                //We have waited long enough and should try checking if service is up
-                state = State.HALF_OPEN;
-            } else {
-                //Service would still probably be down
-                state = State.OPEN;
-            }
-        } else {
-            //Everything is working fine
-            state = State.CLOSED;
-        }
+        System.out.println(String.format("failCount = %d, state = %s, lastFailureResponse = %s", failCount, state, lastFailureResponse));
     }
 
     @Override
-    public String getState() {
+    public State getState() {
         evaluateState();
-        return state.name();
+        return this.state;
     }
 
-    /**
-     * Break the circuit beforehand if it is known service is down Or connect the circuit manually if
-     * service comes online before expected.
-     *
-     * @param state State at which circuit is in
-     */
     @Override
-    public void setState(State state) {
-        this.state = state;
-        switch (state) {
-            case OPEN:
-                this.failureCount = failureThreshold;
-                this.lastFailureTime = System.nanoTime();
-                break;
-            case HALF_OPEN:
-                this.failureCount = failureThreshold;
-                this.lastFailureTime = System.nanoTime() - retryTimePeriod;
-                break;
-            default:
-                this.failureCount = 0;
-        }
-    }
-
-    /**
-     * Executes service call.
-     *
-     * @return Value from the remote resource, stale response or a custom exception
-     */
-    @Override
-    public String attemptRequest() throws RemoteServiceException {
+    public String attemptRequest() {
         evaluateState();
         if (state == State.OPEN) {
-            // return cached response if the circuit is in OPEN state
             return this.lastFailureResponse;
         } else {
-            // Make the API request if the circuit is not OPEN
             try {
-                //In a real application, this would be run in a thread and the timeout
-                //parameter of the circuit breaker would be utilized to know if service
-                //is working. Here, we simulate that based on server response itself
-                var response = service.call();
-                // Yay!! the API responded fine. Let's reset everything.
-                recordSuccess();
-                return response;
-            } catch (RemoteServiceException ex) {
-                recordFailure(ex.getMessage());
-                throw ex;
+                long startTime = System.nanoTime();
+                var result = remoteService.process();
+                long finishTime = System.nanoTime();
+
+                if ((finishTime - startTime) / 1000 * 1000 > timeout) {
+                    var errorMessage = "takes long...";
+                    recordFail(errorMessage);
+                } else {
+                    recordSuccess();
+                }
+                return result;
+            } catch (Exception e) {
+                recordFail(e.getMessage());
+                throw e;
             }
+        }
+    }
+
+    private void evaluateState() {
+        // 실패
+        if (failCount >= threshold) {
+            if ((System.nanoTime() - lastFailTime) > retryTimePeriod) {
+                this.state = State.HALF_OPEN;
+            } else {
+                this.state = State.OPEN;
+            }
+        } else {
+            this.state = State.CLOSED;
         }
     }
 }
