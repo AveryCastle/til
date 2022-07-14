@@ -597,3 +597,8 @@
 - 웹 아카이빙: 
 - 웹 마이닝: 
 - 웹 모니터링:  
+
+
+# 기타
+## e-commerce 아키텍처
+- https://medium.com/double-pointer/system-design-interview-amazon-flipkart-ebay-or-similar-e-commerce-applications-35a0bc764421
