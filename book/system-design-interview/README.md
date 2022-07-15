@@ -602,3 +602,6 @@
 # 기타
 ## e-commerce 아키텍처
 - https://medium.com/double-pointer/system-design-interview-amazon-flipkart-ebay-or-similar-e-commerce-applications-35a0bc764421
+- https://www.youtube.com/watch?v=EpASu_1dUdE
+- https://www.codekarle.com/images/Amazon.png
+- https://www.codekarle.com/system-design/Amazon-system-design.html
