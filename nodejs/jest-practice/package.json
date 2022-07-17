@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.21.2",
     "babel-jest": "^23.0.1",
     "bcrypt": "^2.0.1",
     "jest": "^23.1.0",
