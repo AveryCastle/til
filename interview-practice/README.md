@@ -550,11 +550,27 @@ NaturalOrder{name='V', age=27}
 > - 의존성을 갖는 빈을 생성하려면 가끔은 의존성에 대한 연결 고리를 직접 명시하지 않아도 된다. 애플리케이션 컨텍스트 내에서 해당 Bean이 1개만 존재할 경우 알아서 자동으로 연결해주기 때문이다.
 
 > Q. Spring Boot와 Spring Framework의 차이 및 장점, 아쉬운 점은?
+> - Spring Boot는 최소한의 설정으로 프로덕션 규모의 애플리케이션을 쉽게 개발할 수 있게 설계된 오픈 소스 프레임워크입니다.
+> - Spring Boot 소개 페이지에서는 `just run` 이라고 소개할 정도로 손쉬운 개발을 주요 목표로 하고 있다.
+> - Tomcat, Jetty, Undertow 같은 서블릿 컨테이너를 내장하고 있어서 별도의 웹서버가 없어도 독립 실행이 가능하고, 또한 복잡한 의종성과 설정을 자동화한 spring-boot-stater를 추가하면 쉽게 사용할 수 있다.
+>   - `@SpringBootConfiguration` 은 추가적인 설정 정보를 갖고 오거나 정리된 Bean을 Spring Context에 추가한다.
+>   - `@EnableAutoConfiguration` 을 통해서 자동 설정을 한다.
+>     - spring-boot-actuator-autoconfigure-x.jar 에서 META-INF/spring.factories에 후보자 Configuration 들이 정리되어 있다.
+>     - @Conditional 상테에 따라서 필요한 정보들을 Load할지 안 할지 결정한다.
+>     - @ConditionalOnClass 인 경우에만 Load하고, @ConditionalOnMissingClass는 클래스가 없을 때만 동작한다.
+>     - @AopAutoConfiguration 에서 AOP 작동하기...
+>   - `@ComponentScan`은 Component로 등록된 모든 Class를 찾는다. 
+> - Spring Framework 는 XML, Java Configuration 설정하는데 개발자가 많은 시간을 쓰게 된다.
 
-- Job은 여러 개의 Step으로 나눌 수 있다.
-- Step은 여러 개의 Tasklet 또는 ItemReader, (Processor), ItemWriter 로 나뉠 수 있다.
-- Tasklet과 ItemReader, Processor, ItemWriter 3개의 묶음이 동일 레벨이라고 보면 된다.
-- ![spring batch job](src/main/resources/spring_batch_job.png)
+> Q. Spring Initializer...
+> - Spring Boot 기반의 애플리케이션을 쉽게 만들 수 있게 도와주는 웹 애플리케이션이다.
+> - Spring Initializr 를 이용하여 애플리케이션을 만들면 초기 프로젝트 구성시 들어가는 시간과 노력을 줄여 줄 수 있다.
+
+> Q. Spring Batch 에 대한 설명..
+> - Job은 여러 개의 Step으로 나눌 수 있다.
+> - Step은 여러 개의 Tasklet 또는 ItemReader, (Processor), ItemWriter 로 나뉠 수 있다.
+> - Tasklet과 ItemReader, Processor, ItemWriter 3개의 묶음이 동일 레벨이라고 보면 된다.
+> - ![spring batch job](src/main/resources/spring_batch_job.png)
 
 # Reactive / WebFlux
 - WebFlux는 Spring5에 새롭게 추가된 Reactive-stack의 웹 프레임워크다.
