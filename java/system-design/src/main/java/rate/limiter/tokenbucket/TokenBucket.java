@@ -7,34 +7,38 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class TokenBucket implements RateLimiter {
 
-    private final int refillCountInSeconds;
-    private final int bucketCapacity;
-    private final AtomicInteger currentCapacity;
-    private final AtomicLong lastUpdatedTime;
+    private final int refillCountInSecond;
+    private final int bucketSize;
+    private final AtomicInteger currentCount;
+    private final AtomicLong lastRefilledTime;
 
-    public TokenBucket(int refillCountInSeconds, int bucketCapacity) {
-        this.refillCountInSeconds = refillCountInSeconds;
-        this.bucketCapacity = bucketCapacity;
-        currentCapacity = new AtomicInteger(bucketCapacity);
-        lastUpdatedTime = new AtomicLong(System.currentTimeMillis());
+    public TokenBucket(int refillCountInSecond, int bucketSize) {
+        this.refillCountInSecond = refillCountInSecond;
+        this.bucketSize = bucketSize;
+        this.currentCount = new AtomicInteger(refillCountInSecond);
+        this.lastRefilledTime = new AtomicLong(System.currentTimeMillis() / 1000 * 1000);
     }
 
     @Override
     public boolean grantAccess() {
-        refreshBucket();
-        if (currentCapacity.get() > 0) {
-            currentCapacity.decrementAndGet();
+        refreshToken();
+
+        if (currentCount.get() > 0) {
+            currentCount.decrementAndGet();
             return true;
         }
-
         return false;
     }
 
-    private void refreshBucket() {
+    private void refreshToken() {
         long currentTime = System.currentTimeMillis();
-        int additionalToken = (int) Math.ceil((currentTime - lastUpdatedTime.get()) / 1000) * refillCountInSeconds;
-        int currCapacity = Math.min(currentCapacity.get() + additionalToken, bucketCapacity);
-        currentCapacity.set(currCapacity);
-        lastUpdatedTime.set(currentTime);
+        long duration = (currentTime - lastRefilledTime.get()) / 1000;
+        if (duration >= 1) {
+            lastRefilledTime.set(currentTime / 1000 * 1000);
+        }
+
+        int additionalToken = (int) (duration * refillCountInSecond);
+        int currentCapacity = Math.min(currentCount.get() + additionalToken, bucketSize);
+        currentCount.set(currentCapacity);
     }
 }

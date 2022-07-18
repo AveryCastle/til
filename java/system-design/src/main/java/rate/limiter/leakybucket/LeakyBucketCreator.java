@@ -3,13 +3,13 @@ package rate.limiter.leakybucket;
 import java.util.HashMap;
 import java.util.Map;
 
-public class UserBucketCreator {
+public class LeakyBucketCreator {
 
     private final Map<String, LeakyBucket> bucket = new HashMap<>();
     private final int bucketCapacity;
     private final int outflowRateInSecond;
 
-    public UserBucketCreator(String id, int bucketCapacity, int outflowRateInSecond) {
+    public LeakyBucketCreator(String id, int bucketCapacity, int outflowRateInSecond) {
         this.bucketCapacity = bucketCapacity;
         this.outflowRateInSecond = outflowRateInSecond;
         this.bucket.put(id, new LeakyBucket(bucketCapacity, outflowRateInSecond));

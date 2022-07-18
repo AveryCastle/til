@@ -3,11 +3,11 @@ package rate.limiter.tokenbucket;
 import java.util.HashMap;
 import java.util.Map;
 
-public class UserBucketCreator {
+public class TokenBucketCreator {
 
     private final Map<Integer, TokenBucket> bucket = new HashMap<>();
 
-    public UserBucketCreator(int id, int refillCount, int bucketCapacity) {
+    public TokenBucketCreator(int id, int refillCount, int bucketCapacity) {
         this.bucket.put(id, new TokenBucket(refillCount, bucketCapacity));
     }
 
