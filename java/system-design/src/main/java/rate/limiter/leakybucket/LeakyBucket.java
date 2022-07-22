@@ -2,25 +2,25 @@ package rate.limiter.leakybucket;
 
 import rate.limiter.RateLimiter;
 
-import java.util.concurrent.BlockingQueue;
+import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class LeakyBucket implements RateLimiter {
 
-    private final int bucketCapacity;
-    private final int outflowRateInSecond;
-    private final AtomicLong lastOutflowTime;
-    private final BlockingQueue<Integer> bucket;
-    private final AtomicInteger processedCount;
+    private final int bucketSize;
+    private final int processCountInSecond;
+    private final Queue<Integer> bucket;
+    private final AtomicInteger currentProcessedCount;
+    private final AtomicLong lastProcessedTime;
 
-    public LeakyBucket(int bucketCapacity, int outflowRateInSecond) {
-        this.bucketCapacity = bucketCapacity;
-        this.outflowRateInSecond = outflowRateInSecond;
-        this.lastOutflowTime = new AtomicLong(System.currentTimeMillis());
-        this.bucket = new LinkedBlockingQueue<>(bucketCapacity);
-        this.processedCount = new AtomicInteger(0);
+    public LeakyBucket(int bucketSize, int processCountInSecond) {
+        this.bucketSize = bucketSize;
+        this.processCountInSecond = processCountInSecond;
+        this.bucket = new LinkedBlockingQueue<>(bucketSize);
+        this.currentProcessedCount = new AtomicInteger(0);
+        this.lastProcessedTime = new AtomicLong(System.currentTimeMillis());
     }
 
     @Override
@@ -36,16 +36,17 @@ public class LeakyBucket implements RateLimiter {
 
     private void refreshBucket() {
         long currentTime = System.currentTimeMillis();
-        long durationInSecond = (currentTime - lastOutflowTime.get()) / 1000;
-        if (durationInSecond >= 1) {
-            processedCount.set(0);
+        double duration = (double) (currentTime - lastProcessedTime.get()) / 1000;
+
+        if (duration >= 1) {
+            currentProcessedCount.set(0);
         }
 
-        int currentCapacity = (int) ((currentTime - lastOutflowTime.get()) * outflowRateInSecond);
-        while (processedCount.get() < currentCapacity) {
-            processedCount.incrementAndGet();
+        double currentCapacity = processCountInSecond * duration;
+        while (currentProcessedCount.get() < currentCapacity) {
+            currentProcessedCount.incrementAndGet();
             bucket.poll();
-            lastOutflowTime.set(currentTime);
+            lastProcessedTime.set(currentTime);
         }
     }
 }
