@@ -16,5 +16,3 @@ pip install pymysql # mysql connector for python
 > https://okky.kr/article/832499?note=2173272
 >
 > naver open api
-> Client ID: OhxX7JadJJxQ82m7g4aU
-> Client Secret: zWD718J4fm
