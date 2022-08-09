@@ -522,24 +522,40 @@ NaturalOrder{name='V', age=27}
   
 > Q. 중요! 스프링 Container 가 Bean 들의 생명주기를 어떻게 관리해주는지? & Circular Dependency 랑 엮어서 생각해보기(중요!!)
 > ![spring_bean_lifecycle](src/main/resources/Spring_Bean_Lifecycle.png)
+> ![spring_bean_lifecycle](src/main/resources/Spring_Bean_Life_Cycle.png)
 > - 생성과정
->  - 빈 생성에 필요한 Property 정보 수집(XML, JavaConfig, 컴포넌트 스캔해서 annotation 정보 수집): BeanFactoryPostProcessor 가 수행
->  - 빈 생성되었으면 의존성 관계 주입(Constructor DI, Field DI, Setter DI)
->  - 빈 의존관계까지 엮어졌으면 빈 생성 후 초기화 작업(@PostConstruct -> InitializingBean:afterPropertiesSet, @Bean의 initMethod(XML 기반이면  <bean> 요소의 init-method): BeanPostProcessor 에서 일부 수행됨.
+> 
+>     | 단계  | 역할  |
+>     |---|---|
+>     | Instantiate  | default constructor 를 호출함.  |
+>     | Populate properties  | properties를 세팅하기 위해서 setters 호출함. |
+>     | BeanNameAware:setBeanName(String s)  | 자신의 Bean Name을 알고자 할 때 사용  |
+>     | BeanFactoryAware:setBeanFactory(BeanFactory bf)  | 현재 실행중인 BeanFactory를 불러오기 위해 사용|
+>     | ApplicationContextAware:setApplicationContext  | 현재 실행중인 ApplicationContext를 불러오기 위해 사용 |
+>     | BeanPostProcessor:postProcessBeforeInitialization(Object bean, String beanName)  | Spring container 가 Bean 을 instantiating, configuring, initializing 한 후에 custom logic 을 넣고 싶을 때, BeanPostProcessor 를 구현하기   |
+>     | InitializingBean:afterPropertiesSet()  |   |
+>     | Custom init-method  |   |
+>     | BeanPostProcessor:postProcessAfterInitialization(Object bean, String beanName)  |   |
+>
+> - 빈 생성에 필요한 Property 정보 수집(XML, JavaConfig, 컴포넌트 스캔해서 annotation 정보 수집): ResourceLoader 가 수행
+> - 빈 생성되었으면 의존성 관계 주입(Constructor DI, Field DI, Setter DI)
+> - 빈 의존관계까지 엮어졌으면 빈 생성 후 초기화 작업(@PostConstruct -> InitializingBean:afterPropertiesSet, @Bean의 initMethod(XML 기반이면  <bean> 요소의 init-method): BeanPostProcessor 에서 일부 수행됨.
 > - Spring context 모든 bean들을 load할 때, 완전히 동작할 수 있는 순서로 bean을 생성하려고 한다. 
 > - Circular Dependency가 없는 Bean A -> Bean B -> Bean C 로 참조하는 경우를 예를 들어 설명을 해보자. Spring Context는 bean C를 생성하고, bean B를 만들 때, bean C를 주입해주고, bean A를 만들 때, bean B를 주입해준다. 그러나 만일 `bean A -> bean B -> bean C -> bean A` 처럼 Circular 관계가 있다면, Spring Context는 어느 bean을 먼저 생성해야 하는지 결정을 할 수가 없다. 이 경우, `BeanCurrentlyInCreationException` 에러가 발생하게 된다. 이는 **constructor injection**을 사용할 때 발생한다. 만약 다른 종류의 injection을 사용하면 이 문제는 겪지 않는다. 왜냐하면 종속성 주입은 Context Loading이 아닌 필요할 때 주입이 되기 때문이다.
 > - 해결 방법
->  - 디자인 설계 다시하기: Circular Dependency(순환참조)가 발생했다면 디자인 설계를 잘못 했을 가능성이 크다. 책임을 잘 분리하지 못 했을 가능성이 크다. 그러나 복잡한 레거시 코드 환경이거나 개선할 충분한 리소스가 없거나 시간이 부족한 등의 상황이 안될 때 다른 선택지를 사용할 수 있다.
->  - @Lazy를 사용하기: Spring Context한테 그 중 1가지는 Lasy initialize하라고 설정하는 것이다. 일단 Proxy를 주입하고 실제로 처음으로 사용될 때 완전히 만들어진다.
->  - Setter/Field Injection 사용하기: Spring Context가 일단 Bean을 생성하고 wiring은 해주지 않는다. 실제 Bean이 사용될 때 주입을 시켜준다.
->  - @PostConstructor 사용하기: 하나는 @Autowired를 사용하여 필요한 Bean을 정의하고, 그 필요한 빈에 자기 자신을 @PostConstructor를 이용하여 주입시킨다.
->  - ApplicationContextAware, InitializingBean: Circular Dependency가 발생하는 Bean 중에 ApplicationContextAware를 구현한 Bean이 있다면, 이 Bean은 ApplicationContext에 접근할 수 있고, 다른 Bean들을 추출할 수 있다. InitializingBean 을 구현해서 Bean이 Properties가 세팅된 후에 어떤 작업을 해야 한다고 가리켜야 한다. 개발자가 dependecy를 setting해줘야 한다.
->  - 참고
->   - https://programming.vip/docs/spring-s-solution-to-circular-dependency-and-consideration-of-three-level-cache.html
->   - https://developpaper.com/does-spring-need-l3-cache-to-solve-circular-dependency/
->   - https://docs.spring.io/spring-framework/docs/current/reference/html/core.html
->   - https://www.baeldung.com/circular-dependencies-in-spring
->   - https://kgvovc.tistory.com/50
+>   - 디자인 설계 다시하기: Circular Dependency(순환참조)가 발생했다면 디자인 설계를 잘못 했을 가능성이 크다. 책임을 잘 분리하지 못 했을 가능성이 크다. 그러나 복잡한 레거시 코드 환경이거나 개선할 충분한 리소스가 없거나 시간이 부족한 등의 상황이 안될 때 다른 선택지를 사용할 수 있다.
+>   - @Lazy를 사용하기: Spring Context한테 그 중 1가지는 Lasy initialize하라고 설정하는 것이다. 일단 Proxy를 주입하고 실제로 처음으로 사용될 때 완전히 만들어진다.
+>   - Setter/Field Injection 사용하기: Spring Context가 일단 Bean을 생성하고 wiring은 해주지 않는다. 실제 Bean이 사용될 때 주입을 시켜준다.
+>   - @PostConstructor 사용하기: 하나는 @Autowired를 사용하여 필요한 Bean을 정의하고, 그 필요한 빈에 자기 자신을 @PostConstructor를 이용하여 주입시킨다.
+>   - ApplicationContextAware, InitializingBean: Circular Dependency가 발생하는 Bean 중에 ApplicationContextAware를 구현한 Bean이 있다면, 이 Bean은 ApplicationContext에 접근할 수 있고, 다른 Bean들을 추출할 수 있다. InitializingBean 을 구현해서 Bean이 Properties가 세팅된 후에 어떤 작업을 해야 한다고 가리켜야 한다. 개발자가 dependecy를 setting해줘야 한다.
+>   - 참고
+>    - https://dzone.com/articles/spring-bean-lifecycle-using-spring-aware-interface
+>    - https://programming.vip/docs/spring-s-solution-to-circular-dependency-and-consideration-of-three-level-cache.html
+>    - https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/beans/factory/BeanFactory.html
+>    - https://developpaper.com/does-spring-need-l3-cache-to-solve-circular-dependency/
+>    - https://docs.spring.io/spring-framework/docs/current/reference/html/core.html
+>    - https://www.baeldung.com/circular-dependencies-in-spring
+>    - https://kgvovc.tistory.com/50
 
 - 질문모임: https://howtodoinjava.com/interview-questions/top-spring-interview-questions-with-answers/
 
