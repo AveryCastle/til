@@ -946,9 +946,15 @@ NaturalOrder{name='V', age=27}
 - [choose-container](https://docs.spring.io/spring-amqp/reference/html/#choose-container)
 - [SMLC vs DMLC](https://stackoverflow.com/questions/56438819/whats-the-difference-between-simplemessagelistenercontainer-and-directmessageli)
 
-#### DB Sharding
+### DB Sharding
 - 같은 스키마 테이블을 여러 데이터베이스에 분산하여 저장하는 방법을 말한다. 
 - https://nesoy.github.io/articles/2018-05/Database-Shard
+
+### Vue.js
+- 특징
+  - Angular의 Two-way binding 채택: 화면에 표시되는 값과 프레임워크 모델 데이터 값이 동기화되어 한쪽에 변경되면 다른 한쪽도 자동으로 변경되는 것
+  - React One-way Data Flow 채택: 컴포넌트 간에 데이터를 전달할 때 항상 상위 컴포넌트에서 하위 컴포넌트 한 방향으로만 전달하게끔 프레임웍 구조화되어 있는 것
+  - React Virtual DOM 채택: 빠른 화면 렌더링을 위해서 특정 돔 요소를 추가하거나 삭제하는 변경이 일어날 때 화면 전체를 다시 그리지 않고 프레임워크에서 정의한 방식에 따라 화면을 갱신하는 것
 
 
 # 그 해 이슈
