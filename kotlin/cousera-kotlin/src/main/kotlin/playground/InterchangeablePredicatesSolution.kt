@@ -2,14 +2,6 @@ package playground
 
 import intro.eq
 
-fun List<Int>.allNonZero() =  all { it != 0 }
-fun List<Int>.allNonZero1() =  none { it == 0 }
-fun List<Int>.allNonZero2() =  !any { it == 0 }
-
-fun List<Int>.containsZero() =  any { it == 0 }
-fun List<Int>.containsZero1() = !all { it != 0 }
-fun List<Int>.containsZero2() =  !none { it == 0 }
-
 fun main(args: Array<String>) {
     val list1 = listOf(1, 2, 3)
     list1.allNonZero() eq true
@@ -29,3 +21,10 @@ fun main(args: Array<String>) {
     list2.containsZero1() eq true
     list2.containsZero2() eq true
 }
+
+fun List<Int>.allNonZero() = all { it != 0 }
+fun List<Int>.allNonZero1() = none { it == 0 }
+fun List<Int>.allNonZero2() = !any { it == 0 }
+fun List<Int>.containsZero() = any { it == 0 }
+fun List<Int>.containsZero1() = !all { it != 0 }
+fun List<Int>.containsZero2() = !none { it == 0 }
