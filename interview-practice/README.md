@@ -291,9 +291,9 @@ NaturalOrder{name='V', age=27}
 >   - Stream: 한 번에 한 개씩 만들어지는 연속적인 데이터 항목들의 모임이다.
 >   - Stream API의 핵심
 >    - 우리가 하려는 작업을 (데이터베이스 질의처럼) 고수준으로 추상화해서 일련의 스트림을로 만들어 처리할 수 있다는 것이다.
->    - 스트림 파이프랄인을 이용해서 입력 부분을 여러 CPU 코어에 쉽게 할당 할 수 있다는 부가적인 이득도 얻을 수 있다. 이로 인해 공짜로 병렬설을 얻을 수 있다.
+>    - 스트림 파이프라인을 이용해서 입력 부분을 여러 CPU 코어에 쉽게 할당 할 수 있다는 부가적인 이득도 얻을 수 있다. 이로 인해 공짜로 병렬성을 얻을 수 있다.
 > - 메서드에 코드를 전달하는 기법
->   - 메서드를 다른 메서드의 인수로 넘겨주는 기능을 제공한다.(동작 파라미터화)
+>   - 메서드를 다른 메서드의 인수로 넘겨주는 기능을 제공한다(동작 파라미터화).
 > - 인터페이스의 디폴트 메서드
 > - GC에서의 변화
 >   - Permanent 영역이 사라지고 Metaspace 영역이 새로 생겼다.
@@ -306,7 +306,7 @@ NaturalOrder{name='V', age=27}
 >  - https://www.daleseo.com/java8-optional-after/
 
 > Q. for...loop vs stream 언제 사용해야 하나?
-> - Stream의 map()이나 flatMap() 같은 메서드들을 체이닝(chaining)을 통해 조합해서 사용해야할 때처럼 내부적, 함수적 반복이 확실히 유리할 때만 stream 스타일을 쓰는 것이 좋다.
+> - Stream 의 map()이나 flatMap() 같은 메서드들을 체이닝(chaining)을 통해 조합해서 사용해야할 때처럼 내부적, 함수적 반복이 확실히 유리할 때만 stream 스타일을 쓰는 것이 좋다.
 > - 원시 데이터(primitive data type)를 반복문으로 처리할 때는 절대적으로 전통적인 for-loop 를 써야한다.
 > - 참고
 >   - https://homoefficio.github.io/2016/06/26/for-loop-%EB%A5%BC-Stream-forEach-%EB%A1%9C-%EB%B0%94%EA%BE%B8%EC%A7%80-%EB%A7%90%EC%95%84%EC%95%BC-%ED%95%A0-3%EA%B0%80%EC%A7%80-%EC%9D%B4%EC%9C%A0/
@@ -351,29 +351,29 @@ NaturalOrder{name='V', age=27}
 >   - boolean isSameFile(Path, Path): 두 Path가 같은 파일을 가리키며, true, 아니면 false를 반환한다.
 >   - 컬렉션 인터페이스에 새로운 메소드 추가
 >     - toArray() 메소드를 오버 로딩하는 메소드가 추가되었고, 원하는 타입의 배열을 선택하여 반환할 수 있게 되었다.
->       - ```java
+>     - ```java
 >        List sampleList = Arrays.asList("Java", "Kotlin");
 >        String[] sampleArray = sampleList.toArray(String[]::new);
 >        assertThat(sampleArray).containsExactly("Java", "Kotlin");
->        ```
->  - Predicate 인터페이스에 새로운 메소드 추가
->    - Predicate 인터페이스에 부정을 나타내는 not() 메소드가 추가되었다.
->    - ```java
->      List<String> sampleList = Arrays.asList("Java", "\n \n", "Kotlin", " ");
->      List withoutBlanks = sampleList.stream()
->                                     .filter(Predicate.not(String::isBlank))
->                                     .collect(Collectors.toList());
->      assertThat(withoutBlanks).containsExactly("Java", "Kotlin");
->      ```
->  - 람다 파라미터를 위한 로컬 변수 var 사용
->    - java 10버전에서 편리한 var 구문이 생겨난 상황에서, 11버전에서는 람다 파라미터에서 좀 더 명시적으로 var 를 이용 할 수 있게 되었다.
->    - ```java
+>     ```
+> - Predicate 인터페이스에 새로운 메소드 추가
+>   - Predicate 인터페이스에 부정을 나타내는 not() 메소드가 추가되었다.
+>   - ```java
+>     List<String> sampleList = Arrays.asList("Java", "\n \n", "Kotlin", " ");
+>     List withoutBlanks = sampleList.stream()
+>                                    .filter(Predicate.not(String::isBlank))
+>                                    .collect(Collectors.toList());
+>     assertThat(withoutBlanks).containsExactly("Java", "Kotlin");
+>   ```
+> - 람다 파라미터를 위한 로컬 변수 var 사용
+>   - java 10버전에서 편리한 var 구문이 생겨난 상황에서, 11버전에서는 람다 파라미터에서 좀 더 명시적으로 var 를 이용 할 수 있게 되었다.
+>   - ```java
 >      List<String> sampleList = Arrays.asList("Java", "Kotlin"); 
 >      String resultString = sampleList.stream()
 >                                      .map((@Nonnull var x) -> x.toUpperCase())
 >                                      .collect(Collectors.joining(", "));
 >      assertThat(resultString).isEqualTo("JAVA, KOTLIN");
->    ```
+>   ```
 >  - 자바 파일 실행
 >    - javac를 통해 컴파일 하지 않고도, 바로 java 파일을 실행할 수 있게 되었다.
 >    - ```shell
@@ -519,11 +519,21 @@ NaturalOrder{name='V', age=27}
 - logging이나 transaction 관리, 보안 등의 횡단 관심사(cross-cutting concern)을 한 곳에 모아 처리를 한다.
 - 장점
   - 재사용성을 높임
+- Spring AOP는 Runtime에 Weaving을 해줌.
+- 종류
+  - JDKDynamicProxy
+    - Target에 1개 이상의 Interface를 구현하고 있는 경우
+    - Reflection 사용해서 속도가 느릴 수 있음.
+  - CGLibProxy(Code Generator Library Proxy)
+    - Target에 1개 이상의 Interface를 구현하고 있는 경우
+    - 클래스의 Bytecode를 조작하여 Proxy 객체를 생성해줌.
+    - final class, method는 클래스 재정의 불가능하여 사용할 수 없음.
+- 참고: https://gmoon92.github.io/spring/aop/2019/04/20/jdk-dynamic-proxy-and-cglib.html
   
 > Q. 중요! 스프링 Container 가 Bean 들의 생명주기를 어떻게 관리해주는지? & Circular Dependency 랑 엮어서 생각해보기(중요!!)
 > ![spring_bean_lifecycle](src/main/resources/Spring_Bean_Lifecycle.png)
 > ![spring_bean_lifecycle](src/main/resources/Spring_Bean_Life_Cycle.png)
-> - 생성과정
+- 생성과정
 > 
 >     | 단계  | 역할  |
 >     |---|---|
@@ -540,7 +550,24 @@ NaturalOrder{name='V', age=27}
 > - 빈 생성에 필요한 Property 정보 수집(XML, JavaConfig, 컴포넌트 스캔해서 annotation 정보 수집): ResourceLoader 가 수행
 > - 빈 생성되었으면 의존성 관계 주입(Constructor DI, Field DI, Setter DI)
 > - 빈 의존관계까지 엮어졌으면 빈 생성 후 초기화 작업(@PostConstruct -> InitializingBean:afterPropertiesSet, @Bean의 initMethod(XML 기반이면  <bean> 요소의 init-method): BeanPostProcessor 에서 일부 수행됨.
-> - Spring context 모든 bean들을 load할 때, 완전히 동작할 수 있는 순서로 bean을 생성하려고 한다. 
+> - Spring context 모든 bean들을 load할 때, 완전히 동작할 수 있는 순서로 bean을 생성하려고 한다.
+> - 생성 과정
+>   - Java/XML Config 및 Component Scan을 통해서 Annotation 기반 정보에 대해 BeanDefinition을 만든다.
+>   - Bean Instantiate 하기
+>   - Properties Populate 하여 의존성 주입하기
+>   - BeanNameAware(각종 Aware에 대해 callback 호출하기)
+>   - BeanFactoryAware
+>   - ApplicationContextAware
+>   - BeanPostProcessor - preInitialization
+>   - InitializingBean - afterProperties
+>   - Custom initMethod
+>   - BeanPostProcessor - postInitialization
+>   - Bean Ready To Use
+> - 소멸 과정
+    >  - BeanPostProcessor - @PostConstruct
+>  - DisposalBean - destroy()
+>  - Custom - destroyMethod
+>
 > - Circular Dependency가 없는 Bean A -> Bean B -> Bean C 로 참조하는 경우를 예를 들어 설명을 해보자. Spring Context는 bean C를 생성하고, bean B를 만들 때, bean C를 주입해주고, bean A를 만들 때, bean B를 주입해준다. 그러나 만일 `bean A -> bean B -> bean C -> bean A` 처럼 Circular 관계가 있다면, Spring Context는 어느 bean을 먼저 생성해야 하는지 결정을 할 수가 없다. 이 경우, `BeanCurrentlyInCreationException` 에러가 발생하게 된다. 이는 **constructor injection**을 사용할 때 발생한다. 만약 다른 종류의 injection을 사용하면 이 문제는 겪지 않는다. 왜냐하면 종속성 주입은 Context Loading이 아닌 필요할 때 주입이 되기 때문이다.
 > - 해결 방법
 >   - 디자인 설계 다시하기: Circular Dependency(순환참조)가 발생했다면 디자인 설계를 잘못 했을 가능성이 크다. 책임을 잘 분리하지 못 했을 가능성이 크다. 그러나 복잡한 레거시 코드 환경이거나 개선할 충분한 리소스가 없거나 시간이 부족한 등의 상황이 안될 때 다른 선택지를 사용할 수 있다.
@@ -548,6 +575,10 @@ NaturalOrder{name='V', age=27}
 >   - Setter/Field Injection 사용하기: Spring Context가 일단 Bean을 생성하고 wiring은 해주지 않는다. 실제 Bean이 사용될 때 주입을 시켜준다.
 >   - @PostConstructor 사용하기: 하나는 @Autowired를 사용하여 필요한 Bean을 정의하고, 그 필요한 빈에 자기 자신을 @PostConstructor를 이용하여 주입시킨다.
 >   - ApplicationContextAware, InitializingBean: Circular Dependency가 발생하는 Bean 중에 ApplicationContextAware를 구현한 Bean이 있다면, 이 Bean은 ApplicationContext에 접근할 수 있고, 다른 Bean들을 추출할 수 있다. InitializingBean 을 구현해서 Bean이 Properties가 세팅된 후에 어떤 작업을 해야 한다고 가리켜야 한다. 개발자가 dependecy를 setting해줘야 한다.
+> - Bean을 programmatically 하게 lifecycle을 hooking 할 수 있게 제공하는 이유
+>   - Runtime에 Bean Properties를 획득해야 하는 경우가 있을 수 있음. 예를 들면 BeanName을 얻어야 하는 경우, BeanNameAware 활용
+>   - Spring Bean을 Dynamically 변경해야 할 경우
+>   - Spring Context 범위 밖에 있는 클래스를 접근해서 Bean을 만들어줘야 할 때 
 >   - 참고
 >    - https://dzone.com/articles/spring-bean-lifecycle-using-spring-aware-interface
 >    - https://programming.vip/docs/spring-s-solution-to-circular-dependency-and-consideration-of-three-level-cache.html
@@ -556,9 +587,8 @@ NaturalOrder{name='V', age=27}
 >    - https://docs.spring.io/spring-framework/docs/current/reference/html/core.html
 >    - https://www.baeldung.com/circular-dependencies-in-spring
 >    - https://kgvovc.tistory.com/50
-
+>    - https://reflectoring.io/spring-bean-lifecycle/
 - 질문모임: https://howtodoinjava.com/interview-questions/top-spring-interview-questions-with-answers/
-
 
 ### Spring MVC Flow
 > - ![Spring MVC Flow](src/main/resources/SpringMVC_Flow2.png)
