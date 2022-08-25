@@ -537,6 +537,7 @@ NaturalOrder{name='V', age=27}
 > 
 >     | 단계  | 역할  |
 >     |---|---|
+>     | BeanDefinition  | Java, XML Config, @annotation component Scan 하여 BeanDefinition 생성  |
 >     | Instantiate  | default constructor 를 호출함.  |
 >     | Populate properties  | properties를 세팅하기 위해서 setters 호출함. |
 >     | BeanNameAware:setBeanName(String s)  | 자신의 Bean Name을 알고자 할 때 사용  |
@@ -567,7 +568,10 @@ NaturalOrder{name='V', age=27}
     >  - BeanPostProcessor - @PostConstruct
 >  - DisposalBean - destroy()
 >  - Custom - destroyMethod
->
+> 
+> Q. BeanPostProcessor vs @PostConstruct, InitializingBean, Custom-init 
+>  - 기본적으로 BeanPostProcessor는 여러 빈에 대한 custom initialization logic을 수행하는 데 사용할 수 있지만, 다른 빈은 그 빈 자체에 정의해야 한다.
+> 
 > - Circular Dependency가 없는 Bean A -> Bean B -> Bean C 로 참조하는 경우를 예를 들어 설명을 해보자. Spring Context는 bean C를 생성하고, bean B를 만들 때, bean C를 주입해주고, bean A를 만들 때, bean B를 주입해준다. 그러나 만일 `bean A -> bean B -> bean C -> bean A` 처럼 Circular 관계가 있다면, Spring Context는 어느 bean을 먼저 생성해야 하는지 결정을 할 수가 없다. 이 경우, `BeanCurrentlyInCreationException` 에러가 발생하게 된다. 이는 **constructor injection**을 사용할 때 발생한다. 만약 다른 종류의 injection을 사용하면 이 문제는 겪지 않는다. 왜냐하면 종속성 주입은 Context Loading이 아닌 필요할 때 주입이 되기 때문이다.
 > - 해결 방법
 >   - 디자인 설계 다시하기: Circular Dependency(순환참조)가 발생했다면 디자인 설계를 잘못 했을 가능성이 크다. 책임을 잘 분리하지 못 했을 가능성이 크다. 그러나 복잡한 레거시 코드 환경이거나 개선할 충분한 리소스가 없거나 시간이 부족한 등의 상황이 안될 때 다른 선택지를 사용할 수 있다.
@@ -588,6 +592,7 @@ NaturalOrder{name='V', age=27}
 >    - https://www.baeldung.com/circular-dependencies-in-spring
 >    - https://kgvovc.tistory.com/50
 >    - https://reflectoring.io/spring-bean-lifecycle/
+>    - https://jaimemin.tistory.com/2028
 - 질문모임: https://howtodoinjava.com/interview-questions/top-spring-interview-questions-with-answers/
 
 ### Spring MVC Flow
@@ -906,6 +911,29 @@ NaturalOrder{name='V', age=27}
 
 > Q. MSA로 바꿀 때 어떤 서비스부터 변경해 나갈 것인지?
 > 
+
+- MSA 접근 방법
+  - 성능
+  - 장애 격리
+  - 데이터 동기화
+  - 언어 중립적인 구조
+- API 연동을 통한 통신은 Data 동기화 문제도 없고 단순하지만, 장애가 연쇄적으로 전파될 수 있는 소지가 있다. 또한, 대랑 Traffic이 발생할 경우, traffic이 모두 전파되는 문제가 있다. 모든 서비스에 대해서 대용량 traffic을 처리하게 설계하고 구축할 수는 있지만 현실적으로 한계가 있을 수 있다. 또한, 어떤 서비스들은 대용량 traffic 처리보다 정확성, 안정성이 더 중요할 수 있다.
+- CQRS 방식으로 Event를 통한 Message를 발생하여 Pub/Sub 구조로 가져 간다.
+- Query 기반 서비스 / Command 기반 서비스로 나누어 Event 를 Publish해서 메세지 전달하고 데이터 동기화를 처리한다.
+  - 조회(고성능 DB): Redis, DynamoDB
+  - 명령(안정성 DB): RDB
+- 이벤트 전파 및 동기화
+  - eventual consistency를 통해 달성
+  - zero-payload 방식으로 식별자만 갖고 데이터량은 최소화한다. 식별자를 통해 api 호출하여 데이터 얻어와 동기화 처리한다.
+- 최소 데이터만 보관
+  - 논리적 연관관계가 발생되지 않게 하기 위함임
+- 적극적으로 캐시 사용
+- CircuitBreaker 사용하여 장애 전파 차단
+- 비동기 논블로킹 사용
+- 이를 통해 Polyglot 시스템 구조
+  - 성능 중요한 경우: Redis, DynamoDB
+  - 검색/광고: elasticsearch
+  - 
 
 # 암호/보안
 > Q. CSRS(Cross-Site Request Forgery) vs XSS(Cross-Site Scripting)
