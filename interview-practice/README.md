@@ -959,12 +959,21 @@ NaturalOrder{name='V', age=27}
   - data schema에 대해 신경 안 써도 될 때
 - Transactional Messaging
   - DB Transaction 성공됬을 때만 상태 변경 command를 보내야 할 때
-  - two-pahse commit 신경 안 써도 됨.
-  - Message Broker를 신뢰할 수 없을 때
+  - two-phase commit 신경 안 써도 됨.
+  - Message Broker 를 신뢰할 수 없을 때
 - Zero-payload Event
   - 상태 변경 command를 보내야 할 때
-  - message structure가 복잡해서 이전 버전 상호 호환 유지가 어려울 때
+  - message structure 가 복잡해서 이전 버전 상호 호환 유지가 어려울 때
 - 참고: https://reflectoring.io/microservice-communication-patterns/
+
+**CQRS(Command and Query Responsibility Segregation)**
+- 참고
+  - https://www.popit.kr/cqrs-eventsourcing/
+  - https://engineering-skcc.github.io/microservice%20outer%20achitecture/inner-architecture-cqrs/
+
+- 참고
+  - https://engineering-skcc.github.io/microservice%20%EA%B0%9C%EB%85%90/microservice-condition/
+
 
 # 암호/보안
 > Q. CSRS(Cross-Site Request Forgery) vs XSS(Cross-Site Scripting)

@@ -610,3 +610,6 @@
 - https://www.youtube.com/watch?v=EpASu_1dUdE
 - https://www.codekarle.com/images/Amazon.png
 - https://www.codekarle.com/system-design/Amazon-system-design.html
+
+## CQRS(Command and Query Responsibility Segregation)
+- https://engineering-skcc.github.io/microservice%20outer%20achitecture/inner-architecture-cqrs/
