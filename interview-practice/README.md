@@ -933,7 +933,38 @@ NaturalOrder{name='V', age=27}
 - 이를 통해 Polyglot 시스템 구조
   - 성능 중요한 경우: Redis, DynamoDB
   - 검색/광고: elasticsearch
-  - 
+
+**Microservice 통신 방법**
+- Synchronous Calls
+  - 장점: 이해하기 쉽고, 구현하기 쉬움. 제공하는 library가 많음(Feign, Hystrix)
+  - 단점: Data Inconsistency 발생 가능성 있음. Strong Coupling 발생. 이를 완화하기 위해서 retry, fallback 매커니즘을 도입할 수 있지만 전체 비지니스 요구사항을 커버하지는 못 함.
+- Simple Messaging
+  - 장점: 서버측에서 장애 발생시 복구되면서 자동으로 retry를 해줌. Loose Coupling 달성 가능.
+  - 단점: pipeline끼리 message structure를 맞춰야 함. 이는 MSA에서 추구하는 독립적 배포 원칙에 위반됨. 이를 해결하기 위해서 하위 호환되게 schema를 맞춰야 함. transaction 실패 날 때 처리과정(two-phase commit)이 복잡하고, 테스트하기도 어려움.
+- Transactional Messaging
+  - 장점: two-phase commit 해결할 수 있음. db transaction이 완료되면 message를 발송하고, 수신부에서도 먼저 DB 처리를 한 후에 비지니스 로직 처리함.
+  - 단점: 복잡
+- Zero-payload Event
+  - 장점: pipeline 간 data schema에 대한 하위 버전 호환성 신경 안 써도 됨(Dump Pipe이나 마찬가지). two-phase commit 할 필요 없음. 자동 retry 가능.
+  - 단점: event payloads를 얻기 위해 synchronous api를 추가로 개발해야 함.
+  - ![Zero-Payload Event](src/main/resources/Zero-Payload_Event.png)
+
+**언제 사용하는 게 적당한지?**
+- Synchronous Calls
+  - 거의 변경이 없는 consistent한 데이터 요청하는 경우.
+  - 실패해도 retry 굳이 안 해도 되는 경우
+- Simple Messaging
+  - 상태 변경 command를 보내야 할 때
+  - operation이 결국에는 수행되어야 하는 때 
+  - data schema에 대해 신경 안 써도 될 때
+- Transactional Messaging
+  - DB Transaction 성공됬을 때만 상태 변경 command를 보내야 할 때
+  - two-pahse commit 신경 안 써도 됨.
+  - Message Broker를 신뢰할 수 없을 때
+- Zero-payload Event
+  - 상태 변경 command를 보내야 할 때
+  - message structure가 복잡해서 이전 버전 상호 호환 유지가 어려울 때
+- 참고: https://reflectoring.io/microservice-communication-patterns/
 
 # 암호/보안
 > Q. CSRS(Cross-Site Request Forgery) vs XSS(Cross-Site Scripting)
