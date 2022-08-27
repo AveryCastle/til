@@ -505,14 +505,28 @@ NaturalOrder{name='V', age=27}
 - Spring Container라는 제 3자가 객체 사이의 관계를 조율하여 생성 시점에 종속객체를 부여해준다.
 - 장점
   - 느슨한 결합도(loose coupling): 객체가 종속 객체를 생성하거나 호출하지 않고, 종속 객체를 인터페이스를 통해서만 알고 있으면 되기 때문에 구현체는 쉽게 바꿀 수 있다.
+- 정적인 클래스 의존관계
+- 실행 시점(Runtime)에 결정되는 동적인 객체(인스턴스) 의존관계
+  - DI를 사용하면 정적인 클래스 의존관계는 변경하지 않고, 동적인 객체 인스턴스 의존관계를 변경할 수 있다.  
 
-**Spring Container**
+**Spring Container(DI Container/어셈블러/오브젝트 팩토리)**
 - 스프링 컨테이너는 객체를 생성하고, 서로 엮어 주고(wiring), 이들의 전체 생명주기(lifecycle)를 관리한다.
 - 구현체
+  - ![Spring Container Hierarchy](src/main/resources/SpringContainerHierarchy.png)
   1. BeanFactory(org.springframework.beans.factory.BeanFactory)
      - DI에 대한 기본적인 지원을 제공하는 가장 단순한 컨테이너이다.
-  2. ApplicationContext(org.springframework.context.ApplicationContext)
+  2. ApplicationContext(org.springframework.context.ApplicationContext) Interface
+     - ![ApplicationContext 다이어그램](src/main/resources/ApplicationContext다이어그램.png)
      - BeanFactory 를 확장해 property 파일에 텍스트 메세지를 읽고, 해당 이벤트 리스너(listener)에 대한 애플리케이션 이벤트 발행 같은 애플리케이션 프레임워크 서비스를 제공하는 컨테이너이다.
+     - 메세지 소스를 확용한 국제화 기능
+     - 환경변수(local, dev, prod 등)
+     - 애플리케이션 이벤트
+     - 편리한 리소스 조회(파일, 클래스패스, 외부 리소스 조회 등)
+     - `AnnotationConfigApplicationContext` 등 여러 구현체 존재
+- Spring Container 생성 과정
+  - ![Spring Conatiner 생성과정1](src/main/resources/SpringContainer생성과정1.png)
+  - ![Spring Conatiner 생성과정2](src/main/resources/SpringContainer생성과정2.png)
+  - 참고: https://velog.io/@woply/%EC%8A%A4%ED%94%84%EB%A7%81-%EC%BB%A8%ED%85%8C%EC%9D%B4%EB%84%88%EA%B0%80-%EC%83%9D%EC%84%B1%EB%90%98%EB%8A%94-%EA%B3%BC%EC%A0%95
 
 **AOP**
 - 소프트웨어 시스템 내부의 관심사들을 서로 분리하는 기술이다.
@@ -529,6 +543,16 @@ NaturalOrder{name='V', age=27}
     - 클래스의 Bytecode를 조작하여 Proxy 객체를 생성해줌.
     - final class, method는 클래스 재정의 불가능하여 사용할 수 없음.
 - 참고: https://gmoon92.github.io/spring/aop/2019/04/20/jdk-dynamic-proxy-and-cglib.html
+
+> Q. 라이브러리와 프레임워크의 차이는?
+> - IoC 기준으로 나눌 수 있음.
+> - 프레임워크: 내가 작성한 코드를 제어하고 대신 실행함. Application의 제어 흐름을 쥐고 있어서 이 프레임워크의 틀 안에서 개발자가 필요한 기능을 사용하고 추가해야 한다.
+> - 프레임워크는 차, 비행기, 배와 같이 탈 것에 비유할 수 있다. 탈 것에 타면 목적지에 가기 위해 시동을 켜고, 핸들을 돌리고, 깜박이를 키는 등의 행동을 해야 하는데, 이는 개발자가 상황에 맞게 사용해야 한다.
+> - 이때, 차는 도로에서, 비행기는 하늘에서, 배는 바다에서 운행할 수 있게 즉, 목적에 맞게 이미 설계되어 있어 개발자가 목적에 맞는 프레임워크를 골라 사용해야 한다.
+> - 그리고 이 프레임워크에서도 내부 규칙이 있기 때문에 이에 맞게 적절하게 사용해야 한다. 예를 들면 앞으로 가기 위해서는 연료가 있어야 하고, 엔진 키고, 엑셀 밟고 하는 등.
+> - 라이브러리: 내가 작성한 코드를 내가 제어함. 특정 기능을 하는 도구라고 보면 된다. 즉, 톱, 망치, 칼과 같은 특정 기능을 하는 연장과 같은 것이다.
+> - 참조
+    >   - https://kldp.org/comment/560991#comment-560991
   
 > Q. 중요! 스프링 Container 가 Bean 들의 생명주기를 어떻게 관리해주는지? & Circular Dependency 랑 엮어서 생각해보기(중요!!)
 > ![spring_bean_lifecycle](src/main/resources/Spring_Bean_Lifecycle.png)
@@ -552,11 +576,12 @@ NaturalOrder{name='V', age=27}
 > - 빈 생성되었으면 의존성 관계 주입(Constructor DI, Field DI, Setter DI)
 > - 빈 의존관계까지 엮어졌으면 빈 생성 후 초기화 작업(@PostConstruct -> InitializingBean:afterPropertiesSet, @Bean의 initMethod(XML 기반이면  <bean> 요소의 init-method): BeanPostProcessor 에서 일부 수행됨.
 > - Spring context 모든 bean들을 load할 때, 완전히 동작할 수 있는 순서로 bean을 생성하려고 한다.
+> - `객체의 생성과 초기화는 분리하는 것이 좋다. 초기화는 객체의 동작이다. 객체 생성은 메모리 할당까지로 한정하는 것이 좋다. 필수 데이터 세팅까지만하고, 실제 동작하는 것은 초기화 메서드를 따로 실행하는 것이 좋다.`
 > - 생성 과정
 >   - Java/XML Config 및 Component Scan을 통해서 Annotation 기반 정보에 대해 BeanDefinition을 만든다.
 >   - Bean Instantiate 하기
 >   - Properties Populate 하여 의존성 주입하기
->   - BeanNameAware(각종 Aware에 대해 callback 호출하기)
+>   - BeanNameAware(각종 Aware에 대해 callback 호출하기): 개발자가 의존관계 주입이 모두 완료된 시점을 확인할 수 없기 때문에 스프링이 빈에게 의존관계 주입이 끝났다고 콜백 메서드를 통해 알려준다.
 >   - BeanFactoryAware
 >   - ApplicationContextAware
 >   - BeanPostProcessor - preInitialization
@@ -991,15 +1016,6 @@ NaturalOrder{name='V', age=27}
 >  - 사용자가 권한이 있는지 확인
 
 # 기타 IT 전반
-> Q. 라이브러리와 프레임워크의 차이는?
-> - 프레임워크: Application의 제어 흐름을 쥐고 있어서 이 프레임워크의 틀 안에서 개발자가 필요한 기능을 사용하고 추가해야 한다.
-> - 프레임워크는 차, 비행기, 배와 같이 탈 것에 비유할 수 있다. 탈 것에 타면 목적지에 가기 위해 시동을 켜고, 핸들을 돌리고, 깜박이를 키는 등의 행동을 해야 하는데, 이는 개발자가 상황에 맞게 사용해야 한다.
-> - 이때, 차는 도로에서, 비행기는 하늘에서, 배는 바다에서 운행할 수 있게 즉, 목적에 맞게 이미 설계되어 있어 개발자가 목적에 맞는 프레임워크를 골라 사용해야 한다.
-> - 그리고 이 프레임워크에서도 내부 규칙이 있기 때문에 이에 맞게 적절하게 사용해야 한다. 예를 들면 앞으로 가기 위해서는 연료가 있어야 하고, 엔진 키고, 엑셀 밟고 하는 등.
-> - 라이브러리: 특정 기능을 하는 도구라고 보면 된다. 즉, 톱, 망치, 칼과 같은 특정 기능을 하는 연장과 같은 것이다.
-> - 참조
->   - https://kldp.org/comment/560991#comment-560991
-
 > Q. SBT vs Maven vs Gradle
 > - SBT: 매우 간단하며 종속성 관리를 위해 Ivy에 의존하는 Scala에 중점을 둡니다.
 >   - Ivy: dependency 관리자, 프로젝트에서 의존하는 JAR 파일을 관리하고 제어(컨트롤)한다.
