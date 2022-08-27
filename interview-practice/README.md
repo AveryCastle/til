@@ -793,12 +793,26 @@ NaturalOrder{name='V', age=27}
 > 
 > IPC(Inter Process Call)은 프로세스 간에 데이터를 주고 받는 것을 말합니다. 서버와 클라이언트간에 데이터를 주고 받기 위한 방법은 2가지가 있습니다.
 > IPC 통신 방법
-> - Socket 방식: 소켓은 통신하고자 하는 상대의 목적지를 특정할 수 있는 IP와 프로세스간 통신을 위한 Pipeline을 Port로 연결하여 통신합니다. TCP, UPD가 속한다.
-> - 원격 프로시저 콜: RPC(Remote Procedure Call)은 원격 프로시저 함수 호출을 마치 로컬에 위치한 함수를 호출할 수 있게 해줍니다. MSA의 경우 각각의 서비스가 Polyglot 으로 구현되는데, 서로 다른 언어로 구현된 서비스들끼리 IDL을 이용하여 서로 통신할 수 있게 해줍니다.
+> - Socket 방식
+>   - 소켓은 통신하고자 하는 상대의 목적지를 특정할 수 있는 IP와 프로세스간 통신을 위한 Pipeline을 Port로 연결하여 통신합니다. TCP, UPD가 속한다.
+>   - Transport Layer 에 위치
+> - 원격 프로시저 콜
+>   - RPC(Remote Procedure Call)은 원격 프로시저 함수 호출을 마치 로컬에 위치한 함수를 호출할 수 있게 해줍니다. MSA의 경우 각각의 서비스가 Polyglot 으로 구현되는데, 서로 다른 언어로 구현된 서비스들끼리 IDL을 이용하여 서로 통신할 수 있게 해줍니다.
+>   - Application Layer 에 위치
 > IDL(Interface Definition Language)
 > 참고
 > - [IPC-Inter-Process-Communication](https://deveun.tistory.com/entry/OS-%ED%94%84%EB%A1%9C%EC%84%B8%EC%8A%A4%EC%9D%98-%ED%86%B5%EC%8B%A0-IPC-Inter-Process-Communication)
 > - [RPC](https://velog.io/@jakeseo_me/RPC%EB%9E%80)
+> - [REST API vs Async API vs gRPC vs AMQP](https://medium.com/l3montree-techblog/performance-comparison-rest-vs-grpc-vs-asynchronous-communication-3ad27d144a13)
+> - ![Socket vs RPC 위치](src/main/resources/RPC_ApplicationLayer.png)
+
+
+> gRPC
+> - 배경
+>   - 구글에서 microservice 갯수가 엄청 많아지면서 통신할 일이 많아졌고, Stubby라고 만든 거를 open해서 release 해야 겠다 생각하고, 부족한 기능 추가하면서 나온게 gRPC인 듯.
+> - 참고
+>   - https://grpc.io/blog/principles/
+>   - https://livlikwav.github.io/study/grpc-and-its-history/ 
 
 # 인프라/클라우드
 > Q. 포워드 프록시(Forward Proxy) 란?
