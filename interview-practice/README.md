@@ -539,7 +539,6 @@ NaturalOrder{name='V', age=27}
     - Target에 1개 이상의 Interface를 구현하고 있는 경우
     - Reflection 사용해서 속도가 느릴 수 있음.
   - CGLibProxy(Code Generator Library Proxy)
-    - Target에 1개 이상의 Interface를 구현하고 있는 경우
     - 클래스의 Bytecode를 조작하여 Proxy 객체를 생성해줌.
     - final class, method는 클래스 재정의 불가능하여 사용할 수 없음.
 - 참고: https://gmoon92.github.io/spring/aop/2019/04/20/jdk-dynamic-proxy-and-cglib.html
@@ -965,7 +964,7 @@ NaturalOrder{name='V', age=27}
   - 단점: Data Inconsistency 발생 가능성 있음. Strong Coupling 발생. 이를 완화하기 위해서 retry, fallback 매커니즘을 도입할 수 있지만 전체 비지니스 요구사항을 커버하지는 못 함.
 - Simple Messaging
   - 장점: 서버측에서 장애 발생시 복구되면서 자동으로 retry를 해줌. Loose Coupling 달성 가능.
-  - 단점: pipeline끼리 message structure를 맞춰야 함. 이는 MSA에서 추구하는 독립적 배포 원칙에 위반됨. 이를 해결하기 위해서 하위 호환되게 schema를 맞춰야 함. transaction 실패 날 때 처리과정(two-phase commit)이 복잡하고, 테스트하기도 어려움.
+  - 단점: pipeline끼리 message structure를 맞춰야 함. 이는 MSA에서 추구하는 독립적 배포 원칙에 위반됨. 이를 해결하기 위해서 하위 호환되게 schema를 맞춰야 함. transaction 실패 날 때 처리과정(two-phase commit)이 복잡하고, 테스트하기도 어려움. 일부 NoSQL은 Two-Phase Commit 지원하지 않음.
 - Transactional Messaging
   - 장점: two-phase commit 해결할 수 있음. db transaction이 완료되면 message를 발송하고, 수신부에서도 먼저 DB 처리를 한 후에 비지니스 로직 처리함.
   - 단점: 복잡
