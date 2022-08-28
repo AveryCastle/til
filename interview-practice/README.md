@@ -179,6 +179,11 @@ NaturalOrder{name='V', age=27}
 - Spring Framework에서 사용되는 예시
   - JdbcTemplate, JpaTemplate
 
+#### 템플릿 콜백 패턴(Template Callback Pattern)
+- Spring Framework에서 사용하는 예시
+  - JdbcTemplate, RestTemplate , TransactionTemplate , RedisTemplate
+- https://velog.io/@dbsrud11/SpringBoot-%ED%95%B5%EC%8B%AC-%EC%9B%90%EB%A6%AC-%ED%85%9C%ED%94%8C%EB%A6%BF-%EB%A9%94%EC%86%8C%EB%93%9C-%ED%8C%A8%ED%84%B4%EA%B3%BC-%EC%BD%9C%EB%B0%B1-%ED%8C%A8%ED%84%B4-3
+
 #### 데커레이터 패턴(Decorator Pattern)
 - 특정 객체의 기능을 설정하거나 변경할 수 있게 해준다.
 - 자바의 기본 입/출력 클래스
