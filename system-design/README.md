@@ -180,5 +180,5 @@
 
 ## 3단계. 상세 설계
 - ![](resources/images/Top-Seller_상세설계.png)
-- 처음 Top-Seller를 접근할 때, Caching 되어 있지 않기 때문에 Top-Seller Database에 엄청난 부하가 갈 것이다. 더 확장 가능한 기능을 갖추는게 적당할 수 있다.
+- 처음 Top-Seller를 접근할 때, Caching 되어 있지 않기 때문에 Top-Seller Database에 엄청난 부하가 갈 것이다. Scale-out이 필요할 수 있기 때문에 이를 유연하게 지원해주는 NoSQL DB가 더 적당할 수 있다.
 - 단지 카테고리ID, 카테고리정보, 상품ID, 상품정보의 `Key-Value Store`이기 때문에 `NoSQL`의 DB가 더 적당할 수 있다. Serverless 인 DynamoDB가 유지보수를 신경 쓰지 않아도 되서 이걸 선택하는게 나을 수 있다. 
