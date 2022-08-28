@@ -300,6 +300,7 @@ NaturalOrder{name='V', age=27}
 > - 메서드에 코드를 전달하는 기법
 >   - 메서드를 다른 메서드의 인수로 넘겨주는 기능을 제공한다(동작 파라미터화).
 > - 인터페이스의 디폴트 메서드
+>   - 컬렉션에 stream(), parallelStream() 추가해야 하는데, 이미 Collection을 많이 사용하고 있음. 이 기능을 넣기 위해서 default method 가 필요했음.
 > - GC에서의 변화
 >   - Permanent 영역이 사라지고 Metaspace 영역이 새로 생겼다.
 > Metaspace 영역은
@@ -652,7 +653,7 @@ NaturalOrder{name='V', age=27}
 > - Tomcat, Jetty, Undertow 같은 서블릿 컨테이너를 내장하고 있어서 별도의 웹서버가 없어도 독립 실행이 가능하고, 또한 복잡한 의종성과 설정을 자동화한 spring-boot-stater를 추가하면 쉽게 사용할 수 있다.
 >   - `@SpringBootConfiguration` 은 추가적인 설정 정보를 갖고 오거나 정리된 Bean을 Spring Context에 추가한다.
 >   - `@EnableAutoConfiguration` 을 통해서 자동 설정을 한다.
->     - spring-boot-actuator-autoconfigure-x.jar 에서 META-INF/spring.factories에 후보자 Configuration 들이 정리되어 있다.
+>     - `spring-boot-actuator-autoconfigure-x.jar` 에서 `META-INF/spring.factories`에 `후보자` Configuration 들이 정리되어 있다.
 >     - @Conditional 상테에 따라서 필요한 정보들을 Load할지 안 할지 결정한다.
 >     - @ConditionalOnClass 인 경우에만 Load하고, @ConditionalOnMissingClass는 클래스가 없을 때만 동작한다.
 >     - @AopAutoConfiguration 에서 AOP 작동하기...
