@@ -957,10 +957,11 @@ NaturalOrder{name='V', age=27}
 > 
 
 - MSA 접근 방법
-  - 성능
-  - 장애 격리
-  - 데이터 동기화
-  - 언어 중립적인 구조
+  - 통신 방법: Sync/Async Call, EventBroker
+  - 성능: 비동기 논블로킹
+  - 장애 격리: RateLimiter
+  - 데이터 동기화: Eventual Consistency
+  - 언어 중립적인 구조: Polyglot
 - API 연동을 통한 통신은 Data 동기화 문제도 없고 단순하지만, 장애가 연쇄적으로 전파될 수 있는 소지가 있다. 또한, 대랑 Traffic이 발생할 경우, traffic이 모두 전파되는 문제가 있다. 모든 서비스에 대해서 대용량 traffic을 처리하게 설계하고 구축할 수는 있지만 현실적으로 한계가 있을 수 있다. 또한, 어떤 서비스들은 대용량 traffic 처리보다 정확성, 안정성이 더 중요할 수 있다.
 - CQRS 방식으로 Event를 통한 Message를 발생하여 Pub/Sub 구조로 가져 간다.
 - Query 기반 서비스 / Command 기반 서비스로 나누어 Event 를 Publish해서 메세지 전달하고 데이터 동기화를 처리한다.
