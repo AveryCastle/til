@@ -1,0 +1,33 @@
+# H2 DB 연결하기
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb # h2-console 접속 URL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    open-in-view: false
+    hibernate:
+      ddl-auto: create-drop
+    generate-ddl: true
+    properties:
+      hibernate:
+        show_sql: true # JPA SQL Show.
+        format_sql: true # JPA SQL Formatting Pretty.
+
+  # h2 setting
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: true
+
+logging:
+  level:
+    org.hibernate.type.descriptor.sql: trace # Show SQL Parameter Value
+```
