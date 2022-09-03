@@ -1,0 +1,14 @@
+// 대제목
+= REST Docs Sample
+// 소제목
+Rest Docs Sample Sub Title
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+// TOC(Table of Content) 위치.
+:toc: left
+// TOC Level
+:toclevels: 6
+:sectlinks:
+
+include::Users-API.adoc[]

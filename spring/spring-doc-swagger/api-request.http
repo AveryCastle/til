@@ -1,0 +1,15 @@
+### POST Create User Request
+POST http://localhost:8080/v1/users
+Content-Type: application/json
+
+{
+  "account": "J-Hope",
+  "email": "jhope@bts.com",
+  "phoneNumber": "010-444-4444"
+}
+
+
+### GET All Users Request with a header
+GET http://localhost:8080/v1/users?ordering=account
+Accept: application/json
+
