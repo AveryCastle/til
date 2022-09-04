@@ -1,0 +1,3 @@
+[[User-전체조회]]
+=== User 전체조회
+operation::user-search-controller-test/search-all-users[snippets='curl-request,http-request,request-body,request-parameters,http-response,response-body,response-fields']
