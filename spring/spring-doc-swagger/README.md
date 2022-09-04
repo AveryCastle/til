@@ -373,39 +373,107 @@ public void setUp(WebApplicationContext webApplicationContext,
 ```
 - `MockMvc` 인스턴스는 `MockMvcRestDocumentationConfigurer`를 사용해서 만들어진다. API Configuration을 커스터마이징할 수 있는 API를 제공해준다.
 
+
+### 테스트 리팩토링
+- 중복되는 부분
+  - 모든 RestConroller 테스트마다 MockMvc 중복해서 사용해야 함.
+  - andDo(document("문서명칭"))을 반복해서 사용함.
+- 위에 중복되는 부분 해결하기 위한 작업
+
+```java
+@TestConfiguration
+public class RestDocsConfiguration {
+
+    @Bean
+    public RestDocumentationResultHandler write() {
+        return MockMvcRestDocumentation
+                .document(
+                "{class-name}/{method-name}", // 테스트 코드에서 andDo(document("xxx"))를 반복적으로 넣는 부분 개선
+                Preprocessors.preprocessRequest(Preprocessors.prettyPrint()), // build/generated-snippets에 만들어진 파일을 html로 만들 때, json이 한 줄로 출력되던 내용을 pretty 하게 찍어줌.
+                Preprocessors.preprocessResponse(Preprocessors.prettyPrint())
+        );
+    }
+}
+```
+
+```java
+@Disabled
+@Import(RestDocsConfiguration.class)
+@ExtendWith(RestDocumentationExtension.class)
+public class RestDocsTestSupport extends ControllerTest {
+
+    @Autowired
+    protected RestDocumentationResultHandler restDocs;
+
+    @BeforeEach
+    public void setUp(final WebApplicationContext webApplicationContext,
+                      final RestDocumentationContextProvider restDocumentation) {
+        this.mockMvc = MockMvcBuilders
+                .webAppContextSetup(webApplicationContext)
+                .apply(documentationConfiguration(restDocumentation))
+                .alwaysDo(MockMvcResultHandlers.print())
+                .alwaysDo(restDocs)
+                .alwasyDo(print())
+                .addFilters(new CharacterEncodingFilter("UTF-8", true)) // 한글 깨짐 방지
+                .build();
+    }
+}
+```
+
+```java
+@Disabled
+@WebMvcTest({
+        UserCreateController.class,
+        UserSearchController.class
+})
+public abstract class ControllerTest {
+
+    @Autowired
+    protected MockMvc mockMvc;
+}
+```
+
 ### RestService 호출해서 Documentation 만들기
 - `andDo(document("NAME_OF_DOCUMENTATION"))`로 Documentation 만든다.
 ```java
-this.mockMvc.perform(post("/v1/users")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .content("{\"account\": \"SUGA\",\n" +
-                    "    \"email\": \"suga@bts.com\",\n" +
-                    "    \"phoneNumber\": \"010-333-3333\"}"))
-    .andExpect(status().isOk())
-    .andExpect(content().string(containsString("SUGA")))
-    .andDo(document("create-user",
-            requestFields(
-                    attributes(key("title").value("Request Fields for user creation")),
-                    fieldWithPath("account").description("The user's account")
-                            .attributes(key("constraints")
-                                    .value("Must not be null. Must not be empty")),
-                    fieldWithPath("email").description("The user's email")
-                            .attributes(key("constraints")
-                                    .value("Must not be null. Must not be empty")),
-                    fieldWithPath("phoneNumber").description("The user's phone number")
-                            .attributes(key("constraints")
-                                    .value("Must not be null. Must not be empty"))
-                    ),
-            responseFields(
-                    attributes(key("title").value("Response Fields for user creation")),
-                    fieldWithPath("id").type(JsonFieldType.NUMBER).description("사용자 ID"),
-                    fieldWithPath("account").type(JsonFieldType.STRING).description("사용자 계정"),
-                    fieldWithPath("email").type(JsonFieldType.STRING).description("이메일"),
-                    fieldWithPath("phoneNumber").type(JsonFieldType.STRING).description("전화번호"),
-                    fieldWithPath("createdAt").type(JsonFieldType.STRING).description("생성일자")
-            )));
+@WebMvcTest(UserCreateController.class)
+class UserCreateControllerTest extends RestDocsTestSupport {
+
+    @MockBean
+    private UserCreateUseCase userCreateUseCase;
+
+    @Test
+    public void shouldCreateUser() throws Exception {
+        when(userCreateUseCase.create("SUGA", "suga@bts.com", "010-333-3333"))
+                .thenReturn(UserResponse.of(new User(1L, "SUGA", "suga@bts.com", "010-333-3333", LocalDateTime.now(), null)));
+
+        this.mockMvc.perform(post("/v1/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"account\": \"SUGA\",\n" +
+                                "    \"email\": \"suga@bts.com\",\n" +
+                                "    \"phoneNumber\": \"010-333-3333\"}"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("SUGA")))
+                .andDo(restDocs.document(
+                        requestFields(
+                                attributes(key("title").value("Fields for user creation")),
+                                fieldWithPath("account").description("The user's account")
+                                        .attributes(key("constraints").value("Must not be null. Must not be empty")),
+                                fieldWithPath("email").description("The user's email")
+                                        .attributes(key("constraints").value("Must not be null. Must not be empty")),
+                                fieldWithPath("phoneNumber").description("The user's phone number")
+                                        .attributes(key("constraints").value("Must not be null. Must not be empty"))
+                        ),
+                        responseFields(
+                                fieldWithPath("id").type(JsonFieldType.NUMBER).description("사용자 ID"),
+                                fieldWithPath("account").type(JsonFieldType.STRING).description("사용자 계정"),
+                                fieldWithPath("email").type(JsonFieldType.STRING).description("이메일"),
+                                fieldWithPath("phoneNumber").type(JsonFieldType.STRING).description("전화번호"),
+                                fieldWithPath("createdAt").type(JsonFieldType.STRING).description("생성일자")
+                        )));
     }
+}
 ```
 - `RestDocumentationResultHandler`에 의해 snippet 문서들이 작성된다. `org.springframework.restdocs.mockmvc.MockMvcRestDocumentation`의 정적 문서 메소드에서 이 클래스의 인스턴스를 얻을 수 있다.
 - `/build/generated-snippets` 하위에 파일들이 자동 생성된다.
@@ -420,7 +488,7 @@ this.mockMvc.perform(post("/v1/users")
 ### Customizing Request, Response Field
 - `org.springframework.restdocs:spring-restdocs-core:2.0.6` 하위에 `default-request-parameters.snippet` 파일들이 위치함.
 - Request, Response Field 포맷에 대해 Customizing을 하려면 `test/resources/org/springframework.restdocs.templates` 하위에 `request-fields.snippet`, `response-fields.snippet` 를 만든다.
-- ex) request-fields.snippet
+- ex) test/resources/org.springframework.restdocs.templates/request-fields.snippet
 ```
 .{{title}}
 |===
@@ -436,6 +504,22 @@ this.mockMvc.perform(post("/v1/users")
 {{/fields}}
 |===
 ```
+
+- ex) test/resources/org.springframework.restdocs.templates/request-parameters.snippet
+```
+.{{title}}
+|===
+|Parameter|Opional|Description
+
+{{#parameters}}
+|{{#tableCellContent}}`+{{name}}+`{{/tableCellContent}}
+|{{#tableCellContent}}_{{optional}}_{{/tableCellContent}}
+|{{#tableCellContent}}{{description}}{{/tableCellContent}}
+
+{{/parameters}}
+|===
+```
+
 - 생성 결과물 확인
 - ![](resources/snippets_생성_결과물들.png)
 

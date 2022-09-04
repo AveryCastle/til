@@ -14,6 +14,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @Disabled
 @Import(RestDocsConfiguration.class)
@@ -29,8 +30,9 @@ public class RestDocsTestSupport extends ControllerTest {
         this.mockMvc = MockMvcBuilders
                 .webAppContextSetup(webApplicationContext)
                 .apply(documentationConfiguration(restDocumentation))
-                .alwaysDo(MockMvcResultHandlers.print())
+                .alwaysDo(print())
                 .alwaysDo(restDocs)
+                .alwaysDo(print())
                 .addFilters(new CharacterEncodingFilter("UTF-8", true)) // 한글 깨짐 방지
                 .build();
     }
