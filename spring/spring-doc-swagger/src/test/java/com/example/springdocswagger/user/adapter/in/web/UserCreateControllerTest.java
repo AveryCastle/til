@@ -25,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * 참고
  * - https://spring.io/guides/gs/testing-web/
+ * - https://backtony.github.io/spring/2021-10-15-spring-test-3/
  * - https://docs.spring.io/spring-restdocs/docs/current/reference/html5/#getting-started-build-configuration
  */
 @WebMvcTest(UserCreateController.class)
