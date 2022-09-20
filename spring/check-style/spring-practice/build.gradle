@@ -4,6 +4,7 @@ plugins {
     id 'java'
     id "org.ec4j.editorconfig" version "0.0.3"
     id 'checkstyle'
+    id 'pmd'
 }
 
 group = 'com.example'
@@ -31,7 +32,6 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-
 editorconfig {
     // Exlude some files in addition to the default excludes
     // Paths or patterns must be relative to the the project root directory.
@@ -52,7 +52,30 @@ tasks.withType(Checkstyle) {
     }
 }
 
+checkstyleMain {
+    source = 'src/main/java'
+}
+checkstyleTest {
+    source = 'src/test/java'
+}
+
 check.dependsOn editorconfigCheck
+
+pmd {
+    consoleOutput = true
+    toolVersion = "6.49.0"
+    rulesMinimumPriority = 5
+    // https://pmd.sourceforge.io/pmd-6.39.0/pmd_userdocs_making_rulesets.html custom ruleset 만들기.
+    ruleSetFiles = files("config/pmd/custom-pmd-basic-ruleset.xml")
+    pmdTest.enabled = true
+}
+
+tasks.withType(Pmd) {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
 
 compileJava.options.encoding = 'UTF-8'
 compileTestJava.options.encoding = 'UTF-8'

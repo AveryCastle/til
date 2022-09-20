@@ -233,6 +233,71 @@ Plugins 에서 Save Actions plugin 설치한다. option+command+L 누르면 전�
 ![Screen Shot 2022-09-18 at 5.17.15 PM.png](src/main/resources/images/Screen_Shot_2022-09-18_at_5.17.15_PM.png)
 
 
+# PMD
+- `build.gradle`
+```
+plugins {
+    id 'pmd'
+}
+
+// 생략
+
+pmd {
+    consoleOutput = true
+    toolVersion = "6.49.0"
+    rulesMinimumPriority = 5
+    // https://pmd.sourceforge.io/pmd-6.39.0/pmd_userdocs_making_rulesets.html custom ruleset 만들기.
+    ruleSetFiles = files("config/pmd/custom-pmd-basic-ruleset.xml")
+    pmdTest.enabled = true
+}
+
+tasks.withType(Pmd) {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
+
+compileJava.options.encoding = 'UTF-8'
+compileTestJava.options.encoding = 'UTF-8'
+
+```
+- custom ruleset 만들기.
+```
+<?xml version="1.0"?>
+<ruleset name="Custom ruleset"
+  xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0
+         http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
+  <description>
+    PMD Basic Configuration
+  </description>
+
+  <rule ref="category/java/bestpractices.xml">
+    <exclude-pattern>.*src/test/*.*\SpringPracticeApplicationTests.java</exclude-pattern>
+  </rule>
+
+  <!--  <rule ref="category/java/codestyle.xml"></rule>-->
+
+  <!--  <rule ref="category/java/design.xml"/>-->
+
+  <!--  <rule ref="category/java/documentation.xml"/>-->
+
+  <!--  <rule ref="category/java/multithreading.xml"/>-->
+
+  <!--  <rule ref="category/java/performance.xml"/>-->
+
+  <!--  <rule ref="category/java/security.xml"/>-->
+
+  <rule ref="category/java/errorprone.xml">
+    <exclude-pattern>.*src/test/*.*\SpringPracticeApplicationTests.java</exclude-pattern>
+  </rule>
+
+</ruleset>
+
+```
+
 ### 참고
 
 - [https://creampuffy.tistory.com/128?category=986887](https://creampuffy.tistory.com/128?category=986887)
@@ -241,3 +306,4 @@ Plugins 에서 Save Actions plugin 설치한다. option+command+L 누르면 전�
 - https://github.com/ec4j/editorconfig-gradle-plugin
 - [https://withhamit.tistory.com/411](https://withhamit.tistory.com/411)
 - [https://juneyr.dev/checkstyle](https://juneyr.dev/checkstyle)
+- [PMD 공식 문서](https://docs.gradle.org/current/userguide/pmd_plugin.html)
