@@ -16,9 +16,9 @@ end_of_line = crlf
 
 [*.{groovy,java,kt}]
 # [indentation-tab]
-indent_style = tab
+indent_style = space # google: space, naver: tab
 indent_size = 4
-continuation_indent_size = 8
+continuation_indent_size = 4
 tab_width = 4
 
 # [no-trailing-spaces]

@@ -40,8 +40,8 @@ editorconfig {
 
 checkstyle {
     maxWarnings = 0
-    configFile = file("${rootDir}/config/checkstyle/naver-checkstyle-rules.xml")
-    configProperties = ["suppressionFile": "${rootDir}/config/checkstyle/naver-checkstyle-suppressions.xml"]
+    configFile = file("${rootDir}/config/checkstyle/google-checkstyle-indent4.xml")
+    configProperties = ["suppressionFile": "${rootDir}/config/checkstyle/checkstyle-suppressions.xml"]
     toolVersion = "10.3.2"
 }
 
