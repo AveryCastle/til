@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="30 seconds">
+  <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+  <property resource="log/logback.properties"/>
+
+  <if condition='isDefined("spring.profiles.active")'>
+    <then>
+      <!-- // local -->
+      <if condition='"${spring.profiles.active}".contains("local")'>
+        <then>
+          <include resource="log/logback-console.xml"></include>
+        </then>
+        <else>
+          <property resource="log/logback-${spring.profiles.active}.properties"/>
+          <include resource="logback-spring.xml"></include>
+        </else>
+      </if>
+    </then>
+    <else>
+      <!-- // active profile 이 없을 경우, default로 local 환경을 따른다. -->
+      <include resource="log/logback-console.xml"></include>
+    </else>
+  </if>
+</configuration>
