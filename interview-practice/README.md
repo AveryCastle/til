@@ -452,7 +452,7 @@ NaturalOrder{name='V', age=27}
 # HTTP와 REST API 이용하기
 > REST 란 무엇인가?
 > - REST API(Representational State Transfer)는 URI와 HTTP 메소드를 이용해 Resource에 접근하는 것이다.
-> - REST의 요소: 리소스, 메소드(행위), 메세지 3가지 요소로 구성된다.
+> - REST의 요소: 리소스(URI), 행위(HTTP Method), 표현(Representation) 3가지 요소로 구성된다.
 
 # CS
 > Q. 동기/비동기, 블로킹/논블로킹이란?
