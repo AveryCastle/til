@@ -358,3 +358,225 @@ latest: digest: sha256:8b449db91d13460b848b60833cad68bd7f7076358f945bddf14ed4faf
 - 리눅스 환경에서는 default path가 `/var/lib/docker/volumes/xxxxx/_data/docker/registry/v2/repositories` 에 컨테이너 이미지들이 저장된다.
 
 
+# Docker Container Lifecycle
+
+### Docker Container Image 검색하기
+
+```jsx
+docker search [option][image_name]
+$ docker search mysql
+```
+
+### Docker Container Image 내 시스템으로 다운로드 받기
+
+```jsx
+docker pull [option] [image_name:tag_name]
+
+$ docker pull mysql:latest // docker pull mysql 과 동일하다. tag가 없으면 latest는 자동임.
+```
+
+### 내 시스템에 다운로드 받은 Container image 목록 보기
+
+```jsx
+docker image ls
+docker images
+$ docker images
+
+$ docker images --no-trunc // image_id를 full 로 살펴보기
+REPOSITORY   TAG       IMAGE ID                                                                  CREATED       SIZE
+mysql        8         sha256:262f364f4f01337f2027e10c7ca2994dc28883afb24386100c89351126d76fe4   6 days ago    546MB
+mysql        latest    sha256:262f364f4f01337f2027e10c7ca2994dc28883afb24386100c89351126d76fe4   6 days ago    546MB
+nginx        latest    sha256:1db0b6ded6ab40b48b544eafc8d76bc1b06cf25f3774b442de5282c429f4359f   13 days ago   135MB
+```
+
+### 내 시스템에 다운로드 받은 Container Image 상세 보기
+
+```jsx
+docker inspect [option] [image_name:tag]
+$ docker inspect mysql:latest
+```
+
+### 내 시스템에 다운로드 받은 Container image 삭제하기
+
+```jsx
+docker rmi [option] [image_name]
+$ docker rmi mysql:latest
+```
+
+### 내 시스템에 있는 Docker Container Image를 Running 시키기
+
+```jsx
+docker run [image_name:tag_name]
+
+$ docker run mysql:latest
+```
+
+### Container Image를 바탕으로 Container를 만들기(Running 중은 아니다.)
+
+- create는 default로 background로 만든다.
+- `docker ps -a` 로 확인하면 created 만 된 상태이다.
+
+```
+$ docker create --name local-webserver nginx
+533d73e660d57e300e88ade3f535edb3044662dee719656eef0ee1caf9053b81
+```
+
+### Container 시작하기(Running)
+
+```
+$ docker start local-webserver
+```
+
+### Container Image를 바탕으로 생성 + 시작을 동시에 하기
+
+```
+docker run [option] <image_name:tag_name>
+$ docker run -d --name webserver nginx:1.14
+```
+
+### Running 중인 Docker Container 살펴보기
+
+```
+docker ps [option]
+$ docker ps -a
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS                               NAMES
+533d73e660d5   nginx          "/docker-entrypoint.…"   58 seconds ago   Created                                             local-webserver
+4e36a311502c   mysql:latest   "docker-entrypoint.s…"   11 minutes ago   Up 11 minutes   0.0.0.0:3306->3306/tcp, 33060/tcp   local-mysql
+```
+
+### Running 중인 Container 상세 보기
+
+```
+docker inspect [option] <container_name>
+$ docker inspect local-webserver
+
+$ docker inspect --format '{{.NetworkSettings.IPAddress}}' local-webserver
+172.17.0.2
+```
+
+### Running 중인 Docker Container 중지시키기
+
+- `docker ps -a`로 확인하면 Exited가 되어 있다.
+
+```
+docker stop [option] <container_name>
+$ docker stop local-webserver
+```
+
+### Container 삭제하기
+
+```
+docker rm [option] <container_name>
+$ docker rm local-webserver -f
+```
+
+### Running 중인 Container 내에서 실행중인 프로세스 확인하기
+
+```
+docker top <continaer_name>
+$ docker top local-webserver
+UID                 PID                 PPID                C                   STIME               TTY                 TIME                CMD
+root                2239                2214                0                   01:48               ?                   00:00:00            nginx: master process nginx -g daemon off;
+uuidd               2293                2239                0                   01:48               ?                   00:00:00            nginx: worker process
+uuidd               2294                2239                0                   01:48               ?                   00:00:00            nginx: worker process
+uuidd               2295                2239                0                   01:48               ?                   00:00:00            nginx: worker process
+uuidd               2296                2239                0                   01:48               ?                   00:00:00            nginx: worker process
+uuidd               2297                2239                0                   01:48               ?                   00:00:00            nginx: worker process
+```
+
+### Running 중인 Container의 로그 확인하기
+
+```
+docker logs <container_name>
+$ docker logs -t -f webserver
+```
+
+### Running 중인 Container에 New Command 추가 실행하기
+
+```
+docker exec <container_name> <command>
+$ docker exec -it webserver /bin/bash
+```
+
+- -i(interactive)
+- -t(terminal)
+
+### Forground로 Running 중인 Container 에 연결하기
+
+```
+docker attach [option] <container_name>
+$ docker attach 
+```
+
+### 실습
+![](resources/images/1_Container_실습하기.png)
+
+1.
+```
+$ docker search httpd
+NAME                                 DESCRIPTION                                     STARS     OFFICIAL   AUTOMATED
+httpd                                The Apache HTTP Server Project                  4211      [OK]       
+centos/httpd-24-centos7              Platform for running Apache httpd 2.4 or bui…   44                   
+centos/httpd                                                                         35                   [OK]
+hypoport/httpd-cgi                   httpd-cgi                                       2                    [OK]
+clearlinux/httpd                     httpd HyperText Transfer Protocol (HTTP) ser…   2                    
+solsson/httpd-openidc                mod_auth_openidc on official httpd image, ve…   2                    [OK]
+nnasaki/httpd-ssi                    SSI enabled Apache 2.4 on Alpine Linux          1                    
+dockerpinata/httpd                                                                   1                    
+lead4good/httpd-fpm                  httpd server which connects via fcgi proxy h…   1                    [OK]
+dariko/httpd-rproxy-ldap             Apache httpd reverse proxy with LDAP authent…   1                    [OK]
+centos/httpd-24-centos8                                                              1                    
+inanimate/httpd-ssl                  A play container with httpd, ssl enabled, an…   1                    [OK]
+manageiq/httpd                       Container with httpd, built on CentOS for Ma…   1                    [OK]
+publici/httpd                        httpd:latest                                    1                    [OK]
+manasip/httpd                                                                        0                    
+patrickha/httpd-err                                                                  0                    
+httpdss/archerysec                   ArcherySec repository                           0                    [OK]
+manageiq/httpd_configmap_generator   Httpd Configmap Generator                       0                    [OK]
+amd64/httpd                          The Apache HTTP Server Project                  0                    
+e2eteam/httpd                                                                        0                    
+httpdocker/kubia                                                                     0                    
+paketobuildpacks/httpd                                                               0                    
+19022021/httpd-connection_test       This httpd image will test the connectivity …   0                    
+ppc64le/httpd                        The Apache HTTP Server Project                  0                    
+sherazahmedvaival/httpd-php-fpm74                                                    0
+```
+2.
+```
+ docker run -dit --name my-apache-app -p 8080:80 -v "$PWD":/usr/local/apache2/htdocs/ httpd:2.4
+Unable to find image 'httpd:2.4' locally
+2.4: Pulling from library/httpd
+Digest: sha256:4400fb49c9d7d218d3c8109ef721e0ec1f3897028a3004b098af587d565f4ae5
+Status: Downloaded newer image for httpd:2.4
+2131e038e0974bcdcbb3b66b955200351e17e7ab264d8772979a1d86a297bd2a
+```
+
+3. 
+```
+$ docker ps
+CONTAINER ID   IMAGE       COMMAND              CREATED          STATUS          PORTS                  NAMES
+2131e038e097   httpd:2.4   "httpd-foreground"   44 seconds ago   Up 43 seconds   0.0.0.0:8080->80/tcp   my-apache-app
+```
+
+4. 
+```
+$ docker inspect -f '{{.NetworkSettings.IPAddress}}' my-apache-app
+172.17.0.2
+```
+
+6. 
+```
+$ docker logs my-apache-app -t -f
+```
+
+7. 
+```
+$ docker stop my-apache-app
+
+$ docker rm my-apache-app
+```
+
+8. 
+```
+$ docker rmi httpd
+```
