@@ -1,0 +1,360 @@
+# 따라 배우는 도커
+- https://www.youtube.com/watch?v=3HId-tpYaZs&list=PLApuRlvrZKogb78kKq1wRvrjg1VMwYrvi&index=2
+
+
+# Docker
+- Container Engine 중 하나
+
+## Virtual Machine vs Container
+- ![](resources/images/1_VM_vs_Container.jpeg)
+
+## 왜 굳이 Linux에서 Docker를 수행하는지?
+- Linux Kernal 기능(chroot, namespace, cgroup)을 이용해서 Container를 만들게 된다.
+- ![Docker Container](resources/images/1_Docker_Container.png)
+
+### Linux Kernal 기능
+- chroot: 독립된 공간을 형성할 수 있다.
+- namespace: isolate 기능을 지원해준다.
+- cgroup: 필요한 만큼 HW를 지원해준다.
+
+> Q. Window, MacOS에서는 어떻게 동작할까?
+> 
+> Window, MacOS에는 Linux Kernal이 없기 때문에 Hipervisor를 활성화시킨 후 Linux Kernal를 지원해줄 수 있게 한 후에 이 위에 Container 를 돌리는 것이다.
+
+## Docker 를 사용하는 이유
+- 모든 사람들이 동일한 Container 환경에서 애플리케이션을 구동시킬 수 있다.
+- Scale-in/out 이 쉽고, 그래서 MSA, DevOps에 적합하다.
+
+# Container vs Container 이미지
+## Container
+- Container는 하나의 애플리케이션 프로세스이다.
+- Container 끼리는 Isolate되어 있다.
+
+### Docker host 
+- Docker Daemon(dockerd)이 동작하고 있는 Linux Kernal 이 있는 시스템을 Docker Host라고 한다.
+- Container Engine 에 Docker를 설치해서 Docker Daemon을 실행한다.
+- 즉, Docker가 Container가 실행될 수 있는 플랫폼을 만들어 놓았다.
+- Docker Damon 이 있어서 Container가 동작할 수 있는 것이다.
+- 각 Container는 동일한 Kernal을 이용한다.
+- ![](resources/images/1_Docker_Host.png)
+
+## Container Image
+- 여러 개의 Layer로 구성되어 있다.
+- 하나의 application이 잘 동작하게 하기 위해 여러 개의 Image를 구성하여 Container Image를 만든다.
+- File 형태로 Registry에 저장되어 있다.
+- ![](resources/images/1_Container_Image.png)
+
+## Container vs Container Image 차이점
+- Container는 dockerd 위에서 동작 중인 Process 이다.
+- Container Image는 Registry에 File 형태로 저장되어 있다. 이건 Read Only만 가능하다.
+- ![](resources/images/1_Container_vs_ContainerImage.png)
+
+### Container 동작 방식
+- 공식 Docker Repository(Docker Hub) 에 여러 가지 Docker Container Image 들이 저장되어 있다.
+- Local PC에서 `docker search [찾고자 하는 이미지]`로 해당 이미지가 Docker Hub에 있는지 찾는다.
+- `docker pull [찾고자 하는 이미지:tag]` 를 하면 Docker Hub에서 Local PC의 저장소로 Container Image를 다운로드 받는다.
+- `docker run -d --name web -p 80:80 nginx:latest` 로 Local PC의 저장소에 저장되어 있는 Container Image를 실행한다.
+
+#### Docker Architecture
+- ![Docker Architecture](resources/images/1_Docker_Architecture.png) 
+
+### 정리
+- Docker Host(Linux Kernal): dockerd가 동작하고 있는 Linux Kernal이 있는 시스템.
+- Docker Daemon: `systemctl start docker` 로 실행한 도커 데몬
+- Docker Client Command:
+- Docker Hub: Docker Container Image가 보관되어 있는 저장소
+- Container Image: Container Layer 별로 이미지가 저장되어 있다.
+- Container: 동작중인 프로세스
+
+### 실습
+#### Docker 상태 살펴보기
+- ```
+  $ docker version
+    Client: Docker Engine - Community
+    Version:           20.10.17
+    API version:       1.41
+    Go version:        go1.18.3
+    Git commit:        100c70180f
+    Built:             Mon Jun  6 21:36:39 2022
+    OS/Arch:           darwin/arm64
+    Context:           default
+    Experimental:      true
+    
+    Server: Docker Desktop 4.12.0 (85629)
+    Engine:
+    Version:          20.10.17
+    API version:      1.41 (minimum version 1.12)
+    Go version:       go1.17.11
+    Git commit:       a89b842
+    Built:            Mon Jun  6 23:01:01 2022
+    OS/Arch:          linux/arm64
+    Experimental:     false
+    containerd:
+    Version:          1.6.8
+    GitCommit:        9cd3357b7fd7218e4aec3eae239db1f68a5a6ec6
+    runc:
+    Version:          1.1.4
+    GitCommit:        v1.1.4-0-g5fd4c4d
+    docker-init:
+    Version:          0.19.0
+  ```
+  
+#### Docker Status
+- Linux 에서만 적용되는 명령어
+- ```
+  $ systemctl status docker
+  ```
+  
+
+#### Docker Container Image 검색하기
+```
+$ docker search mysql
+NAME                            DESCRIPTION                                     STARS     OFFICIAL   AUTOMATED
+mysql                           MySQL is a widely used, open-source relation…   13337     [OK]
+mariadb                         MariaDB Server is a high performing open sou…   5095      [OK]
+phpmyadmin                      phpMyAdmin - A web interface for MySQL and M…   654       [OK]
+percona                         Percona Server is a fork of the MySQL relati…   592       [OK]
+bitnami/mysql                   Bitnami MySQL Docker Image                      78                   [OK]
+databack/mysql-backup           Back up mysql databases to... anywhere!         70
+linuxserver/mysql-workbench                                                     44
+ubuntu/mysql                    MySQL open source fast, stable, multi-thread…   38
+linuxserver/mysql               A Mysql container, brought to you by LinuxSe…   37
+circleci/mysql                  MySQL is a widely used, open-source relation…   27
+google/mysql                    MySQL server for Google Compute Engine          21                   [OK]
+rapidfort/mysql                 RapidFort optimized, hardened image for MySQL   13
+bitnami/mysqld-exporter                                                         4
+ibmcom/mysql-s390x              Docker image for mysql-s390x                    2
+newrelic/mysql-plugin           New Relic Plugin for monitoring MySQL databa…   1                    [OK]
+vitess/mysqlctld                vitess/mysqlctld                                1                    [OK]
+hashicorp/mysql-portworx-demo                                                   0
+rapidfort/mysql8-ib             RapidFort optimized, hardened image for MySQ…   0
+docksal/mysql                   MySQL service images for Docksal - https://d…   0
+mirantis/mysql                                                                  0
+cimg/mysql                                                                      0
+drud/mysql                                                                      0
+silintl/mysql-backup-restore    Simple docker image to perform mysql backups…   0                    [OK]
+corpusops/mysql                 https://github.com/corpusops/docker-images/     0
+drud/mysql-local-57             ddev mysql local container                      0
+```
+
+#### Docker Container Image가 저장되는 Default 위치
+- /var/lib/docker/overlay2
+
+#### 다운로드 받은 Docker Image 목록 보기
+```
+$ docker image ls
+or
+$ docker images
+
+REPOSITORY   TAG       IMAGE ID       CREATED      SIZE
+mysql        latest    262f364f4f01   5 days ago   546MB
+```
+
+#### 도커 Container Image 다운로드 받기
+```
+$ docker pull mysql:latest
+[+] Running 12/12
+ ⠿ mysql Pulled                                                                                                                                                                6.4s
+   ⠿ 828689dcde4b Already exists                                                                                                                                               0.0s
+   ⠿ 1f061378e43d Already exists                                                                                                                                               0.0s
+   ⠿ 3b1a79ec4c76 Already exists                                                                                                                                               0.0s
+   ⠿ 29639854082a Already exists                                                                                                                                               0.0s
+   ⠿ 7be1d8abaf67 Already exists                                                                                                                                               0.0s
+   ⠿ 862924992b62 Already exists                                                                                                                                               0.0s
+   ⠿ 4d8afc4c260a Already exists                                                                                                                                               0.0s
+   ⠿ 4fb5afa1cf8a Already exists                                                                                                                                               0.0s
+   ⠿ 693834f1d9ba Already exists                                                                                                                                               0.0s
+   ⠿ 3411c71dcce2 Already exists                                                                                                                                               0.0s
+   ⠿ 877257953583 Already exists                                                                                                                                               0.0s
+[+] Running 1/1
+ ⠿ Container local-mysql  Started
+
+```
+- mysql은 총 11개의 image로 구성되어 있다. 즉, 11개의 layer가 있는 것이다.
+
+
+#### Container Image를 Running 시키기
+```
+$ docker run -d -p 33306:3306 --name docker-mysql -e MYSQL_ROOT_PASSWORD=root1234 -d mysql:latest
+4d2cfec92866abc2031bc6b2b3bda674817c0402ef6796996d5a72af4b7c104a
+```
+
+#### 실행 중인 Container 프로세스 확인하기
+```
+$ docker ps
+
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS                                NAMES
+4d2cfec92866   mysql:latest   "docker-entrypoint.s…"   24 seconds ago   Up 24 seconds   33060/tcp, 0.0.0.0:33306->3306/tcp   docker-mysql
+```
+
+#### 도커 Container Process 중지시키기
+```
+$ docker stop docker-mysql
+or
+$ docker stop 4d2cfec92866
+```
+
+#### 도커 Container 지우기
+```
+$ docker rm docker-mysql
+```
+
+#### 도커 Container Image 지우기
+```
+$ docker rm image mysql
+or
+$ docker rmi mysql
+or
+
+docker image ls
+REPOSITORY   TAG       IMAGE ID       CREATED      SIZE
+mysql        latest    262f364f4f01   5 days ago   546MB
+
+docker rmi 262f364f4f01
+```
+
+# Dockerfile
+- Dockerfile은 Container를 만들 수 있도록 도와주는 명령어 집합이다.
+- Dockerfile을 이용해서 Container 를 Build 한다.
+- Dockerfile 은 쉽고, 간단하고, 명확한 구문을 가진 text file로 top-down 으로 한줄 한줄 해석한다.
+- Container Image를 생성할 수 있는 `고유의 지시어(Instruction)`을 가진다.
+- 대소문자를 구분하지 않는다. 그러나 가독성을 위해서 지시어는 대문자를 사용하는 걸 권장한다.
+
+## Dockerfile 문법
+- FROM: 컨테이너의 Base Image(운영환경)
+- MAINTAINER: 이미지를 생성한 사람의 이름 및 정보
+- LABEL: 컨테이너 이미지에 컨테이너의 정보를 저장
+- RUN: 컨테이터 빌드를 위해 Base Image에서 실행할 commands
+- COPY: 컨테이너 빌드 시 호스트의 파일을 컨테이너로 복사
+- ADD: 컨테이너 빌드 시 호스트의 파일(tar, url 포함)을 컨테이너로 복사
+- WORKDIR: 컨테이너 빌드시 명령이 실행될 작업 디렉토리 설정
+- ENV: 환경변수 지정
+- USER: 명령 및 컨테이너 실행 시 적용할 유저 설정
+- VOLUME: 파일 또는 디렉토리를 컨테이너의 디렉토리로 마운트
+- EXPOSE: 컨테이너 동작 시 외부에서 사용할 포트 지정
+- CMD: 컨테이너 동작 시 자동으로 실행할 서비스나 스크립트 지정
+- ENTRYPOINT: CMD와 함께 사용하면서 command 지정시 사용
+
+## 내가 만든 컨테이너를 배포하려면?
+1. `docker build -t testapp:latest .`
+>  - t: tag
+>  - `testapp`만 하고 lastest를 생략해도 자동으로 latest가 적용됨.
+>  - . : 현재 작업 디렉토리 지정
+- 이렇게 하면 local registry 에 컨테이너 이미지가 만들어져서 파일로 저장이 된다.
+
+2. `docker login`
+3. `docker push testapp:latest`
+- Docker Hub에 내가 만든 docker image를 upload 시켜서 Registry에 저장한다.
+
+## 실습
+- ![실습 문제](resources/images/1_Docker_Container_example.png)
+- Dockerfile
+  - ```
+      FROM debian
+      RUN  apt-get update \
+      && apt-get install fortune
+      COPY ./webpage.sh .
+      RUN  chmod +x webpage.sh
+      CMD ['sh webpage.sh']
+    ```
+- webpage.sh
+  - ```
+    #!/bin/bash
+    mkdir /htdocs
+    while:
+    do
+    /usr/games/fortune > /htdocs/index.html
+    sleep 10
+    done
+    ```
+- container image build하기
+  - `docker build -f Dockerfile -t fortune:22.10 .`
+
+# Docker Registry
+- 컨테이터 이미지를 보관하는 저장소
+
+## 종류
+- Docker Hub: hub.docker.com(public 저장소)
+- Private Registry: 사내 Private 컨테이너 저장소
+
+## Docker Hub
+- Official Image: Docker에서 공식적으로 보증하는 이미지들
+- Verified Publisher: 벤더들이 보장하고 제공하는 이미지들
+
+## Private Registry 구축
+- Registry 컨테이너를 이용해 Private 컨테이너 이용할 수 있다.
+- 참고: https://hub.docker.com/_/registry
+- ```
+  $ docker run -d -p 5001:5000 --restart always --name estel-registry registry:2
+  ```
+- Image Registry
+  - private registry 접속할 때는 반드시 hostname:port 또는 ip:port를 통해서 접속해야 한다.
+  - `localhost:5001/ubuntu:latest`
+  - `docker.example.com:5000/ubuntu:latest`
+
+## 명령어
+### 컨테이너 이미지 검색하기
+- ```
+  $ docker search [이미지]
+  ```
+
+## 실습
+### Docker Hub에서 인증하는 httpd를 down 받아서 나의 registry에 업로드하기
+#### 1단계. httpd를 Docker Hub에서 다운로드 받기
+```
+$ docker pull httpd
+```
+- 다운로드 받은 image 확인하기
+```
+$ docker images httpd
+REPOSITORY   TAG       IMAGE ID       CREATED       SIZE
+httpd        latest    bdd9fb9f21a1   13 days ago   137MB
+```
+#### 2단계. 내 계정의 Registry에 업로드 하기
+- 공식 사이트에서 받은 건 내 계정에 대한 컨테이너 이미지 정보가 없기 때문에 내 계정에 대한 이미지라는 걸 알려주기 위해서 tag 정보를 추가한다.
+```
+$ docker tag httpd:latest pikanpie/httpd:latest
+
+$ docker images
+REPOSITORY       TAG       IMAGE ID       CREATED       SIZE
+pikanpie/httpd   latest    bdd9fb9f21a1   13 days ago   137MB
+httpd            latest    bdd9fb9f21a1   13 days ago   137MB
+
+$ docker push pikanpie/httpd:latest
+aaf2289332a: Mounted from library/httpd
+1a0a0b0ce31b: Mounted from library/httpd
+396fbc9e1d79: Mounted from library/httpd
+```
+
+### 나의 PRIVATE REGISTRY에 업로드하기
+#### 1단계. Registry Contianer 구성하기.
+```
+$ docker run -d -p 5001:5000 --restart always --name estel-registry registry:2
+```
+#### 2단계. registry ubuntu 다운로드 받기.
+```
+$ docker pull ubuntu
+$ docker tag ubuntu localhost:5001/ubuntu
+$ docker push localhost:5001/ubuntu
+```
+
+#### 3단계. 사설 Registry에 업로드하기 위해 Tag를 만들어서 push 하기
+```
+$ docker tag httpd:latest localhost:5001/httpd:latest
+
+$ docker images localhost:5001/httpd
+REPOSITORY             TAG       IMAGE ID       CREATED       SIZE
+localhost:5001/httpd   latest    bdd9fb9f21a1   13 days ago   137MB
+
+$ docker push localhost:5001/httpd:latest
+The push refers to repository [localhost:5001/httpd]
+baaf2289332a: Pushed
+1a0a0b0ce31b: Pushed
+396fbc9e1d79: Pushed
+0e54c75454f4: Pushed
+c75eaa0eefd3: Pushed
+latest: digest: sha256:8b449db91d13460b848b60833cad68bd7f7076358f945bddf14ed4faf470fee4 size: 1366
+```
+- 리눅스 환경에서는 default path가 `/var/lib/docker/volumes/xxxxx/_data/docker/registry/v2/repositories` 에 컨테이너 이미지들이 저장된다.
+
+

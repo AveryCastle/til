@@ -1,0 +1,6 @@
+FROM debian
+RUN  apt-get update \
+     && apt-get install fortune
+COPY ./webpage.sh .
+RUN  chmod +x webpage.sh
+CMD ['sh webpage.sh']

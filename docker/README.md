@@ -22,3 +22,7 @@ $ docker -v
 ```
 $ docker-machine upgrade dev
 ```
+
+
+# 강의 정리
+- [Docker 따라 배우기 정리](./LEARNING.md)
