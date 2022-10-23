@@ -580,3 +580,121 @@ $ docker rm my-apache-app
 ```
 $ docker rmi httpd
 ```
+
+# Container 리소스 관리하기
+- 기본적으로 컨테이너는 호스트 하드웨어 리소스의 사용 제한을 받지 않는다.
+- 때문에 Container가 여러 개를 운영할 때, 특정 Container가 호스트 하드웨어의 리소스를 너무 많이 점유하면 다른 Container 들은 리소스 사용이 적으면서 문제가 발생할 수 있다. 그래서 Container 마다 리소스 제한을 해야 한다.
+
+## Container 리소스 제한하는 방법
+### Docker Command를 통해 제한할 수 있는 리소스
+- Memory
+- CPU
+- Disk
+
+#### 명령어
+```
+$ docker run [option]
+```
+
+### Memory 리소스 제한
+- 제한 단위는 b, k, m, g로 할당한다.
+- | 옵션    | 의미   |
+  |-------------|--------|
+  | --memory, -m         | 컨테이너가 사용할 최대 메모리 용량을 지정                   |
+  | --memory-swap        | 컨테이너가 사용할 스왑 메모리 영역에 대한 설정(메모리 + 스왑). <br/> 생략시 메모리의 2배가 설정됨. |
+  | --memory-reservation | --memory 보다 적은 값으로 구성하는 소프트 제한값 설정.<br/> 최소 사용하는 값 |
+  | --oom-kill-disable  | OOM Killer가 프로세스를 kill 하지 못하도록 보호         |
+- 예시
+  ```
+  $ docker run -d -m 512m nginx
+  $ docker run -d -m 1g --memory-swap 1.5g nginx
+  $ docker run -d -m 1g --memory-reservation 512m nginx
+  $ docker run -d -m 200m --oom-kill-disable nginx
+  ```
+
+### CPU 리소스 제한
+- | 옵션            | 의미 |
+  |-----|-----|
+  | --cpus    | 컨테이너에 할당된 CPU Core 수를 지정.<br/> --cpus="1.5" 는 컨테이너가 최대 1.5개의 CPU 파워 사용 가능 |
+  | --cpuset-cpus | 컨테이너가 사용할 수 있는 CPU나 코어를 할당. cpu index는 0부터 시작함. <br /> 예시. --cpuset-cpus=0-4 |
+  | --cpu-shares  | 컨테이너가 사용하는 CPU 비중을 1024기반으로 설정. <br /> 예시. --cpu-share 2048: 기본값보다 2배 많은 CPU 자원을 할당 |
+- 예시
+  ```
+  $ docker run -d --cpus=".5" ubuntu
+  $ docker run -d --cpuset-cpus 0-3 ubuntu
+  $ docker run -d --cpu-shares 2048 ubuntu
+  ```
+
+### Block I/O 리소스 제한하기
+- ![](resources/images/7_BlockIO_리소스_제한하기.png)
+
+## Container가 사용중인 리소스 확인하는 모니터링 툴
+### docker monitoring commands
+- `docker stat` : 실행중인 컨테이너의 런타임 통계 확인
+  - `docker stats <options> [container_name]`
+- `docker event` : Docker Host의 실시간 event 정보를 수집해서 출력
+  - `docker events -f container=<NAME>`
+  - `docker image -f container=<NAME>`
+- [cAdvisor](https://github.com/google/cadvisor)
+
+## 실습하기
+- ![실습내용](resources/images/7_실습내용.png)
+
+### 메모리 실습
+- `Dockerfile`
+  ```
+  $ cat Dockerfile3
+  FROM debian
+  RUN  apt-get update \
+       && apt-get install stress -y
+  CMD ['/bin/sh', '-c', 'stress -c 2']
+  ```
+- Docker Container 만들기
+  ```
+  $ docker build -f Dockerfile3 -t stress .
+  ```
+- 5초 동안 부하 주기
+  ```
+  $ docker run -m 100m --memory-swap 100m stress:latest stress --vm 1 --vm-bytes 90m -t 5s
+  stress: info: [1] dispatching hogs: 0 cpu, 0 io, 1 vm, 0 hdd
+  stress: info: [1] successful run completed in 5s
+  
+  # 할당은 100m 했는데, stress 부하는 200m로 했기 때문에 실행되자마다 죽는다.
+  $ docker run -m 100m --memory-swap 100m stress:latest stress --vm 1 --vm-bytes 200m -t 5s
+  stress: info: [1] dispatching hogs: 0 cpu, 0 io, 1 vm, 0 hdd
+  stress: FAIL: [1] (415) <-- worker 7 got signal 9
+  stress: WARN: [1] (417) now reaping child worker processes
+  stress: FAIL: [1] (421) kill error: No such process
+  stress: FAIL: [1] (451) failed run completed in 0s
+  
+  # --memory-swap 생략하면 최대 메모리의 2배가 생성됨. 여기서는 100m 할당했는데, stress는 150m를 했기 때문에 2배 미만이라서 수행 잘 됨.
+  $ docker run -m 100m  stress:latest stress --vm 1 --vm-bytes 150m -t 5s
+  stress: info: [1] dispatching hogs: 0 cpu, 0 io, 1 vm, 0 hdd
+  stress: info: [1] successful run completed in 5s
+  ```
+
+### CPU 실습
+- ```
+  $  docker run --cpuset-cpus 0-3 --name c1 -d stress:latest stress -cpu 2
+  
+  $ docker run -c 2048 --name cload1 -d stress:latest
+  $ docker run --name cload2 -d stress:latest
+  $ docker run -c 512 --name cload3 -d stress:latest
+  $ docker stats cload1
+  ```
+  
+### Disk 실습
+- ```
+  $ docker run -it --rm --device-write-iops /dev/xvda:10 ubuntu:latest /bin/bash
+  root@rdf123r3r# dd if=/dev/zero of=file1 bs=1M count=10 oflag=direct  
+  ```
+  
+### cAdvisor 실행
+
+# Container 가 사용하는 스토리지
+- Container Volume
+- 데이터 보존 방법
+- Container 끼리 데이터 공유
+
+  
+
