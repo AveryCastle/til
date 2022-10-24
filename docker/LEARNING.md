@@ -718,7 +718,8 @@ $ docker run [option]
   -v <container mount path> 
   ```
   - read write mode를 생략하면 default 는 RW(read+write)이다.
-  - host_path 를 지정하지 않으면 임의의 디렉토리를 만들어서 이 디렉토리로 마운트해준다. 
+  - host_path 를 지정하지 않으면 임의의 디렉토리를 만들어서 이 디렉토리로 마운트해준다.
+    - [<img src="resources/images/8_2_mysql_storage_영구저장.png" width="50%" height="50%" />](resources/images/8_mysql_storage_영구저장.png)
 - 예시
   ```
   $ docker run -d -v /dbdata:/var/lib/mysql -e MYSQL... mysql:latest
@@ -729,5 +730,100 @@ $ docker run [option]
 ## Container 끼리 데이터 공유하기
 - Container 끼리 데이터 공유가 가능하다.
 - ![Data_공유하기](resources/images/8_DockerContainer끼리_데이터_공유하기.png)
-  
 
+## 실습
+1. mysql data 영구 보존하기
+```
+$ mkdir dockerdata
+
+$ docker run -d --name docker-mysql -v  ~/workspace/dockerdata/mysql/data:/var/lib/mysql  -e MYSQL_ROOT_PASSWORD=root1234 -d mysql:latest
+42dec2d60b2c0e6aec98536358d5d1d605a8c997da1fd1cdd4ed0fc632568b3e
+
+$ docker ps                                                                                                                                 
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS                 NAMES
+42dec2d60b2c   mysql:latest   "docker-entrypoint.s…"   19 seconds ago   Up 19 seconds   3306/tcp, 33060/tcp   docker-mysql
+
+$ docker exec -it docker-mysql /bin/bash
+bash-4.4# mysql -u root -proot1234
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+mysql> create database temp_db;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
+| temp_db            |
++--------------------+
+mysql> exit
+Bye
+bash-4.4# exit
+exit
+
+$ cd ~/workspace/dockerdata/mysql/data
+$ ls -lrt
+...
+drwxr-x---    2 avery  staff        64 Oct 24 12:21 temp_db
+...
+
+$ docker rm -f docker-mysql                                                                                                              
+docker-mysql
+
+$ cd ~/workspace/dockerdata/mysql/data
+$ ls -lrt
+...
+drwxr-x---    2 avery  staff        64 Oct 24 12:21 temp_db
+...
+```
+2. 웹데이터 readonly 서비스로 지원하기
+```
+$ cd ~/workspace/dockerdata
+$ mkdir web
+$ cd web
+$ echo "<h1>Docker Practice</h1>" > index.html
+$ docker run --name docker-nginx -v ~/workspace/dockerdata/web:/usr/share/nginx/html:ro -d -p 8080:80 nginx:latest
+$ docker ps                                                                                                           
+CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS                  NAMES
+84e3673cd226   nginx:latest   "/docker-entrypoint.…"   4 seconds ago   Up 3 seconds   0.0.0.0:8080->80/tcp   docker-nginx
+```
+- 브라우저 열어서 http://localhost:8080
+  - [<img src="resources/images/8_DockerContainer_Storage_VolumeMount_실습2.png" width="50%" height="50%" />](resources/images/8_DockerContainer_Storage_VolumeMount_실습2.png)
+
+```
+$  docker stop 84e3673cd226             
+84e3673cd226
+```
+
+3. 컨테이너간 데이터 공유하기
+![](resources/images/8_DockerContainer_Volume공유_실습3.png)
+```
+$ cat df.sh             
+#!/bin/bash
+mkdir -p /webdata
+while true
+do
+    df -h / > /webdata/index.html
+    sleep 10
+done
+
+$ cat Dockerfile
+FROM ubuntu
+ADD  df.sh /bin/df.sh
+RUN  chmod +x /bin/df.sh
+ENTRYPOINT ["/bin/df.sh"]
+
+$ docker run -d --name df -v  ~/workspace/til/docker/mydockerbuild/dockerdata:/webdata docker-ubuntu:latest
+ 
+$ docker run --name my-nginx -p 8080:80 -v ~/workspace/til/docker/mydockerbuild/dockerdata:/usr/share/nginx/html:ro -d nginx
+
+```
+- ![](resources/images/8_DockerContainer_Volume공유_실습3_결과.png)
