@@ -827,3 +827,170 @@ $ docker run --name my-nginx -p 8080:80 -v ~/workspace/til/docker/mydockerbuild/
 
 ```
 - ![](resources/images/8_DockerContainer_Volume공유_실습3_결과.png)
+
+
+
+# Container 간 통신(네트워크)
+- Container 는 어떻게 통신하는지?
+- Container port를 외부로 노출할 수 있는지?
+- Container Network 를 추가할 수 있는지?
+- Container 간 통신은 어떻게 하는지?
+
+## Container간 통신은 어떻게 하는지?
+- **Container Network 구조**
+  - ![Container Network 구조](resources/images/9_Container_Network구조.png)
+  - 위에 그림이 Linux Docker Host 내부 구조이다.
+  - Docker Daemon이 start하면 docker0라는 docker network interface 가 생성된다.
+  - docker0는 bridge를 지원하는 가상 네트워크이다.
+    - bridge network는 container와 host network를 연결해주는 역할을 한다.
+  - docker0는 bridge network를 지원해주기 위해서 내부적으로 NAT(Network Address Translation) 서비스와 port forwarding 기능을 지원해준다. 직접하는 건 아니고 IP Tables를 이용해서 지원한다.
+  - docker0는 container의 게이트웨이 역할을 해준다.
+  - docker0
+    - virtual ethernet bridge: 172.17.0.0/16
+    - L2 통신 기반(Ethernet)
+    - container 생성시 veth 인터페이스 생성(sandbox)
+    - 모든 container는 외부 통신을 docker0를 통해 진행
+    - container running 시 172.18.x.y 로 IP 주소를 순차적으로 할당
+
+## Container Port 외부로 노출하기
+### Port Forwarding
+- Container port를 외부로 노출시켜 외부로부터의 연결을 허용한다.
+- iptables rule을 통해 port를 노출시킨다.
+  - `-p <host_port>:<container_port>`
+  - `-p <container_port>`: host port는 random하게 지정됨.
+  - `-P`: Dockerfile에 EXPOSE로 지정한 port로 random하게 지정됨.
+  - ```
+    $ docker run -d --name web -p 80:80 nginx:latest
+    $ iptables -t nat -L -n -v
+    ```
+    [<img src="resources/images/9_Container_Network_PortForwarding.png" width="70%" height="70%">](resources/images/9_Container_Network_PortForwarding.png)
+
+## Container Network 추가하기
+### user-defined bridge network 생성
+- 기본적으로 docker0 network에서는 static ip 할당이 불가능하다.
+- 때문에 static ip를 지정하는 한 가지 방법으로는 사용자 지정 network를 생성해서 ip를 고정시킬 수 있다.
+- ![사용자 정의 브랫지 네트워크](resources/images/9_Container_Network_User-defined_Bridge_Network.png)
+- `docker network create --driver bridge --subnet 192.168.100.0/24 --gateway 192.168.100.254 my-network`
+- `docker network ls`
+- `docker run -d --name my-webserver --net my-network --ip 192.168.100.100 -p 8080:80 smlimux/appjs`
+
+## Container 끼리 통신하는 방법
+- Container를 이용하여 Server & Client 서비스 운영을 한다.
+- ![](resources/images/9_Container_Network_Container간_통신.png)
+- `--link` : link 옵션을 통해 Container 끼리 연결을 해준다.
+
+## 실습
+1. container network 사용하기
+- docker0 bridge network
+```
+$ ip addr
+$ brctl show
+
+$ docker run -d --name web1 busybox
+$ docker inspect web1
+SandBoxId: container에 만들어준 veth0과 172.17.0.2에 해당하는 거
+$ iptables -t nat -L -v
+$ docker rm -f $(docker ps -aq)
+```
+2. container port 외부로 노출하기(port-forwarding)
+```
+$ docker run -d -p 80:80 --name web1 nginx
+$ docker run -d -p 80 --name web2 nginx
+$ docker run -d -P --name web3 nginx
+$ docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS                               NAMES
+d9f6887d3321   nginx          "/docker-entrypoint.…"   3 seconds ago    Up 3 seconds    0.0.0.0:55001->80/tcp               web3
+84f66968ee67   nginx          "/docker-entrypoint.…"   11 seconds ago   Up 10 seconds   0.0.0.0:56844->80/tcp               web2
+268c5e0058eb   nginx          "/docker-entrypoint.…"   42 seconds ago   Up 41 seconds   0.0.0.0:80->80/tcp                  web1
+```
+- web1: http://localhost:80
+- web2: http://localhost:56844
+- web3: http://localhost:55001
+
+3. user-defined network 구성하기
+```
+$ docker  network create --subnet 192.168.100.0/24 --gateway 192.168.100.254 my-network
+9371b9ad528b648d0c8e620b3cb58b96350fd027d28a63023a47bce72369d6b6
+$ docker network ls
+NETWORK ID     NAME                 DRIVER    SCOPE
+4f27b508765a   bridge               bridge    local
+337c11ee20bf   host                 host      local
+9371b9ad528b   my-network           bridge    local
+c8dcf6bd98df   none                 null      local
+
+$ docker network inspect my-network
+[
+    {
+        "Name": "my-network",
+        "Id": "9371b9ad528b648d0c8e620b3cb58b96350fd027d28a63023a47bce72369d6b6",
+        "Created": "2022-10-24T13:50:44.441517882Z",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "192.168.100.0/24",
+                    "Gateway": "192.168.100.254"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {},
+        "Options": {},
+        "Labels": {}
+    }
+]
+
+$ docker run -it --name c1 --net my-network --ip 192.168.100.10 busybox
+Unable to find image 'busybox:latest' locally
+latest: Pulling from library/busybox
+89485c9dae0b: Pull complete
+Digest: sha256:9810966b5f712084ea05bf28fc8ba2c8fb110baa2531a10e2da52c1efc504698
+Status: Downloaded newer image for busybox:latest
+/ # ip addr
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+2: tunl0@NONE: <NOARP> mtu 1480 qdisc noop qlen 1000
+    link/ipip 0.0.0.0 brd 0.0.0.0
+3: ip6tnl0@NONE: <NOARP> mtu 1452 qdisc noop qlen 1000
+    link/tunnel6 00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00 brd 00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+68: eth0@if69: <BROADCAST,MULTICAST,UP,LOWER_UP,M-DOWN> mtu 1500 qdisc noqueue
+    link/ether 02:42:c0:a8:64:0a brd ff:ff:ff:ff:ff:ff
+    inet 192.168.100.10/24 brd 192.168.100.255 scope global eth0
+       valid_lft forever preferred_lft forever
+/ # ping -c 8.8.8.8
+ping: invalid number '8.8.8.8'
+/ # ping -c 3 8.8.8.8 # <-- 8.8.8.8 : 구글 DNS IP로 외부와 통신되는지 확인하기 위해 사용함.
+PING 8.8.8.8 (8.8.8.8): 56 data bytes
+64 bytes from 8.8.8.8: seq=0 ttl=37 time=93.613 ms
+64 bytes from 8.8.8.8: seq=1 ttl=37 time=61.575 ms
+64 bytes from 8.8.8.8: seq=2 ttl=37 time=56.288 ms
+
+--- 8.8.8.8 ping statistics ---
+3 packets transmitted, 3 packets received, 0% packet loss
+round-trip min/avg/max = 56.288/70.492/93.613 ms
+```
+4. container 간 통신 wordpress + mysql container 구축하기
+```
+$ docker run --name my-mysql -v /Users/avery/workspace/til/docker/mydockerbuild/dockerdata:/var/lib/mysql -e 
+MYSQL_ROOT_PASSWORD=root1234 -e MYSQL_PASSWORD=wordpress1234 -d mysql
+c67c6ea587d1dd36d99cf26e24b5e20d2870c3fd4d45a16648ed43943bbc31ae
+$ docker ps
+CONTAINER ID   IMAGE     COMMAND                  CREATED         STATUS         PORTS                 NAMES
+c67c6ea587d1   mysql     "docker-entrypoint.s…"   2 seconds ago   Up 2 seconds   3306/tcp, 33060/tcp   my-mysql
+
+$ docker run --name my-wordpress --link my-mysql:mysql -e WORDPRESS_DB_PASSWORD=wordpress1234 -p 8080:80 -d  wordpress
+```
+- 연습문제 풀기
+  - ![연습문제 풀기](resources/images/9_Container_Network_연습문제.png)
