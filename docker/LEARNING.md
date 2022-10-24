@@ -696,5 +696,38 @@ $ docker run [option]
 - 데이터 보존 방법
 - Container 끼리 데이터 공유
 
+## Container Volume 이란
+- Container Image는 readonly 이다.
+- Container 에 추가되는 데이터들은 별도의 RW(Read + Write) 레이어에 저장된다.
+- Docker는 `Union File System(Overlay)`이라는 기능을 통해서 ReadOnly 레이어에 Read+Write 레이어에서 변경된 사항을 마치 하나로 통합된 것처럼 관리를 해준다.
+- Container에 추가되는 이미지는 별도의 레이어에 생성된다.
+- 만일 실수로 Container를 삭제하면 RO(ReadOnly) + RW(Read+Write) 레이어에 있던 데이터들은 삭제된다. 해당 Container 에 보존해야 할 고객정보가 담겨있었을 경우 큰 문제가 발생할 수 있다. 때문에 
+  Container에서 Volume을 저장하는 기술이 중요해지게 된다.
+- ![Container Layer](resources/images/8_DockerContainer_Storage_1.png)
+
+## Container가 만들어주는 데이터를 영구적으로 보존 방법(Volume Mount)
+- Container RW(Read + Write) Layer에 저장되는 데이터 위치를 Docker Host의 특정 디스크 위치(ex. /dbdata)와 연결지어(`Volume Mount`) 실제로 이 위치에 데이터가 저장되도록 설정한다.
+- [<img src="resources/images/8_DockerContainer_Storage_영구저장.png" width="50%" height="50%"/>](resources/images/8_DockerContainer_Storage_영구저장.png)
+- 만약 실수로 Container를 삭제하더라도 Docker Host에 저장된 데이터는 삭제되지 않고 남아 있는다.
+- <img src="resources/images/8_DockerContainer_Storage_영구저장_실수로_Container삭제시.png" width="50%" height="50%" alt="컨테이너 실수로 삭제해도 데이터 보존됨">
+
+### volume 옵션
+- ```
+  -v <host_path>:<container mount path> 
+  -v <host_path>:<container mount path>:<read write mode>
+  -v <container mount path> 
+  ```
+  - read write mode를 생략하면 default 는 RW(read+write)이다.
+  - host_path 를 지정하지 않으면 임의의 디렉토리를 만들어서 이 디렉토리로 마운트해준다. 
+- 예시
+  ```
+  $ docker run -d -v /dbdata:/var/lib/mysql -e MYSQL... mysql:latest
+  $ docker run -d -v /webdata:/var/www/html:ro httpd:latest
+  $ docker run -d -v /var/lib/mysql -e MYSQL... mysql:latest
+  ```
+
+## Container 끼리 데이터 공유하기
+- Container 끼리 데이터 공유가 가능하다.
+- ![Data_공유하기](resources/images/8_DockerContainer끼리_데이터_공유하기.png)
   
 
