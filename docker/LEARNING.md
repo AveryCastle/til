@@ -994,3 +994,40 @@ $ docker run --name my-wordpress --link my-mysql:mysql -e WORDPRESS_DB_PASSWORD=
 ```
 - 연습문제 풀기
   - ![연습문제 풀기](resources/images/9_Container_Network_연습문제.png)
+
+
+
+# Container Build 에서부터 운영까지
+- docker compose란?
+- docker-compose 로 container 실행시키기
+- build에서 운영까지
+
+# Docker Compose 란?
+- 여러 Container들을 일괄적으로 정의하고 실행할 수 있는 툴이다.
+  - 하나의 서비스를 운영하기 위해서 여러 개의 애플리케이션이 동작해야 한다.
+  - Container화 된 애플리케이션들을 통합 관리할 수 있다.
+
+# Docker Compose로 Container 실행하기
+### Docker Compose 문법
+  - ![](resources/images/9_DockerCompose_문법1.png)
+  - ![](resources/images/9_DockerCompose_문법2.png)
+- 참고
+  - https://docs.docker.com/samples/
+  - https://docs.docker.com/compose/
+
+### Docker Compose 동작시키는 절차
+- ![동작 절차](resources/images/9_DockerCompose_동작절차.png)
+
+### Docker Compose 명령어
+- ![명령어](resources/images/9_DockerCompose_명령어.png)
+
+## 실습
+- 참고: https://docs.docker.com/compose/gettingstarted/
+1. Docker Compose 설치하기
+2. Container Build에서 운영까지
+- https://docs.docker.com/compose/gettingstarted/
+```
+docker-compose down --volumes
+```
+3. Mysql DB를 사용하는 Wordpress 운영하기
+- 참고: https://github.com/docker/awesome-compose/tree/master/wordpress-mysql
