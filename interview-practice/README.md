@@ -380,7 +380,7 @@ NaturalOrder{name='V', age=27}
 >                                      .collect(Collectors.joining(", "));
 >      assertThat(resultString).isEqualTo("JAVA, KOTLIN");
 >   ```
->  - 자바 파일 실행
+>   자바 파일 실행
 >    - javac를 통해 컴파일 하지 않고도, 바로 java 파일을 실행할 수 있게 되었다.
 >    - ```shell
 >      // Java 11 이전
@@ -393,10 +393,16 @@ NaturalOrder{name='V', age=27}
 >      Hello Java 11!
 >      ```
 > - Garbage Collector
->    - Java 11의 Default GC는 G1GC(Garbage First Garbage Collector)이다.
->    - G1GC: Eden, Survivor, Old 영역이 존재하지만, 해당 영역은 고정된 크기가 아니며 전체 Heap 메모리 영역을 Region 이라는 특정한 크기로 나눈 것이고 Region의 상태에 따라 그 Region의 역할(Eden, Survivor, Old)가 동적으로 변동한다.
->    - 참고
->      - G1GC(https://huisam.tistory.com/entry/jvmgc)
+>   **전통적인 GC**
+>   - ![](src/main/resources/전통적인_GC.png)
+>   **G1GC**
+>   - ![](src/main/resources/G1GC.png)
+>   - 빠른 처리 속도를 달성하면서 일시 중지 시간(Stop The World)을 최소화하는 것이 G1GC의 목표이다.
+>   - Java9 부터 Default GC 이다.
+>   - G1GC: Eden, Survivor, Old 영역이 존재하지만, 해당 영역은 고정된 크기가 아니며 전체 Heap 메모리 영역을 Region 이라는 특정한 크기로 나눈 것이고 Region의 상태에 따라 그 Region의 역할(Eden, Survivor, Old)가 동적으로 변동한다.
+>   - 참고
+>     - G1GC(https://huisam.tistory.com/entry/jvmgc)
+>     - https://thinkground.studio/%EC%9D%BC%EB%B0%98%EC%A0%81%EC%9D%B8-gc-%EB%82%B4%EC%9A%A9%EA%B3%BC-g1gc-garbage-first-garbage-collector-%EB%82%B4%EC%9A%A9/
 >
 > - 참조
 >   - [Java8과 Java11 특징](https://steady-coding.tistory.com/598)
@@ -408,6 +414,16 @@ NaturalOrder{name='V', age=27}
 > - G1GC를 기본으로 사용한다.
 > - Docker 컨테이너 사용자가 Java 힙에 사용되는 시스템 메모리 양을 세부적으로 제어할 수 있도록 JVM 옵션도 추가되었다.
 > - [Java11로 전환해야 하는 이유](https://docs.microsoft.com/ko-kr/java/openjdk/reasons-to-move-to-java-11)
+
+> Q. JAVA17 의 Feature들은 어떤 게 있는지?
+- 텍스트 블록 기능 추가: 기존 String을 여러 줄 작성할 때 사용 가능한 기능, 가독성 있는 코드 지원
+- Record Data class 추가: immutable 객체를 생성하는 새로운 유형의 클래스로 기존 toString, equals, hashCode Method에 대한 구현을 자동 제공
+- 봉인(Sealed) 클래스: 무분별한 상속을 막기 위한 목적으로 등장한 기능으로 지정한 클래스 외 상속을 허용하지 않으며, 지정한 클래스 외 상속 불가능
+- Stream.toList() 기능 추가: 기존, Stream을 List로 변환 시 Collectors에서 기능을 찾아 사용했다면 Java17 부터는 Collectors호출 없이 toList()만으로 변환이 가능
+- 참고
+  - https://techblog.gccompany.co.kr/%EC%9A%B0%EB%A6%AC%ED%8C%80%EC%9D%B4-jdk-17%EC%9D%84-%EB%8F%84%EC%9E%85%ED%95%9C-%EC%9D%B4%EC%9C%A0-ced2b754cd7
+  - https://madplay.github.io/post/what-is-new-java-17
+  - https://www.baeldung.com/java-17-new-features
 
 > Q. JPA 와 쿼리 중심으로 개발할 때의 차이점은?
 > 
