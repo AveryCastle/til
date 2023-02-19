@@ -1,0 +1,14 @@
+spring:
+  webflux:
+    hiddenmethod:
+      filter:
+        enabled: true # Spring WebFlux ?? DELETE Method ? ????? ?? ??.
+  data:
+    mongodb:
+      uri: mongodb://root:root1234@localhost:27017
+      database: springboot
+
+logging:
+  level:
+    root: info
+    org.springframework.data.mongodb.core.ReactiveMongoTemplate: debug # show sql.
