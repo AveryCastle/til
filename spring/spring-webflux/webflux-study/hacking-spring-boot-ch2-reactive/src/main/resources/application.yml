@@ -1,6 +1,6 @@
 spring:
   webflux:
-    hiddenmethod:
+    hidden-method:
       filter:
         enabled: true # Spring WebFlux ?? DELETE Method ? ????? ?? ??.
   data:

@@ -21,9 +21,10 @@ public class HomeController {
     @GetMapping()
     Mono<Rendering> home() {
         return Mono.just(Rendering.view("home.html")
-            .modelAttribute("items", inventoryService.getItems().doOnNext(item -> log.info("{}", item)))
-            .modelAttribute("cart", cartService.search("My Cart"))
-            .build()
+//            .modelAttribute("items", inventoryService.getItems().doOnNext(item -> log.info("{}", item))) // with logging
+                .modelAttribute("items", inventoryService.getItems())
+                .modelAttribute("cart", cartService.search("My Cart"))
+                .build()
         );
     }
 
