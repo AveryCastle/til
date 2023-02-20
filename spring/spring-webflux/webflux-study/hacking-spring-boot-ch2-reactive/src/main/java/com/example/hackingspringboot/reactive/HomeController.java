@@ -1,6 +1,7 @@
 package com.example.hackingspringboot.reactive;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class HomeController {
@@ -19,7 +21,7 @@ public class HomeController {
     @GetMapping()
     Mono<Rendering> home() {
         return Mono.just(Rendering.view("home.html")
-            .modelAttribute("items", inventoryService.getItems())
+            .modelAttribute("items", inventoryService.getItems().doOnNext(item -> log.info("{}", item)))
             .modelAttribute("cart", cartService.search("My Cart"))
             .build()
         );
