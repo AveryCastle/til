@@ -5,14 +5,12 @@ import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.geo.Point;
 
 // tag::code[]
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
-@ToString
 public class Item {
 
     private @Id String id;
@@ -30,6 +28,11 @@ public class Item {
         this.name = name;
         this.description = description;
         this.price = price;
+    }
+
+    Item(String id, String name, String description, double price) {
+        this(name, description, price);
+        this.id = id;
     }
 
     public String getId() {

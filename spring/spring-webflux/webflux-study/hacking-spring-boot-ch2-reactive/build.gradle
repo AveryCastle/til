@@ -25,12 +25,15 @@ dependencies {
     implementation 'org.mongodb:mongodb-driver-sync'
     implementation 'org.mongodb:mongodb-driver-reactivestreams'
     implementation 'io.projectreactor.tools:blockhound:1.0.7.RELEASE'
+
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo'
     testImplementation 'io.projectreactor:reactor-test'
+    testImplementation 'io.projectreactor.tools:blockhound-junit-platform:1.0.7.RELEASE'
+    testImplementation 'org.junit.platform:junit-platform-launcher:1.9.2'
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
@@ -38,4 +41,12 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+tasks.withType(Test).all {
+    if (JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_13)) {
+        jvmArgs += [
+                "-XX:+AllowRedefinitionToAddDeleteMethods"
+        ]
+    }
 }
