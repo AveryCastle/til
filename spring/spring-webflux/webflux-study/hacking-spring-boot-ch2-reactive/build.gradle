@@ -25,6 +25,7 @@ dependencies {
     implementation 'org.mongodb:mongodb-driver-sync'
     implementation 'org.mongodb:mongodb-driver-reactivestreams'
     implementation 'io.projectreactor.tools:blockhound:1.0.7.RELEASE'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     compileOnly 'org.projectlombok:lombok'
@@ -49,4 +50,8 @@ tasks.withType(Test).all {
                 "-XX:+AllowRedefinitionToAddDeleteMethods"
         ]
     }
+}
+
+springBoot {
+    buildInfo()
 }
