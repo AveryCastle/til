@@ -42,7 +42,7 @@ class InventoryServiceUnitTest {
         when(itemRepository.findById(anyString())).thenReturn(Mono.just(sampleItem));
         when(cartRepository.save(any(Cart.class))).thenReturn(Mono.just(sampleCart));
 
-        inventoryService = new InventoryService(itemRepository, cartRepository, fluentOperations); // <4>
+        inventoryService = new InventoryService(itemRepository, cartRepository); // <4>
     }
 
     @Test

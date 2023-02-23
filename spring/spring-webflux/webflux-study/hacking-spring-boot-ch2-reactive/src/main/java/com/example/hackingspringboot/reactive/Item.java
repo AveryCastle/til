@@ -24,13 +24,13 @@ public class Item {
     private boolean active;
 
 
-    Item(String name, String description, double price) {
+    public Item(String name, String description, double price) {
         this.name = name;
         this.description = description;
         this.price = price;
     }
 
-    Item(String id, String name, String description, double price) {
+    public Item(String id, String name, String description, double price) {
         this(name, description, price);
         this.id = id;
     }

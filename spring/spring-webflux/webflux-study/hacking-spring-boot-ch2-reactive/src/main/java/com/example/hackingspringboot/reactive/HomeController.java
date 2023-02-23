@@ -24,7 +24,7 @@ public class HomeController {
     Mono<Rendering> home() {
         return Mono.just(Rendering.view("home.html")
 //            .modelAttribute("items", inventoryService.getItems().doOnNext(item -> log.info("{}", item))) // with logging
-                .modelAttribute("items", inventoryService.getItems())
+                .modelAttribute("items", inventoryService.getInventory())
                 .modelAttribute("cart", inventoryService.getCart("My Cart")
                     .defaultIfEmpty(new Cart("My Cart")))
                 .build()
@@ -55,15 +55,15 @@ public class HomeController {
             .thenReturn("redirect:/");
     }
 
-    @GetMapping("/search")
-    Mono<Rendering> search(@RequestParam(required = false) String name,
-        @RequestParam(required = false) String description,
-        @RequestParam(required = false) boolean useAnd) {
-        return Mono.just(Rendering.view("home.html")
-//            .modelAttribute("items", inventoryService.searchByExample(name, description, useAnd))
-                .modelAttribute("items", inventoryService.searchByFluentExample(name, description, useAnd))
-                .modelAttribute("cart", cartService.search("My Cart"))
-                .build()
-        );
-    }
+//    @GetMapping("/search")
+//    Mono<Rendering> search(@RequestParam(required = false) String name,
+//        @RequestParam(required = false) String description,
+//        @RequestParam(required = false) boolean useAnd) {
+//        return Mono.just(Rendering.view("home.html")
+////            .modelAttribute("items", inventoryService.searchByExample(name, description, useAnd))
+//                .modelAttribute("items", inventoryService.searchByFluentExample(name, description, useAnd))
+//                .modelAttribute("cart", cartService.search("My Cart"))
+//                .build()
+//        );
+//    }
 }

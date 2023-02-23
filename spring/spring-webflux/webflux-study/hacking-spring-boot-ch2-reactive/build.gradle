@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '2.7.8'
     id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+    id "org.asciidoctor.jvm.convert" version "4.0.0-alpha.1"
 }
 
 group = 'com.greglturnquist'
@@ -18,14 +19,23 @@ repositories {
     mavenCentral()
 }
 
+ext {
+    snippetsDir = file('build/generated-snippets')
+}
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
-    implementation 'org.mongodb:mongodb-driver-sync'
+//    implementation 'org.mongodb:mongodb-driver-sync'
     implementation 'org.mongodb:mongodb-driver-reactivestreams'
-    implementation 'io.projectreactor.tools:blockhound:1.0.7.RELEASE'
+//    implementation 'io.projectreactor.tools:blockhound:1.0.7.RELEASE'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    // https://mvnrepository.com/artifact/org.asciidoctor/asciidoctor-maven-plugin
+    implementation group: 'org.asciidoctor', name: 'asciidoctor-maven-plugin', version: '2.2.2'
+    implementation('org.springframework.boot:spring-boot-starter-hateoas', {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-web'
+    })
 
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     compileOnly 'org.projectlombok:lombok'
@@ -33,8 +43,9 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo'
     testImplementation 'io.projectreactor:reactor-test'
-    testImplementation 'io.projectreactor.tools:blockhound-junit-platform:1.0.7.RELEASE'
+//    testImplementation 'io.projectreactor.tools:blockhound-junit-platform:1.0.7.RELEASE'
     testImplementation 'org.junit.platform:junit-platform-launcher:1.9.2'
+    testImplementation 'org.springframework.restdocs:spring-restdocs-webtestclient'
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
@@ -54,4 +65,27 @@ tasks.withType(Test).all {
 
 springBoot {
     buildInfo()
+}
+
+asciidoctor {
+    dependsOn test
+    inputs.dir snippetsDir
+}
+
+asciidoctor.doFirst {
+    delete file('src/main/resources/static/docs')
+}
+
+bootJar {
+    dependsOn asciidoctor
+    copy {
+        from "${asciidoctor.outputDir}"
+        into 'build/classes/static/docs'
+    }
+}
+
+task copyDocument(type: Copy) {
+    dependsOn asciidoctor
+    from file("build/docs/asciidoc")
+    into file("src/main/resources/static/docs")
 }
