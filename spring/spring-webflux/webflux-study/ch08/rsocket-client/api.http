@@ -1,0 +1,25 @@
+### RSocket Request-Response
+POST http://localhost:8080/items/request-response
+Content-Type: application/json
+
+{
+  "name": "Jimin Face",
+  "description": "Face Album",
+  "price": 49000
+}
+
+### RSocket Request-Stream
+GET http://localhost:8080/items/request-stream
+Content-Type: application/x-ndjson
+
+
+### RSocket Fire-and-Forget
+POST http://localhost:8080/items/fire-and-forget
+Content-Type: application/json
+
+{
+  "name": "J-Hope In the Box",
+  "description": "In the box",
+  "price": 49000
+}
+
