@@ -1,0 +1,30 @@
+server:
+  port: 9000
+  http2:
+    enabled: true
+
+spring:
+  application:
+    name: spring-webflux-guide
+  webflux:
+    base-path: /api
+  data:
+    mongodb:
+      authentication-database: admin
+      uri: mongodb://root:root1234@localhost:27017
+      database: springboot
+
+logging:
+  level:
+    com.example.springwebfluxstudy: DEBUG
+    org:
+      springframework:
+        web: INFO
+        data:
+          mongodb:
+            core:
+              ReactiveMongoTemplate: DEBUG
+    reactor:
+      netty:
+        http:
+          client: DEBUG
