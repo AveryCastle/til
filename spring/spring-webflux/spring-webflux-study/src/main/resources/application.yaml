@@ -11,7 +11,10 @@ spring:
   data:
     mongodb:
       authentication-database: admin
-      uri: mongodb://root:root1234@localhost:27017
+      host: localhost
+      port: 27017
+      username: root
+      password: root1234
       database: springboot
 
 logging:

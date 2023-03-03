@@ -1,10 +1,8 @@
 package com.example.springwebfluxstudy.controllers;
 
-import com.example.springwebfluxstudy.models.User;
-import com.example.springwebfluxstudy.services.UserService;
 import java.time.Duration;
 import java.util.stream.Stream;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +16,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.example.springwebfluxstudy.models.User;
+import com.example.springwebfluxstudy.services.UserService;
+
+import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -48,6 +51,11 @@ public class UserController {
                     Flux.fromStream(Stream.generate(() -> user)))
                 .map(Tuple2::getT2)
             );
+    }
+
+//    @GetMapping("/recent")
+    public Flux<User> recentUsers() {
+        return userService.getAllUsers().take(10);
     }
 
     @GetMapping("/{userId}")

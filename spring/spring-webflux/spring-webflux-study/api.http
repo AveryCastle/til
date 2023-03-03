@@ -35,3 +35,13 @@ Content-Type: application/json
 
 ###
 DELETE http://localhost:9000/api/users/63feda615716da31c93e102d
+
+
+###
+GET http://localhost:9000/api/hello
+
+###
+GET http://localhost:9000/api/bye
+
+###
+GET http://localhost:9000/api/recents
