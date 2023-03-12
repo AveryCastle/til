@@ -55,14 +55,22 @@ function gets_free_shipping(cart) {
     return calc_total(cart) >= 20;
 }
 
-function setPriceByName(cart, name, price) {
-    let i = indexOfItem(cart, name);
-    if (i !== null) {
-        let item = arrayGet(cart, i);
-        return arraySet(cart, i, setPrice(item, price));
+const validItemFields = ['price', 'quantity', 'shipping', 'tax'];
+const translations = { 'quantity': 'number' };
+
+function setFieldByName(cart, name, field, value) {
+    if (!validItemFields.include(field)) {
+        throw `Not a valid item field "${field}"`
     }
-    return cart;
+    if (translations.hasOwnProperty(field)) {
+        field = translations[field];
+    }
+    let item = cart[name];
+    let newItem = objectSet(item, field, value);
+    let newCart = objectSet(cart, name, newItem);
+    return newCart;
 }
+
 
 function cartTax(cart) {
     return calc_tax(calc_total(cart));
@@ -77,3 +85,87 @@ function arraySet(array, idx, value) {
 function arrayGet(array, idx) {
     return array[idx];
 }
+
+function objectSet(object, key, value) {
+    let copy = Object.assign({}, object);
+    copy[key] = value;
+    return copy;
+}
+
+function multiply(x, y) {
+    return x * y
+}
+
+function devidedBy(x, y) {
+    return x / y;
+}
+function plus(x, y) {
+    return x + y;
+}
+
+function minus(x, y) {
+    return x - y;
+}
+
+function incrementFieldByName(cart, name, field) {
+    if (field !== 'size' || field !== 'quantity') {
+        throw `The item field cannot be incremented: '${field}'.`;
+    }
+    const item = cart[name];
+    const value = item[field];
+    const newValue = value + 1;
+    const newItem = objectSet(item, field, newValue);
+    const newCart = objectSet(cart, name, newItem);
+    return newCart;
+}
+
+function forEach(array, f) {
+    for (let i = 0; i < array.length; i++) {
+        const item = array[i];
+        f(item);
+    }
+}
+
+forEach(foods, cookAndEat);
+
+forEach(dishes, clean);
+
+function cookAndEat(food) {
+    cook(food);
+    eat(food);
+}
+
+function clean(dish) {
+    wash(dish);
+    dry(dish);
+    putAway(dish);
+}
+
+
+try {
+    saveUserData(user);
+} catch(error) {
+    logToSnapErrors(error);
+}
+
+try {
+    fetchProduct(productId);
+} catch(error) {
+    logToSnapErrors(error);
+}
+
+function withLogging(f) {
+    try {
+        f();
+    } catch(error) {
+        logToSnapErrors(error);
+    }
+}
+
+withLogging(function() {
+    fetchProduct(productId);
+});
+
+withLogging(function() {
+    saveUserData(user);
+});
