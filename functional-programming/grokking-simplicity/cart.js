@@ -77,8 +77,32 @@ function cartTax(cart) {
 }
 
 function arraySet(array, idx, value) {
-    let copy = array.slice();
-    copy[idx] = value;
+    return withArrayCopy(array, function (copy) {
+        copy[idx] = value;
+    });
+}
+
+function push(array, elem) {
+    return withArrayCopy(array, function (copy) {
+        copy.push(elem);
+    });
+}
+
+function drop_last(array) {
+    return withArrayCopy(array, function (copy) {
+        copy.pop();
+    });
+}
+
+function drop_first(array) {
+    return withArrayCopy(array, function (copy) {
+        copy.shift();
+    });
+}
+
+function withArrayCopy(array, modify) {
+    const copy = array.slice();
+    modify(copy);
     return copy;
 }
 
@@ -87,8 +111,20 @@ function arrayGet(array, idx) {
 }
 
 function objectSet(object, key, value) {
+    return withObjectCopy(object, function (copy) {
+        copy[key] = value;
+    });
+}
+
+function objectDelete(object, key) {
+    return withObjectCopy(object, function (copy) {
+        delete copy[key];
+    });
+}
+
+function withObjectCopy(object, modify) {
     let copy = Object.assign({}, object);
-    copy[key] = value;
+    modify(copy);
     return copy;
 }
 
@@ -144,28 +180,82 @@ function clean(dish) {
 
 try {
     saveUserData(user);
-} catch(error) {
+} catch (error) {
     logToSnapErrors(error);
 }
 
 try {
     fetchProduct(productId);
-} catch(error) {
+} catch (error) {
     logToSnapErrors(error);
 }
 
-function withLogging(f) {
+
+function tryCatch(f, errorHandler) {
     try {
-        f();
-    } catch(error) {
-        logToSnapErrors(error);
+        return f();
+    } catch (error) {
+        return errorHandler(error);
     }
 }
 
-withLogging(function() {
+function withLogging(f) {
+    tryCatch(f, logToSnapErrors);
+}
+
+withLogging(function () {
     fetchProduct(productId);
 });
 
-withLogging(function() {
+withLogging(function () {
     saveUserData(user);
 });
+
+
+function wrapLogging(f) {
+    return function(arg) {
+        try {
+            return f(arg);
+        } catch (error) {
+            return logToSnapErrors(error);
+        }
+    };
+}
+
+var saveUserDataWithLogging = wrapLogging(saveUserDataNoLogging);
+
+function wrapIgnoreErrors(f) {
+    return function(a1, a2, a3) {
+        try {
+            return f(a1, a2, a3);
+        } catch (error) {
+            return null;
+        }
+    };
+}
+
+IF(array.length === 0, function() {
+    console.log('Array is empty.');
+}, function() {
+    console.log('Array has something in it.');
+});
+
+IF(hasItem(cart, 'shoes'), function() {
+    return setPriceByName(cart, 'shoes', 0);
+}, function() {
+    return cart;
+});
+
+function IF(test, then, ELSE) {
+    if (test) {
+        return then();
+    } else {
+        return ELSE();
+    }
+}
+
+function makeAdder(x) {
+    return function(y) {
+        return x + y;
+    };
+}
