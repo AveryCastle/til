@@ -213,7 +213,7 @@ withLogging(function () {
 
 
 function wrapLogging(f) {
-    return function(arg) {
+    return function (arg) {
         try {
             return f(arg);
         } catch (error) {
@@ -225,7 +225,7 @@ function wrapLogging(f) {
 var saveUserDataWithLogging = wrapLogging(saveUserDataNoLogging);
 
 function wrapIgnoreErrors(f) {
-    return function(a1, a2, a3) {
+    return function (a1, a2, a3) {
         try {
             return f(a1, a2, a3);
         } catch (error) {
@@ -234,15 +234,15 @@ function wrapIgnoreErrors(f) {
     };
 }
 
-IF(array.length === 0, function() {
+IF(array.length === 0, function () {
     console.log('Array is empty.');
-}, function() {
+}, function () {
     console.log('Array has something in it.');
 });
 
-IF(hasItem(cart, 'shoes'), function() {
+IF(hasItem(cart, 'shoes'), function () {
     return setPriceByName(cart, 'shoes', 0);
-}, function() {
+}, function () {
     return cart;
 });
 
@@ -255,7 +255,264 @@ function IF(test, then, ELSE) {
 }
 
 function makeAdder(x) {
-    return function(y) {
+    return function (y) {
         return x + y;
     };
 }
+
+function emailsForCustomers(customers, goods, bests) {
+    return map(customers, function (customers) {
+        return emailForCustomer(customers, goods, bests);
+    });
+}
+
+function map(array, f) {
+    var newArray = [];
+    forEach(array, function (element) {
+        newArray.push(f(element));
+    });
+    return newArray;
+}
+
+map(customers, function (customer) {
+    return {
+        firstName: customer.firstName,
+        lastName: customer.lastName,
+        address: customer.address,
+    };
+});
+
+function filter(array, f) {
+    var newArray = [];
+    forEach(array, function (element) {
+        if (f(element)) {
+            newArray.push();
+        }
+    });
+    return newArray;
+}
+
+function selectBestCustomers(customers) {
+    return filter(customers, isGoodCustomer);
+}
+
+function isGoodCustomer(customer) {
+    return customer.purchases.length >= 3;
+}
+
+var testGroup = filter(customers, function (customer) {
+    return customer.id % 3 === 0;
+});
+
+var nonTestGroup = filter(customers, function (customer) {
+    return customer.id % 3 !== 0;
+});
+
+function reduce(array, init, f) {
+    var accm = init;
+    forEach(array, function (element) {
+        accm = f(accm, element);
+    });
+    return accm;
+};
+
+function countAllPurchases(customers) {
+    return reduce(customers, 0, function (total, customer) {
+        return total + customer.puarchase.length;
+    });
+}
+
+function sum(numbers) {
+    return reduce(numbers, 0, function (total, number) {
+        return total + number;
+    });
+}
+
+function product(numbers) {
+    return reduce(numbers, 1, function (total, number) {
+        return total * number;
+    });
+}
+
+function min(numbers) {
+    return reduce(numbers, Number.MAX_VALUE, function (m, n) {
+        if (m > n) {
+            return n;
+        } else {
+            return m;
+        }
+    });
+}
+
+
+
+function map2(array, f) {
+    return reduce(array, [], function (ret, element) {
+        return ret.concat(f[lement]);
+    });
+}
+
+function filter2(array, f) {
+    return reduce(array, [], function (ret, elem) {
+        if (f(elem)) {
+            return ret.concat([elem]);
+        } else {
+            return ret;
+        }
+    });
+}
+
+
+function biggestPurchasesBestCustomers(customers) {
+    var bestCustomers = filter(customers, isGoodCustomer);
+    var biggestPurchases = map(bestCustomers, getBiggestPurchase);
+    return biggestPurchases;
+}
+
+function getBiggestPurchases(customers) {
+    return max3(customers, getBiggestPurchase);
+}
+
+function getBiggestPurchase(customers) {
+    return maxKey(customers, { total: 0 }, getPurchaseTotal);
+}
+
+function getPurchaseTotal(purchase) {
+    return purchase.total;
+}
+
+function max(numbers) {
+    return reduce(numbers, Number.MIN_VALUE, function (m, n) {
+        if (m > n) {
+            return m;
+        } else {
+            return n;
+        }
+    });
+}
+
+function maxKey(array, init, f) {
+    return reduce(array, init, function (biggestSoFar, element) {
+        if (f(biggestSoFar) > f(element)) {
+            return biggestSoFar;
+        } else {
+            return element;
+        }
+    });
+}
+
+function max3(numbers, init) {
+    return maxKey(numbers, init, function (element) {
+        return element;
+    });
+}
+
+
+var firstTimers = filter(customers, isFirstTimer);
+
+function isFirstTimer(customer) {
+    return customer.purchases.length == 1;
+}
+
+var firstTimerEmails = map(firstTimers, getCustomerEmail);
+
+function getCustomerEmail(customer) {
+    return customer.email;
+}
+
+function bigSpenders(customers) {
+    var withBigPurchases = filter(customers, hasBigPurchase);
+    var with2OrMorePurchases = filter(withBigPurchases, has2OrMorePurchase);
+    return with2OrMorePurchases;
+}
+
+function hasBigPurchase(customer) {
+    return filter(customer.purchases, isBigPurchase);
+}
+
+function isBigPurchase(purchase) {
+    return purchase.total > 100;
+}
+
+function has2OrMorePurchase(customer) {
+    return customer.purchases.length >= 2;
+}
+
+function average(numbers) {
+    return reduce(numbers, 0, plus) / numbers.length;
+}
+
+function plus(a, b) {
+    return a + b;
+}
+
+function averagePurchaseTotals(customers) {
+    return map(customers, function (customer) {
+        var purchasesTotals = map(customer.purchases, getPurchaseTotal);
+        return average(purchasesTotals);
+    });
+}
+
+var window = 5;
+var indices = range(0, array.length);
+var windows = map(indices, function(i) {
+    return array.slice(i, i + window);
+});
+
+var answer = map(windows, average);
+
+function range(start, end) {
+    var ret = [];
+    for (var i = start; i < end; i++) {
+        ret.push(i);
+    }
+    return ret;
+}
+
+function shoesAndSocksInventory(products) {
+    var shoesOrShocks = filter(products, function(product) {
+        return product.type == 'shoes' || product.type == 'socks';
+    });
+    var numberInInventories = map(shoesOrShocks, function(product) {
+        return product.numberInInventory;
+    })
+    return reduce(numberInInventories, 0, plus);
+}
+
+var evaluations = [
+    { name: 'Jane', position: 'catcher', score: 25 },
+    { name: 'John', position: 'pitcher', score: 10 },
+    { name: 'Harray', position: 'catcher', score: 3 },
+];
+
+var roster = reduce(evaluations, {}, function(roster, evaluation) {
+    var position = roster[evaluation.position];
+    if (roster[position]) {
+        return roster;
+    } else {
+        return objectSet(roster, position, evaluation.name);
+    }
+});
+
+
+var recommendations = map(employeeNames, function(name) {
+    return {
+        name: name,
+        position: recommendPosition(name),
+    };
+});
+
+var evaluations = map(recommendations, function(rec) {
+    return objectSet(
+        rec, 
+        'score', 
+        scorePlayer(rec.name, rec.position)
+    );
+});
+
+
+var evaluationAscending = sortBy(evaluations, function(eval) {
+    return eval.score;
+});
+
+var evaluationDescending = reverse(evaluationAscending);
