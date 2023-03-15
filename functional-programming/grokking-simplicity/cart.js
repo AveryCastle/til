@@ -516,3 +516,107 @@ var evaluationAscending = sortBy(evaluations, function(eval) {
 });
 
 var evaluationDescending = reverse(evaluationAscending);
+
+function updateFiled(item, field, modify) {
+    var value = item[field];
+    var newValue = modify(value);
+    var newItem = objectSet(item, field, newValue);
+    return newItem;
+}
+
+function update(object, key, modify) {
+    var value = object[key];
+    var newValue = modify(value);
+    var newObject = objectSet(object, key, newValue);
+    return newObject;
+}
+
+var employee = {
+    name: 'Kim',
+    salary: 12000
+};
+
+function raise10Percent(salary) {
+    return salary * 1.1;
+}
+
+var result = update(employee, 'salary', raise10Percent);
+
+
+/**
+ * p364. 연습문제
+ */
+var user = {
+    firstName: "Joe",
+    lastName: "Nash",
+    email: "JOE@EXAMPLE.COM",
+};
+
+update(user, 'email', function(element) {
+    return element.toLowerCase();
+});
+
+var item = {
+    quantity: 2,
+};
+
+function tenXQuantity(item) {
+    return update(item, 'quantity', function(quantity) {
+        return quantity * 10;
+    });
+}
+
+function update2(object, key1, key2, modify) {
+    return update(object, key1, function(value1) {
+        return update(value1, key2, modify);
+    });
+}
+
+function incrementSize(item) {
+    return update2(item, 'options', 'size', function(size) {
+        return size + 1;
+    });
+}
+
+function incrementSizeByName(cart, name) {
+    return update(cart, name, function(item) {
+        return update2(item, 'options', 'size', function(size) {
+            return size + 1;
+        });
+    });
+}
+
+function update3(object, key1, key2, key3, modify) {
+    return update(object, key1, function(object2) {
+        return update2(object2, key2, key3, modify);
+    });
+}
+
+function update4(object, k1, k2, k3, k4, modify) {
+    return update(object, key1, function(object2) {
+        return update3(object2, k2, k3, k4, modify);
+    });
+}
+
+function update5(object, k1, k2, k3, k4, k5, modify) {
+    return update(object, key1, function(object2) {
+        return update4(object2, k2, k3, k4, k5, modify);
+    });
+}
+
+function nestedUpdate(object, keys, modify) {
+    if (keys.length == 0) {
+        return modify(object);
+    }
+    var key1 = keys[0];
+    var restOfKey = drop_first(keys);
+    return update(object, key1, function(object2) {
+        return nestedUpdate(object2, restOfKey, modify);
+    })
+}
+
+function incrementSizeByName2(cart, name) {
+    return nestedUpdate(cart, [name, 'option', 'size'], function(size) {
+        return size + 1;
+    });
+}
