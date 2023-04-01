@@ -620,3 +620,22 @@ function incrementSizeByName2(cart, name) {
         return size + 1;
     });
 }
+
+/**
+ * p438 CHAPTER15 타임라인 격리하기.
+ */
+function doDishes(plates, forks, cups, callback) {
+    var total = 0;
+    wash_ajax(plates, function() {
+        total += plates.length;
+        wash_ajax(forks, function() {
+            total += forks.length;
+            wash_ajax(cups, function() {
+                total += cups.length;
+                callback(total);
+            });
+        });
+    });
+}
+
+doDishes(plates, forks, cups, update_dishes_dom);
