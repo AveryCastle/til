@@ -1,0 +1,19 @@
+server:
+  port: 8080 # Netty ?? ?? ??.
+
+spring:
+  application:
+    name: rsocket-server
+  data:
+    mongodb:
+      uri: mongodb://root:root1234@localhost:27017
+      database: springboot
+#  rsocket:
+#    server:
+#      port: 8000 # R?? ?? ??.
+#      transport: tcp # R?? ?? ????.
+
+logging:
+  level:
+    root: info
+    org.springframework.data.mongodb.core.ReactiveMongoTemplate: debug # show sql.

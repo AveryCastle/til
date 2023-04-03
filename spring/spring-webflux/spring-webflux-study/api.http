@@ -1,0 +1,47 @@
+###
+POST http://localhost:9000/api/users
+Content-Type: application/json
+
+{
+
+  "name": "JIMIN",
+  "age": 28,
+  "salary": 2100000000,
+  "department": "HYBE"
+}
+
+
+###
+GET http://localhost:9000/api/users/stream
+Content-Type: text/event-stream
+
+###
+GET http://localhost:9000/api/users
+
+
+###
+GET http://localhost:9000/api/users/63fee1b73778474321c17c40
+
+###
+PUT http://localhost:9000/api/users/63fedda15e66c5640f73823d
+Content-Type: application/json
+
+{
+
+  "age": 30,
+  "salary": 2000000000
+}
+
+
+###
+DELETE http://localhost:9000/api/users/63feda615716da31c93e102d
+
+
+###
+GET http://localhost:9000/api/hello
+
+###
+GET http://localhost:9000/api/bye
+
+###
+GET http://localhost:9000/api/recents

@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: hacking-spring-boot-reactive
+  webflux:
+    hidden-method:
+      filter:
+        enabled: true # Spring WebFlux 에서 DELETE Method 활성화하기 위한 설정.
+  data:
+    mongodb:
+      uri: mongodb://root:root1234@localhost:27017
+      database: springboot
+
+
+# 애플리케이션 정보 확인 설정(chap05)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, httptrace, loggers
+#      base-path: /manage
+#      path-mapping:
+#        loggers: logs
+  endpoint:
+    health:
+      show-details: always
+  info:
+    env:
+      enabled: true
+
+
+info:
+  application:
+    name: ${spring.application.name}
+    description: hacking-spring-boot-ch5-reactive
+    version: ${project.version}
+    spring-boot-version: ${project.parent.version}
+
+logging:
+  level:
+    root: info
+    org.springframework.data.mongodb.core.ReactiveMongoTemplate: debug # show sql.
