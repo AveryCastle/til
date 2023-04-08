@@ -425,6 +425,106 @@ NaturalOrder{name='V', age=27}
   - https://madplay.github.io/post/what-is-new-java-17
   - https://www.baeldung.com/java-17-new-features
 
+> Q. Java11 부터 Java17 까지의 중요한 특징에 대해 설명하기.
+> 1. Java11
+> - var 키워드 추가: 타입 추론 기능을 제공하여 코드 작성 시 편의성을 높임.
+> - http 클라이언트 표준화: 기존 HttpURLConnection 대신 (Java9 에 도입되었던)HttpClient 클래스 도입으로, 더욱 간편하게 HTTP 통신 가능.
+>   - HTTP/1.1 과 HTTP/2을 지원
+>   - 예시
+>   - ```java
+>     HttpClient httpClient = HttpClient.newBuilder()
+>                                     .version(HttpClient.Version.HTTP_2)
+>                                     .connectTimeout(Duration.ofSeconds(20))
+>                                     .build();
+>     HttpRequest httpRequest = HttpRequest.newBuilder()
+>                              .GET()
+>                              .uri(URI.create("http://localhost:" + port))
+>                              .build();
+>     HttpResponse httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+>     assertThat(httpResponse.body()).isEqualTo("Hello from the server!");
+> 2. Java12
+> - Switch 표현식 개선: 복수의 값 지정 가능한 case 문 도입으로 코드 가독성 개선.
+>   - 기존의 `switch` 문에서는 각 `case`마다 해당하는 코드 블록을 작성하고 마지막에 `break`를 명시해야 했다. 그러나 Java 12부터는 `->` 연산자를 이용하여 각 `case`에 대한 코드를 한 줄로 표현할 수 있다. 이를 통해 코드 블록과 `break` 문을 생략하고 보다 간결한 코드를 작성할 수 있다. 또한, `default` 블록에서도 `->` 연산자를 이용하여 한 줄로 처리할 수 있다.
+>   - 예시
+>   - ```java
+>     // 기존 방식
+>     String time;
+>     switch (weekday) {
+>         case MONDAY:
+>         case FRIDAY:
+>              time = "10:00-18:00";
+>              break;
+>         case TUESDAY:
+>         case THURSDAY:
+>              time = "10:00-14:00";
+>              break;
+>         default:
+>              time = "휴일";
+>     }
+>   - ```java
+>     // Java12 방식
+>     String time = switch (weekday) {
+>         case MONDAY, FRIDAY -> "10:00-18:00";
+>         case TUESDAY, THURSDAY -> "10:00-14:00";
+>         default -> "휴일";
+>     };
+> - GC 개선: G1GC 기본값 설정, 메모리 최적화 개선.
+> - String 클래스 개선: 문자열 조합, 비교 등의 기능 개선.
+> 3. Java13
+> - Switch 표현식 개선: `->(화살표 연산자)`를 이용한 case 문 도입으로 코드 가독성 개선.
+> - Text Blocks 추가: 문자열을 쉽게 다룰 수 있는 기능 도입.
+> - GC 개선: 메모리 최적화 및 ZGC (Z Garbage Collector) 도입.
+>   - ZGC(Z Garbage Collector): 큰 힙 메모리를 다루는 것을 목표로 설계된 GC 알고리즘.
+>     - 큰 힙 영역에서도 일정 시간 내에 GC 작업을 완료할 수 있는 성능을 보이며, 
+>     - GC 작업 도중에 애플리케이션의 실행을 일시 중단하지 않는다. 이를 통해 애플리케이션의 전반적인 성능을 유지할 수 있다.
+> 4. Java14
+> - Records 추가: 데이터 저장용 클래스를 간결하게 작성할 수 있는 기능 도입.
+> - Switch 표현식 개선: yield 키워드 추가로 반환값을 설정할 수 있게 됨. 
+> - JFR 이벤트 기능 개선: 프로파일링 및 모니터링 용이성 개선.
+> 5. Java15
+> - Text Blocks 개선: 들여쓰기 및 escape 문자열 처리 개선.
+> - Records 개선: equals() 및 hashCode() 자동 생성 가능.
+> - ZGC 개선: 최대 힙 크기 지정 가능.
+> 6. Java16
+> - Records 개선: 상속 및 캐스팅 지원. 
+> - Vector API 추가: SIMD 명령어를 활용한 벡터화 연산 가능. 
+> - GC 개선: ZGC의 성능 개선 및 Epsilon GC 도입으로 특정 용도에서는 GC 수행 없이 동작 가능.
+> 7. Java17
+> - Sealed Classes 추가: 클래스 상속 제한 기능 도입. 
+> - Pattern Matching 개선: instanceof 연산자로 더욱 간편한 객체 타입 판별 가능. 
+>   - ```java
+>     // 기존 방식
+>     if (obj instanceof String) {
+>         String str = (String) obj;
+>         System.out.println(str.length());
+>     }
+>   - ```java
+>     // java17 방식
+>     if (obj instanceof String str) {
+>         System.out.println(str.length());
+>     }
+> - GC 개선: ZGC의 성능 개선 및 메모리 최적화.
+> 8. Java18
+> - Records 개선: 인터페이스 구현 및 불변 타입 생성 가능. 
+> - Switch 표현식 개선: switch 식에서 패턴 매칭 사용 가능. 
+> - Vector API 개선: SIMD 벡터화 연산을 통해 배열 및 데이터 처리 성능 개선.
+> 9. Java19
+> - Pattern Matching 개선: as 키워드 추가로 변수 타입 캐스팅 및 null 검사 기능 추가. 
+> - Vector API 개선: 벡터화 연산 확장 및 기존 메서드의 벡터화 버전 추가. 
+> - ZGC 개선: 기존 힙 크기 16TB에서 최대 64TB까지 지원 가능.
+> 10. Java20
+> - Records 개선: 내부 클래스, 메서드, 빈 생성자 등의 기능 추가. 
+> - Switch 표현식 개선: switch 식에서 break 생략 가능. 
+> - Foreign Function and Memory API 추가: C나 C++로 작성된 코드와 상호작용하기 위한 기능 도입.
+> 11. Java21
+> - Records 개선: 상속 및 패턴 매칭 등의 기능 추가. 
+> - Garbage Collector 개선: 메모리 최적화 및 퍼포먼스 개선. 
+> - HTTP Client 개선: HTTP/2 프로토콜 자동 선택 및 스트림 지원 기능 추가.
+> 12. Java22
+> - JVM 개선: 메모리 및 쓰레드 관리, 클래스 로딩 등의 성능 개선. 
+> - Pattern Matching 개선: switch 문에서 case null 지원. 
+> - Foreign Function and Memory API 개선: 네이티브 메모리 처리 및 데이터 변환 기능 추가.
+
 > Q. JPA 와 쿼리 중심으로 개발할 때의 차이점은?
 > 
 > - ORM: 객체와 관계형 데이터베이스를 맵핑한다는 뜻.
@@ -760,6 +860,7 @@ NaturalOrder{name='V', age=27}
 - 참조
   - [AWS deep-dive-containers](https://aws.amazon.com/ko/getting-started/deep-dive-containers/)
   - [docker-container-basics](https://futurecreator.github.io/2018/11/16/docker-container-basics/)
+  - [Docker 따라 배우기 정리](https://github.com/AveryCastle/til/blob/master/docker/README.md)
 
 
 # 쿠버네티스(Kubernetes)
@@ -786,11 +887,40 @@ NaturalOrder{name='V', age=27}
 > Q. 트랜잭션 격리 수준(Transaction Isolation Levels)
 > 
 > 트랜잭션 격리수준은 고립도와 성능의 트레이드 오프를 조절한다.
-> - READ UNCOMMITTED: 다른 트랜잭션에서 커밋되지 않은 내용도 참조할 수 있다.
-> - READ COMMITTED: 다른 트랜잭션에서 커밋된 내용만 참조할 수 있다.
-> - REPEATABLE READ: 트랜잭션에 진입하기 이전에 커밋된 내용만 참조할 수 있다.
+> - READ UNCOMMITTED: 다른 트랜잭션에서 커밋되지 않은 내용도 참조할 수 있다. 이로 인해 발생할 수 있는 문제로는 Dirty Read, Non-repeatable Read, Phantom Read 등이 있다. 최소한의 성능 오버헤드가 발생하므로 성능이 중요한 시스템에서 사용될 수 있다.
+> - READ COMMITTED: 다른 트랜잭션에서 커밋된 내용만 참조할 수 있다. 이 수준에서는 Dirty Read 문제를 방지할 수 있지만, Non-repeatable Read와 Phantom Read 문제는 여전히 발생할 수 있다. 이 격리 수준은 일반적으로 많은 데이터베이스 시스템의 기본 설정으로 사용된다.
+> - REPEATABLE READ: 트랜잭션 내에서 같은 데이터를 여러 번 읽어도 일관성 있는 결과를 얻을 수 있다. 이 수준에서는 Dirty Read와 Non-repeatable Read 문제를 방지할 수 있지만, Phantom Read 문제는 여전히 발생할 수 있다. REPEATABLE READ는 고립된 트랜잭션을 보장하려는 경우에 사용된다.
 > - SERIALIZABLE: 트랜잭션에 진입하면 락을 걸어 다른 트랜잭션이 접근하지 못하게 한다.(성능 매우 떨어짐)
+Dirty Read, Non-repeatable Read, Phantom Read 문제를 모두 방지할 수 있다. 하지만 이로 인해 성능에 상당한 오버헤드가 발생할 수 있으며, 동시성이 떨어질 수 있다. 이 격리 수준은 데이터의 일관성이 매우 중요한 경우에 사용된다.
 
+> Q. ISOLIATION(격리성)이 낮을 때 발생할 수 있는 문제
+> - Dirty Read: Dirty Read는 한 트랜잭션에서 아직 커밋되지 않은 변경 사항을 다른 트랜잭션에서 읽는 경우를 말한다.
+>   - 트랜잭션 A가 사용자의 계좌에서 100달러를 인출하려고 합니다.
+>   - 트랜잭션 A는 계좌 잔액을 100달러 빼고, 아직 커밋하지 않습니다.
+>   - 트랜잭션 B가 해당 사용자의 계좌 잔액을 조회합니다.
+>   - 트랜잭션 B는 트랜잭션 A의 변경 사항을 읽고 잘못된 잔액 정보를 확인합니다.
+> - Non-repeatable Read: Non-repeatable Read는 한 트랜잭션 내에서 같은 데이터를 여러 번 읽을 때 일관되지 않은 결과를 반환하는 경우를 말합니다. `해당 데이터를 변경했을 때 발생`할 수 있는 경우입니다.
+>   - 트랜잭션 A가 상품의 가격을 조회합니다.
+>   - 트랜잭션 B가 해당 상품의 가격을 변경하고 커밋합니다.
+>   - 트랜잭션 A가 다시 상품의 가격을 조회합니다.
+트랜잭션 A는 두 번의 조회 결과가 다른 값을 반환하여 일관성이 없습니다.
+> - Phantom Read: Phantom Read는 한 트랜잭션 내에서 동일한 쿼리를 여러 번 실행할 때 일관되지 않은 행의 수를 반환하는 경우를 말합니다. `새로운 데이터를 추가하거나 삭제하는 경우 발생`할 수 있습니다.
+>   - 트랜잭션 A가 18세 이상의 사용자를 조회합니다. 결과로 10명의 사용자를 반환합니다.
+>   - 트랜잭션 B가 새로운 사용자를 추가하고, 해당 사용자의 나이는 18세 이상입니다. 트랜잭션 B는 커밋합니다.
+>   - 트랜잭션 A가 다시 18세 이상의 사용자를 조회합니다.
+>   - 트랜잭션 A는 이번 조회에서는 11명의 사용자를 반환하고, 이전과 일관되지 않은 결과를 확인합니다.
+
+> Q. MySQL 과 Spring Data JPA 를 사용할 경우, 기본 트랜잭션 격리 수준은?
+> - MySQL: MySQL의 기본 트랜잭션 격리 수준은 REPEATABLE READ 다. 이 수준에서는 Dirty Read와 Non-repeatable Read 문제를 방지할 수 있지만, Phantom Read 문제는 여전히 발생할 수 있다.
+> Spring Data JPA: Spring Data JPA의 기본 트랜잭션 격리 수준은 데이터베이스에 따라 다르다. JPA는 데이터베이스의 기본 트랜잭션 격리 수준을 사용하므로, MySQL을 사용하는 경우 기본 트랜잭션 격리 수준은 MySQL의 기본 격리 수준인 REPEATABLE READ를 따르게 된다.
+> - @Transactional 애너테이션을 사용하여 특정 메서드나 클래스에 대한 격리 수준을 지정할 수 있다.
+  ```java
+        @Transactional(isolation = Isolation.READ_COMMITTED)
+        public void someMethod() {
+          // ...
+    }
+  ```
+    
 
 # 네트워크 전반
 > Q. 웹 브라우저에서 URL 호출해서 응답받는 흐름을 설명하시오.
