@@ -671,3 +671,12 @@
 
 ## CQRS(Command and Query Responsibility Segregation)
 - https://engineering-skcc.github.io/microservice%20outer%20achitecture/inner-architecture-cqrs/
+
+# Uber 서비스 
+- https://www.codekarle.com/system-design/Uber-system-design.html
+- https://www.geeksforgeeks.org/system-design-of-uber-app-uber-system-architecture/
+- https://blog.imqa.io/uber-architecture-system-design/
+- Driver - 위치 서비스 간 WebSocket 통신
+- 승차 시작 ~ 승차 완료까지의 이동 추적을 위해 사용자 - 실시간 위치 추적 서비스 간 어떻게 통신할지 결정해야 함.
+- 택시의 위치를 파악하기 위해 Google S2 Library 이용하기.
+  - 지구는 평면보다 구에 가깝기 때문에, segment 로 나누어 각 segment 마다 유일 ID를 부여한다.
