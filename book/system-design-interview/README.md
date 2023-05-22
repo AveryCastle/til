@@ -605,6 +605,10 @@
 - 웹 모니터링:  
 
 
+# 10장. 알림 시스템 설계
+- 참고
+  - https://bravenewgeek.com/you-cannot-have-exactly-once-delivery/
+
 # 11장. 뉴스피드
 ## 1단계. 문제 이해 및 설계 범위 확정
 
