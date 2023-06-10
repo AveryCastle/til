@@ -925,12 +925,12 @@ Dirty Read, Non-repeatable Read, Phantom Read 문제를 모두 방지할 수 있
 # 네트워크 전반
 > Q. 웹 브라우저에서 URL 호출해서 응답받는 흐름을 설명하시오.
 > 
-> | 종류  | 역할  |   |
-> |----|---|---|
-> | Application  |  DATA  |   |
+> | 종류  | 역할  |    |
+> |----|----|---|
+> | Application  |  DATA  | HTTP(S), FTP, SSH, DNS, Telnet, LDAP |
 > | TCP/UDP  | SEGMENT(PORT+DATA)  |    |
-> | IP  | PACKET(IP+PORT+DATA)  | 도메인에 맵핑되는 IP를 DNS에 물어봐서 획득한다.  |
-> | Ethernet  | FRAME(MACAddress+IP+PORT+DATA)  |  |
+> | IP  | PACKET(IP+PORT+DATA)  | 도메인에 맵핑되는 IP를 DNS에 물어봐서 획득한다. |
+> | Ethernet  | FRAME(MACAddress+IP+PORT+DATA)  |    |
 > 1. Application Layer: 브라우저에 www.youtube.com 을 입력하면 브라우저가 URL에 적힌 값을 파싱해서 HTTP Request Message를 만듭니다. Data를 만들고 아래 레이어로 보냅니다.
 > 2. TCP/UDP Layer: socket을 통해서 데이터를 받은 후에 DATA 앞에 PORT를 붙여서 SEGMENT를 붙이고 아래 레이어로 보낸다.
 > 3. IP Layer: DNS에 도메인에 맵핑되는 IP를 획득한다. LocalDNS Cache에 맵핑되는 IP가 있으면 해당 IP를 돌려주고, 없으면 DNS Lookup 과정(RootDNS를 시작으로 서브 도메인 DNS를 거쳐 원하는 IP를 찾는 과정)을 거쳐 IP 주소를 얻는다. 이렇게 획득한 SourceIP, DestinationIP를 Header에 붙여서 패킷을 만든 후 아래 레이어로 보낸다.
