@@ -54,6 +54,7 @@
   - 통신(Communication): 동기 통신 vs 비동기 통신
   - 일관성(Consistency): 원자성 vs 최종 일관성, 데이터 트랜잭션
   - 조정(Coordination): 오케스트레이션 방식 vs 코레오그래피 방식
+  - <figure><img src="images/3차원_동적_퀀텀_커플링_그래프.png" alt=""><figcaption>그림. 3차원_동적_퀀텀_커플링_그래프</figcaption></figure>
 
 <!-- 2장.-->
 <a name="footnote_2_1">2-1</a>: A->B에 의존하고, B->C에 의존할 경우, 결과적으로 A->C에 의존하게 되는 현상
