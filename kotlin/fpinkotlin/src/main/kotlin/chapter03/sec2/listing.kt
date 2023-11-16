@@ -36,6 +36,38 @@ sealed class List<out A> {
                     if (doubles.head == 0.0) 0.0
                     else doubles.head * product(doubles.tail)
             }
+
+        // 연습문제 3.3
+        fun <A> drop(l: List<A>, n: Int): List<A> =
+            if (n == 0) l
+            else when (l) {
+                is Nil -> throw IllegalStateException("Cannot drop more elements than in list")
+                is Cons -> drop(l.tail, n - 1)
+            }
+
+        // 연습문제 3.4
+        fun <A> dropWhile(l: List<A>, f: (A) -> Boolean): List<A> =
+            when (l) {
+                is Nil -> l
+                is Cons ->
+                    if (f(l.head)) dropWhile(l.tail, f) else l
+            }
+
+        fun <A> append(a1: List<A>, a2: List<A>): List<A> =
+            when (a1) {
+                is Nil -> a2
+                is Cons -> Cons(a1.head, append(a1.tail, a2))
+            }
+
+        // 연습문제 3.5
+        fun <A> init(l: List<A>): List<A> =
+            when (l) {
+                is Nil -> throw IllegalStateException("Cannot init Nil list")
+                is Cons ->
+                    if (l.tail == Nil) Nil
+                    else Cons(l.head, init(l.tail))
+            }
+
     }
 }
 
@@ -80,7 +112,7 @@ val z: String =
     }
 
 fun main() {
-    val members = List.of("Jimin", "JK")
+    val members = List.of("Jimin", "JK", "V", "J-HOPE", "SUGA", "JIN", "RM")
     println(members)
 
     println(List.sum(ints))
@@ -91,4 +123,15 @@ fun main() {
     println(ints.tail())
 
     println(List.setHead(members, "V"))
+
+    println("after drop 2 = ${List.drop(members, 2)}")
+
+    val numbers = List.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    println("dropWhile result => ${List.dropWhile(numbers) { it < 5 }}")
+    println("after dropWhile => ${numbers}")
+
+    println(List.append(members, List.of("BTS", "V", "ARMY")))
+
+    println(List.init(members))
+
 }
