@@ -27,8 +27,23 @@ sealed class List<out A> {
                 is Cons -> f(xs.head, foldRight(xs.tail, z, f))
             }
 
+        tailrec fun <A, B> foldLeft(xs: List<A>, z: B, f: (B, A) -> B): B =
+            when (xs) {
+                is Nil -> z
+                is Cons -> foldLeft(xs.tail, f(z, xs.head), f)
+            }
+
         // 연슴문제3.8
         fun <A> length(xs: List<A>): Int = foldRight(xs, 0) { _, z -> z + 1 }
+
+        // 연습문제 3.14
+        fun <A> concat(xxs: List<List<A>>): List<A> =
+            foldRight(
+                xxs,
+                empty()
+            ) { xs1: List<A>, xs2: List<A> ->
+                foldRight(xs1, xs2) { head, x2 -> Cons(head, x2) }
+            }
     }
 }
 
@@ -49,5 +64,7 @@ fun main() {
 
     val members = List.of("RM", "JIN", "SUGA", "J-HOPE", "JIMIN", "V", "JK")
     println("length = ${List.length(members)}")
-}
 
+    val bts = List.of(List.of("JK", "V", "JIMIN"), List.of("RM", "J-HOPE"), List.of("SUGA", "Jin"))
+    println("concat = ${List.concat(bts)}")
+}
