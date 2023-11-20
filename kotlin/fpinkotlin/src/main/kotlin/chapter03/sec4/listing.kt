@@ -50,13 +50,16 @@ sealed class List<out A> {
 fun increment(xs: List<Int>): List<Int> =
     List.foldRight(xs, List.empty()) { h, t -> Cons(h + 1, t) }
 
+fun doubleToString(xs: List<Double>): List<String> =
+    List.foldRight(xs, List.empty()) { h, t -> Cons(h.toString(), t) }
+
 data object Nil : List<Nothing>()
 
 data class Cons<out A>(val head: A, val tail: List<A>) : List<A>()
 
 fun main() {
     println("sum = ${List.sum(List.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10))}")
-    println("product = ${List.product(List.of(1.0, 2.0, 3.0, 0.0, 4.0, 5.0))}")
+    println("product = ${List.product(List.of(1.0, 2.0, 3.0, 7.7, 4.0, 5.0))}")
 
     println(
         List.foldRight(
@@ -73,4 +76,7 @@ fun main() {
 
     val integers = List.of(1, 2, 3, 4, 5, 6, 7)
     println("increment = ${increment(integers)}")
+
+    val doubles = List.of(1.1, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0)
+    println("doubleToString = ${doubleToString(doubles)}")
 }
