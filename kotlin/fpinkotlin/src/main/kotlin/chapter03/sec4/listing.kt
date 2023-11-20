@@ -47,6 +47,9 @@ sealed class List<out A> {
     }
 }
 
+fun increment(xs: List<Int>): List<Int> =
+    List.foldRight(xs, List.empty()) { h, t -> Cons(h + 1, t) }
+
 data object Nil : List<Nothing>()
 
 data class Cons<out A>(val head: A, val tail: List<A>) : List<A>()
@@ -67,4 +70,7 @@ fun main() {
 
     val bts = List.of(List.of("JK", "V", "JIMIN"), List.of("RM", "J-HOPE"), List.of("SUGA", "Jin"))
     println("concat = ${List.concat(bts)}")
+
+    val integers = List.of(1, 2, 3, 4, 5, 6, 7)
+    println("increment = ${increment(integers)}")
 }
