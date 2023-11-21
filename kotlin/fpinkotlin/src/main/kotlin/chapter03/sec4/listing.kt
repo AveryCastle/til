@@ -48,6 +48,14 @@ sealed class List<out A> {
         // 연습문제 3.17
         fun <A, B> map(xs: List<A>, f: (A) -> B): List<B> =
             foldRight(xs, empty()) { h: A, t: List<B> -> Cons(f(h), t) }
+
+        // 연습문제 3.11
+        fun <A> reverse(xs: List<A>): List<A> =
+            foldLeft(xs, empty()) { tail: List<A>, head: A -> Cons(head, tail) }
+
+        // 연습문제 3.13
+        fun <A> append(a1: List<A>, a2: List<A>): List<A> =
+            foldRight(a1, a2) { h, t -> Cons(h, t) }
     }
 }
 
@@ -84,5 +92,11 @@ fun main() {
     val doubles = List.of(1.1, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0)
     println("doubleToString = ${doubleToString(doubles)}")
 
+
     println("map = ${List.map(members) { x -> x.length }}")
+
+
+    println("reverse = ${List.reverse(members)}")
+
+    println("appendR = ${List.append(members, List.of("BTS", "ARMY"))}")
 }
