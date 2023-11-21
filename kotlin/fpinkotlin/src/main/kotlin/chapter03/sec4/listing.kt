@@ -69,6 +69,15 @@ sealed class List<out A> {
         // 연습문제 3.18
         fun <A> filter(xs: List<A>, f: (A) -> Boolean): List<A> =
             foldRight(xs, empty()) { h: A, t: List<A> -> if (f(h)) Cons(h, t) else t }
+
+        // 연습문제 3.19
+        fun <A, B> flatMap(xs: List<A>, f: (A) -> List<B>): List<B> =
+            foldRight(xs, empty()) { h: A, t: List<B> -> append(f(h), t) }
+
+        fun <A> filterM(xs: List<A>, f: (A) -> Boolean): List<A> =
+            flatMap(xs) { a ->
+                if (f(a)) of(a) else empty()
+            }
     }
 }
 
@@ -134,4 +143,9 @@ fun main() {
 
     println("filter = ${List.filter(numbers) { x -> x > 3 }}")
     println("filter = ${List.filter(members) { name -> name.contains("J") }}")
+
+    println("flatMap = ${List.flatMap(List.of(1, 2, 3)) { i -> List.of(i, i) }}")
+
+    println("filterM = ${List.filterM(numbers) { x -> x > 3 }}")
+    println("filterM = ${List.filterM(members) { name -> name.contains("J") }}")
 }
