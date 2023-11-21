@@ -10,6 +10,9 @@ sealed class List<out A> {
         fun sum(ints: List<Int>): Int =
             foldRight(ints, 0) { a, b -> a + b }
 
+        fun sumL(ints: List<Int>): Int =
+            foldLeft(ints, 0) { acc, num -> acc + num }
+
         // 연습문제 3.6
         fun product(doubles: List<Double>): Double =
             foldRight(doubles, 1.0) { a, b ->
@@ -19,6 +22,9 @@ sealed class List<out A> {
                 }
             }
 
+        fun productL(doubles: List<Double>): Double =
+            foldLeft(doubles, 1.0) { a, b -> a * b }
+
         fun <A> empty(): List<A> = Nil
 
         fun <A, B> foldRight(xs: List<A>, z: B, f: (A, B) -> B): B =
@@ -27,14 +33,12 @@ sealed class List<out A> {
                 is Cons -> f(xs.head, foldRight(xs.tail, z, f))
             }
 
+        // 연습문제 3.9
         tailrec fun <A, B> foldLeft(xs: List<A>, z: B, f: (B, A) -> B): B =
             when (xs) {
                 is Nil -> z
                 is Cons -> foldLeft(xs.tail, f(z, xs.head), f)
             }
-
-        // 연슴문제3.8
-        fun <A> length(xs: List<A>): Int = foldRight(xs, 0) { _, z -> z + 1 }
 
         // 연습문제 3.14
         fun <A> concat(xxs: List<List<A>>): List<A> =
@@ -49,6 +53,11 @@ sealed class List<out A> {
         fun <A, B> map(xs: List<A>, f: (A) -> B): List<B> =
             foldRight(xs, empty()) { h: A, t: List<B> -> Cons(f(h), t) }
 
+        // 연슴문제 3.8
+        fun <A> length(xs: List<A>): Int = foldRight(xs, 0) { _, acc -> acc + 1 }
+
+        fun <A> lengthL(xs: List<A>): Int = foldLeft(xs, 0) { acc, _ -> acc + 1 }
+
         // 연습문제 3.11
         fun <A> reverse(xs: List<A>): List<A> =
             foldLeft(xs, empty()) { tail: List<A>, head: A -> Cons(head, tail) }
@@ -56,6 +65,10 @@ sealed class List<out A> {
         // 연습문제 3.13
         fun <A> append(a1: List<A>, a2: List<A>): List<A> =
             foldRight(a1, a2) { h, t -> Cons(h, t) }
+
+        // 연습문제 3.18
+        fun <A> filter(xs: List<A>, f: (A) -> Boolean): List<A> =
+            foldRight(xs, empty()) { h: A, t: List<A> -> if (f(h)) Cons(h, t) else t }
     }
 }
 
@@ -99,4 +112,26 @@ fun main() {
     println("reverse = ${List.reverse(members)}")
 
     println("appendR = ${List.append(members, List.of("BTS", "ARMY"))}")
+
+    // 연습문제 3.9
+    try {
+        val largeList = List.of(*Array(9000) { it })
+        val result = List.length(largeList)
+        println("Length of the list: $result")
+
+        println("sum using foldLeft = ${List.sum(largeList)}")
+    } catch (e: StackOverflowError) {
+        println("Stack overflow occurred. The function is not stack-safe.")
+    }
+
+    val numbers = List.of(1, 2, 3, 4, 5)
+    val sumOfResult = List.foldLeft(numbers, 0) { acc, num -> acc + num }
+    println("$sumOfResult")
+
+    println("lengthL = ${List.lengthL(members)}")
+
+    println("${List.reverse(members)}")
+
+    println("filter = ${List.filter(numbers) { x -> x > 3 }}")
+    println("filter = ${List.filter(members) { name -> name.contains("J") }}")
 }
