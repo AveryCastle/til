@@ -100,6 +100,24 @@ sealed class List<out A> {
                         is Cons -> Cons(f(xs1.head, xs2.head), zipWith(xs1.tail, xs2.tail, f))
                     }
             }
+
+        // 연습문제 3.23
+        tailrec fun <A> startsWith(l1: List<A>, l2: List<A>): Boolean =
+            when (l1) {
+                is Nil -> l2 == Nil
+                is Cons -> when (l2) {
+                    is Nil -> true
+                    is Cons -> if (l1.head == l2.head) startsWith(l1.tail, l2.tail) else false
+                }
+            }
+
+        tailrec fun <A> hasSubsequence(xs: List<A>, sub: List<A>): Boolean =
+            when (xs) {
+                is Nil -> false
+                is Cons ->
+                    if (startsWith(xs, sub)) true
+                    else hasSubsequence(xs.tail, sub)
+            }
     }
 }
 
@@ -176,4 +194,11 @@ fun main() {
 
     println("zipWith(minus)= ${List.zipWith(List.of(1, 2, 3), List.of(10, 25, 36)) { a, b -> a - b }}")
     println("zipWith(plus)= ${List.zipWith(List.of("Jimin", "V", "JK"), List.of("JIN", "SUGA", "J-HOPE")) { a, b -> "$a+$b" }}")
+
+    println("hasSubsequence = ${List.hasSubsequence(members, List.of("V"))}")
+    println("hasSubsequence = ${List.hasSubsequence(List.empty(), List.of("V"))}")
+    println("hasSubsequence = ${List.hasSubsequence(members, List.empty())}")
+    println("hasSubsequence = ${List.hasSubsequence(members, List.of("JIMIN", "V"))}")
+    println("hasSubsequence = ${List.hasSubsequence(members, List.of("SUGA", "JIMIN", "V"))}")
+    println("hasSubsequence = ${List.hasSubsequence(members, List.of("RM", "JIN", "SUGA", "J-HOPE"))}")
 }
