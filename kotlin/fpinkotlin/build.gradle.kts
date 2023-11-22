@@ -9,8 +9,11 @@ repositories {
     mavenCentral()
 }
 
+val kotestVersion = "5.8.0"
+
 dependencies {
     testImplementation(kotlin("test"))
+    testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
 }
 
 tasks.test {
