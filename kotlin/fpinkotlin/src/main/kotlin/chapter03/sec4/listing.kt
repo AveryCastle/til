@@ -78,6 +78,28 @@ sealed class List<out A> {
             flatMap(xs) { a ->
                 if (f(a)) of(a) else empty()
             }
+
+        // 연습문제 3.20
+        fun add(xs1: List<Int>, xs2: List<Int>): List<Int> =
+            when (xs1) {
+                is Nil -> Nil
+                is Cons ->
+                    when (xs2) {
+                        is Nil -> Nil
+                        is Cons -> Cons(xs1.head + xs2.head, add(xs1.tail, xs2.tail))
+                    }
+            }
+
+        // 연습문제 3.22
+        fun <A> zipWith(xs1: List<A>, xs2: List<A>, f: (A, A) -> A): List<A> =
+            when (xs1) {
+                is Nil -> Nil
+                is Cons ->
+                    when (xs2) {
+                        is Nil -> Nil
+                        is Cons -> Cons(f(xs1.head, xs2.head), zipWith(xs1.tail, xs2.tail, f))
+                    }
+            }
     }
 }
 
@@ -148,4 +170,10 @@ fun main() {
 
     println("filterM = ${List.filterM(numbers) { x -> x > 3 }}")
     println("filterM = ${List.filterM(members) { name -> name.contains("J") }}")
+
+    println("add = ${List.add(List.of(1, 2, 3), List.of(4, 5, 6))}")
+    println("zipWith(add)= ${List.zipWith(List.of(1, 2, 3), List.of(4, 5, 6)) { a, b -> a + b }}")
+
+    println("zipWith(minus)= ${List.zipWith(List.of(1, 2, 3), List.of(10, 25, 36)) { a, b -> a - b }}")
+    println("zipWith(plus)= ${List.zipWith(List.of("Jimin", "V", "JK"), List.of("JIN", "SUGA", "J-HOPE")) { a, b -> "$a+$b" }}")
 }
