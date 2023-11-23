@@ -37,6 +37,10 @@ sealed class Option<out A> {
                 if (f(this.get)) this
                 else None
         }
+
+    fun isEmpty(): Boolean = this
+        .map { false }
+        .getOrElse { true }
 }
 
 data class Some<out A>(val get: A) : Option<A>()
