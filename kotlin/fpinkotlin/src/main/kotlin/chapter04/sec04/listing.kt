@@ -22,6 +22,10 @@ fun <A> catches(a: () -> A): Either<Exception, A> =
         Left(e)
     }
 
+suspend fun String.parseToInt(): arrow.core.Either<Throwable, Int> =
+    arrow.core.Either.catch { this.toInt() }
+
+
 fun main() {
     val list = listOf(0.0, 1.1, 3.23, 7.765)
     println("result = ${mean(list)}")
