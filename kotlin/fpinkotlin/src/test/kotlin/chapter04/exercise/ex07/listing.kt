@@ -6,7 +6,7 @@ import chapter03.Nil
 import chapter04.Either
 import chapter04.Left
 import chapter04.Right
-import chapter04.exercise.ex06.map2
+import chapter04.sec04.map2
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.shouldBe
 
