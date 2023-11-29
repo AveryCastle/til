@@ -20,6 +20,15 @@ sealed class Stream<out A> {
             if (xs.isEmpty()) empty()
             else cons({ xs[0] }, { of(*xs.sliceArray(1..<xs.size)) })
     }
+
+    fun <B> foldRight(z: () -> B, f: (A, () -> B) -> B): B =
+        when (this) {
+            is Empty -> z()
+            is Cons -> f(this.head()) { this.tail().foldRight(z, f) }
+        }
+
+    fun exists2(p: (A) -> Boolean): Boolean =
+        foldRight({ false }, { a: A, b: () -> Boolean -> p(a) || b() })
 }
 
 fun <A> Stream<A>.headOption(): Option<A> =
