@@ -8,38 +8,39 @@ import chapter05.toList
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.shouldBe
 
-// 방법1.
+
+class Solution6 : WordSpec({
+
+    // 방법1.
 //fun <A, B> Stream<A>.map(f: (A) -> B): Stream<B> = when (this) {
 //    is Empty -> empty()
 //    is Cons -> cons({ f(this.head()) }) { this.tail().map(f) }
 //}
-fun <A, B> Stream<A>.map(f: (A) -> B): Stream<B> =
-    this.foldRight(
-        { empty() },
-        { h: A, t: () -> Stream<B> -> cons({ f(h) }, t) }
-    )
+    fun <A, B> Stream<A>.map(f: (A) -> B): Stream<B> =
+        this.foldRight(
+            { empty() },
+            { h: A, t: () -> Stream<B> -> cons({ f(h) }, t) }
+        )
 
-//// 방법1.
+    //// 방법1.
 //fun <A> Stream<A>.filter(f: (A) -> Boolean): Stream<A> = when (this) {
 //    is Empty -> empty()
 //    is Cons ->
 //        if (f(this.head())) cons(this.head) { this.tail().filter(f) }
 //        else this.tail().filter(f)
 //}
-fun <A> Stream<A>.filter(f: (A) -> Boolean): Stream<A> =
-    this.foldRight({ empty() }, { h: A, t: () -> Stream<A> ->
-        if (f(h)) cons({ h }, t) else t()
-    })
+    fun <A> Stream<A>.filter(f: (A) -> Boolean): Stream<A> =
+        this.foldRight({ empty() }, { h: A, t: () -> Stream<A> ->
+            if (f(h)) cons({ h }, t) else t()
+        })
 
-// 방법1.
+    // 방법1.
 //fun <A> Stream<A>.append(a: () -> Stream<A>): Stream<A> = when (this) {
 //    is Empty -> a()
 //    is Cons -> cons(this.head) { this.tail().append(a) }
 //}
-fun <A> Stream<A>.append(a: () -> Stream<A>): Stream<A> =
-    this.foldRight(a) { h: A, t: () -> Stream<A> -> cons({ h }, t) }
-
-class Solution6 : WordSpec({
+    fun <A> Stream<A>.append(a: () -> Stream<A>): Stream<A> =
+        this.foldRight(a) { h: A, t: () -> Stream<A> -> cons({ h }, t) }
 
     "Stream.map" should {
         "apply a function to each evaluated element in a stream" {

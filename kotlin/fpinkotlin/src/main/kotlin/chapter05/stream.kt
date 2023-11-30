@@ -3,6 +3,8 @@ package chapter05
 import chapter04.None
 import chapter04.Option
 import chapter04.Some
+import chapter05.Stream.Companion.cons
+import chapter05.Stream.Companion.empty
 
 sealed class Stream<out A> {
 
@@ -29,6 +31,9 @@ sealed class Stream<out A> {
 
     fun exists2(p: (A) -> Boolean): Boolean =
         foldRight({ false }, { a: A, b: () -> Boolean -> p(a) || b() })
+
+    fun find(p: (A) -> Boolean): Option<A> =
+        filter(p).headOption()
 }
 
 fun <A> Stream<A>.headOption(): Option<A> =
@@ -36,6 +41,11 @@ fun <A> Stream<A>.headOption(): Option<A> =
         is Empty -> None
         is Cons -> Some(this.head())
     }
+
+fun <A> Stream<A>.filter(f: (A) -> Boolean): Stream<A> =
+    this.foldRight({ empty() }, { h: A, t: () -> Stream<A> ->
+        if (f(h)) cons({ h }, t) else t()
+    })
 
 data class Cons<out A>(
     val head: () -> A,
