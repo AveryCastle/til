@@ -22,6 +22,9 @@ sealed class List<out A> {
             is Cons -> foldLeft(xs.tail, f(z, xs.head), f)
         }
 
+    fun <A, B> map(xs: List<A>, f: (A) -> B): List<B> =
+        foldRight(xs, empty()) { h: A, t: List<B> -> Cons(f(h), t) }
+
     fun reverse(): List<A> =
         foldLeft(this, empty()) { t: List<A>, h: A -> Cons(h, t) }
 }
