@@ -8,6 +8,7 @@ import chapter04.Some
 import chapter05.Cons
 import chapter05.Empty
 import chapter05.Stream
+import chapter05.Stream.Companion.empty
 import chapter05.exercise11.unfold
 import chapter05.toList
 import io.kotest.core.spec.style.WordSpec
@@ -46,11 +47,6 @@ class Solution13 : WordSpec({
             }
         }
 
-//    fun <A, S> unfold(z: S, f: (S) -> Option<Pair<A, S>>): Stream<A> =
-//        f(z).map { pair ->
-//            Stream.cons({ pair.first }, { unfold(pair.second, f) })
-//        }.getOrElse { Stream.empty() }
-
     // 못 풀었음.
     fun <A, B, C> Stream<A>.zipWith(that: Stream<B>, f: (A, B) -> C): Stream<C> =
         unfold(this to that) { (ths: Stream<A>, tht: Stream<B>) ->
@@ -71,8 +67,39 @@ class Solution13 : WordSpec({
             }
         }
 
-    fun <A, B> Stream<A>.zipAll(that: Stream<B>): Stream<Pair<Option<A>, Option<B>>> = TODO()
+    fun <A, B> Stream<A>.zipAll(that: Stream<B>): Stream<Pair<Option<A>, Option<B>>> =
+        unfold(this to that) { (ths: Stream<A>, tha: Stream<B>) ->
+            when (ths) {
+                is Empty -> when (tha) {
+                    is Empty -> None
+                    is Cons ->
+                        Some(
+                            Pair(
+                                Pair(None, Some(tha.head())),
+                                Pair(empty(), tha.tail())
+                            )
+                        )
+                }
 
+                is Cons -> when (tha) {
+                    is Empty ->
+                        Some(
+                            Pair(
+                                Pair(Some(ths.head()), None),
+                                Pair(ths.tail(), empty())
+                            )
+                        )
+
+                    is Cons ->
+                        Some(
+                            Pair(
+                                Pair(Some(ths.head()), Some(tha.head())),
+                                Pair(ths.tail(), tha.tail())
+                            )
+                        )
+                }
+            }
+        }
 
     "Stream.map" should {
         "apply a function to each evaluated element in a stream" {
@@ -125,6 +152,35 @@ class Solution13 : WordSpec({
             ) { x, y ->
                 x + y
             }.toList() shouldBe List.of(5, 7, 9)
+        }
+    }
+
+    "Stream.zipAll" should {
+        "combine two streams of equal length" {
+            Stream.of(1, 2, 3).zipAll(Stream.of(1, 2, 3))
+                .toList() shouldBe List.of(
+                Some(1) to Some(1),
+                Some(2) to Some(2),
+                Some(3) to Some(3)
+            )
+        }
+        "combine two streams until the first is exhausted" {
+            Stream.of(1, 2, 3, 4).zipAll(Stream.of(1, 2, 3))
+                .toList() shouldBe List.of(
+                Some(1) to Some(1),
+                Some(2) to Some(2),
+                Some(3) to Some(3),
+                Some(4) to None
+            )
+        }
+        "combine two streams until the second is exhausted" {
+            Stream.of(1, 2, 3).zipAll(Stream.of(1, 2, 3, 4))
+                .toList() shouldBe List.of(
+                Some(1) to Some(1),
+                Some(2) to Some(2),
+                Some(3) to Some(3),
+                None to Some(4)
+            )
         }
     }
 })
