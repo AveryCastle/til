@@ -7,6 +7,7 @@ import chapter04.Some
 import chapter05.Cons
 import chapter05.Stream
 import chapter05.exercise11.unfold
+import chapter05.exercise14.startsWith
 import chapter05.toList
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.shouldBe
@@ -21,6 +22,9 @@ fun <A> Stream<A>.tails(): Stream<Stream<A>> =
         }
     }
 
+fun <A> Stream<A>.hasSequence(s: Stream<A>): Boolean =
+    tails().exists2 { it.startsWith(s) }
+
 class Solution15 : WordSpec({
 
     "Stream.tails()" should {
@@ -34,6 +38,12 @@ class Solution15 : WordSpec({
                         List.of("v", "jk"),
                         List.of("jk")
                     )
+        }
+    }
+
+    "Stream.hasSequence" should {
+        "returns true if exists" {
+            Stream.of("jimin", "v", "jk").hasSequence(Stream.of("jk")) shouldBe true
         }
     }
 })

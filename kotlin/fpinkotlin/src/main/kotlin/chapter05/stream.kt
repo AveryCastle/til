@@ -34,6 +34,7 @@ sealed class Stream<out A> {
 
     fun find(p: (A) -> Boolean): Option<A> =
         filter(p).headOption()
+    
 }
 
 fun <A> Stream<A>.headOption(): Option<A> =

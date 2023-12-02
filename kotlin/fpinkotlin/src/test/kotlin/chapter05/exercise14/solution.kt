@@ -8,23 +8,20 @@ import chapter05.exercise13.zipAll
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.shouldBe
 
+// (1,2,3,4):  (3,4)
+// (1), (2), (3), (4)
+// (1,2), (2,3), (3,4)
+// (1,2,3), (2,3,4)
+// (1,2,3,4)
+fun <A> Stream<A>.startsWith(that: Stream<A>): Boolean =
+    this.zipAll(that)
+        .takeWhile { (_: Option<A>, second: Option<A>) ->
+            !second.isEmpty()
+        }.forAll { (first, second) ->
+            first == second
+        }
 
 class Solution14 : WordSpec({
-    
-    // (1,2,3,4):  (3,4)
-    // (1), (2), (3), (4)
-    // (1,2), (2,3), (3,4)
-    // (1,2,3), (2,3,4)
-    // (1,2,3,4)
-    fun <A> Stream<A>.startsWith(that: Stream<A>): Boolean =
-        this.zipAll(that)
-            .takeWhile { (_: Option<A>, second: Option<A>) ->
-                !second.isEmpty()
-            }.forAll { (first, second) ->
-                first == second
-            }
-
-
 
     "Stream.startsWith" should {
         "detect if one stream is a prefix of another" {
