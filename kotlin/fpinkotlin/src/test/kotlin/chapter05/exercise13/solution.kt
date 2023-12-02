@@ -14,92 +14,92 @@ import chapter05.toList
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.shouldBe
 
-class Solution13 : WordSpec({
+// 못 풀었음.
+fun <A, B> Stream<A>.map(f: (A) -> B): Stream<B> =
+    unfold(this) { it: Stream<A> ->
+        when (it) {
+            is Empty -> None
+            is Cons -> Some(Pair(f(it.head()), it.tail()))
+        }
+    }
 
-    // 못 풀었음.
-    fun <A, B> Stream<A>.map(f: (A) -> B): Stream<B> =
-        unfold(this) { it: Stream<A> ->
-            when (it) {
-                is Empty -> None
-                is Cons -> Some(Pair(f(it.head()), it.tail()))
-            }
+// 못 풀었음.
+fun <A> Stream<A>.take(n: Int): Stream<A> =
+    unfold(this) { it: Stream<A> ->
+        when (it) {
+            is Empty -> None
+            is Cons -> if (n > 0) Some(Pair(it.head(), it.tail().take(n - 1)))
+            else None
         }
 
-    // 못 풀었음.
-    fun <A> Stream<A>.take(n: Int): Stream<A> =
-        unfold(this) { it: Stream<A> ->
-            when (it) {
-                is Empty -> None
-                is Cons -> if (n > 0) Some(Pair(it.head(), it.tail().take(n - 1)))
+    }
+
+// 못 풀었음.
+fun <A> Stream<A>.takeWhile(p: (A) -> Boolean): Stream<A> =
+    unfold(this) { it: Stream<A> ->
+        when (it) {
+            is Empty -> None
+            is Cons ->
+                if (p(it.head())) Some(Pair(it.head(), it.tail()))
                 else None
-            }
-
         }
+    }
 
-    // 못 풀었음.
-    fun <A> Stream<A>.takeWhile(p: (A) -> Boolean): Stream<A> =
-        unfold(this) { it: Stream<A> ->
-            when (it) {
-                is Empty -> None
+// 못 풀었음.
+fun <A, B, C> Stream<A>.zipWith(that: Stream<B>, f: (A, B) -> C): Stream<C> =
+    unfold(this to that) { (ths: Stream<A>, tht: Stream<B>) ->
+        when (ths) {
+            is Cons -> when (tht) {
                 is Cons ->
-                    if (p(it.head())) Some(Pair(it.head(), it.tail()))
-                    else None
-            }
-        }
-
-    // 못 풀었음.
-    fun <A, B, C> Stream<A>.zipWith(that: Stream<B>, f: (A, B) -> C): Stream<C> =
-        unfold(this to that) { (ths: Stream<A>, tht: Stream<B>) ->
-            when (ths) {
-                is Cons -> when (tht) {
-                    is Cons ->
-                        Some(
-                            Pair(
-                                f(ths.head(), tht.head()),
-                                ths.tail() to tht.tail()
-                            )
+                    Some(
+                        Pair(
+                            f(ths.head(), tht.head()),
+                            ths.tail() to tht.tail()
                         )
-
-                    else -> None
-                }
+                    )
 
                 else -> None
             }
+
+            else -> None
         }
+    }
 
-    fun <A, B> Stream<A>.zipAll(that: Stream<B>): Stream<Pair<Option<A>, Option<B>>> =
-        unfold(this to that) { (ths: Stream<A>, tha: Stream<B>) ->
-            when (ths) {
-                is Empty -> when (tha) {
-                    is Empty -> None
-                    is Cons ->
-                        Some(
-                            Pair(
-                                Pair(None, Some(tha.head())),
-                                Pair(empty(), tha.tail())
-                            )
+fun <A, B> Stream<A>.zipAll(that: Stream<B>): Stream<Pair<Option<A>, Option<B>>> =
+    unfold(this to that) { (ths: Stream<A>, tha: Stream<B>) ->
+        when (ths) {
+            is Empty -> when (tha) {
+                is Empty -> None
+                is Cons ->
+                    Some(
+                        Pair(
+                            Pair(None, Some(tha.head())),
+                            Pair(empty(), tha.tail())
                         )
-                }
+                    )
+            }
 
-                is Cons -> when (tha) {
-                    is Empty ->
-                        Some(
-                            Pair(
-                                Pair(Some(ths.head()), None),
-                                Pair(ths.tail(), empty())
-                            )
+            is Cons -> when (tha) {
+                is Empty ->
+                    Some(
+                        Pair(
+                            Pair(Some(ths.head()), None),
+                            Pair(ths.tail(), empty())
                         )
+                    )
 
-                    is Cons ->
-                        Some(
-                            Pair(
-                                Pair(Some(ths.head()), Some(tha.head())),
-                                Pair(ths.tail(), tha.tail())
-                            )
+                is Cons ->
+                    Some(
+                        Pair(
+                            Pair(Some(ths.head()), Some(tha.head())),
+                            Pair(ths.tail(), tha.tail())
                         )
-                }
+                    )
             }
         }
+    }
+
+class Solution13 : WordSpec({
 
     "Stream.map" should {
         "apply a function to each evaluated element in a stream" {
