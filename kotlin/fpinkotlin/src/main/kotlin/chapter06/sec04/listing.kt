@@ -19,3 +19,26 @@ fun nonNegativeInt(rng: RNG): Pair<Int, RNG> {
 
 fun noneNegativeEven(): Rand<Int> =
     map(::nonNegativeInt) { it - (it % 2) }
+
+fun <A, B, C> map2(
+    ra: Rand<A>,
+    rb: Rand<B>,
+    f: (A, B) -> C
+): Rand<C> = { rng ->
+    val (a, rng2) = ra(rng)
+    val (b, rng3) = rb(rng2)
+    f(a, b) to rng3
+}
+
+fun <A, B> both(ra: Rand<A>, rb: Rand<B>): Rand<Pair<A, B>> =
+    map2(ra, rb) { a: A, b: B -> a to b }
+
+val intR: Rand<Int> = { rng: RNG -> rng.nextInt() }
+
+val doubleR: Rand<Double> = map(::nonNegativeInt) { i: Int ->
+    i / (Int.MAX_VALUE.toDouble() + 1)
+}
+
+val intDoubleR: Rand<Pair<Int, Double>> = both(intR, doubleR)
+
+val doubleIntR: Rand<Pair<Double, Int>> = both(doubleR, intR)

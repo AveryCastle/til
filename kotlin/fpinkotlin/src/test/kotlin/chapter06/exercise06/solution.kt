@@ -14,17 +14,17 @@ import io.kotest.matchers.shouldBe
 //        f(a) to rng2
 //    }
 
-fun <A, B, C> map2(
-    ra: Rand<A>,
-    rb: Rand<B>,
-    f: (A, B) -> C
-): Rand<C> = { rng ->
-    val (a, rng2) = ra(rng)
-    val (b, rng3) = rb(rng2)
-    f(a, b) to rng3
-}
-
 class Solution6 : WordSpec({
+
+    fun <A, B, C> map2(
+        ra: Rand<A>,
+        rb: Rand<B>,
+        f: (A, B) -> C
+    ): Rand<C> = { rng ->
+        val (a, rng2) = ra(rng)
+        val (b, rng3) = rb(rng2)
+        f(a, b) to rng3
+    }
 
     "map2" should {
         "combine the results of two actions" {
