@@ -12,20 +12,21 @@ import chapter05.toList
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.shouldBe
 
-fun <A> Stream<A>.tails(): Stream<Stream<A>> =
-    unfold(this) { it: Stream<A> ->
-        when (it) {
-            is Cons ->
-                Some(it to it.tail())
-
-            else -> None
-        }
-    }
-
-fun <A> Stream<A>.hasSequence(s: Stream<A>): Boolean =
-    tails().exists2 { it.startsWith(s) }
 
 class Solution15 : WordSpec({
+
+    fun <A> Stream<A>.tails(): Stream<Stream<A>> =
+        unfold(this) { it: Stream<A> ->
+            when (it) {
+                is Cons ->
+                    Some(it to it.tail())
+
+                else -> None
+            }
+        }
+
+    fun <A> Stream<A>.hasSequence(s: Stream<A>): Boolean =
+        tails().exists2 { it.startsWith(s) }
 
     "Stream.tails()" should {
         "returns " {
