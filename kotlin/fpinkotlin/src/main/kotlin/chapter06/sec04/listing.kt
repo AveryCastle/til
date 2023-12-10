@@ -1,6 +1,7 @@
 package chapter06.sec04
 
 import chapter06.sec01.RNG
+import chapter06.sec02.SimpleRNG
 
 typealias Rand<A> = (RNG) -> Pair<A, RNG>
 
@@ -54,3 +55,9 @@ fun nonNegativeLessThan2(n: Int): Rand<Int> =
             mod to rng2
         else nonNegativeLessThan(n)(rng2)
     }
+
+fun rollDie(): Rand<Int> =
+    nonNegativeLessThan2(6)
+
+fun rollDieFix(): Rand<Int> =
+    map(nonNegativeLessThan2(6)) { it + 1 }
