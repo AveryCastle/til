@@ -16,6 +16,11 @@ dependencies {
     implementation("io.arrow-kt:arrow-core:$arrowVersion")
     implementation("io.arrow-kt:arrow-fx-coroutines:$arrowVersion")
 
+//    implementation("io.arrow-kt:arrow-core-data:$arrowVersion")
+//    implementation("io.arrow-kt:arrow-fx:$arrowVersion")
+//    implementation("io.arrow-kt:arrow-mtl:$arrowVersion")
+//    implementation("io.arrow-kt:arrow-syntax:$arrowVersion")
+
     // to use kotlin worksheet
     implementation(kotlin("script-runtime"))
 
