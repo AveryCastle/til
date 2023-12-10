@@ -42,3 +42,15 @@ val doubleR: Rand<Double> = map(::nonNegativeInt) { i: Int ->
 val intDoubleR: Rand<Pair<Int, Double>> = both(intR, doubleR)
 
 val doubleIntR: Rand<Pair<Double, Int>> = both(doubleR, intR)
+
+fun nonNegativeLessThan(n: Int): Rand<Int> =
+    map(::nonNegativeInt) { it % n }
+
+fun nonNegativeLessThan2(n: Int): Rand<Int> =
+    { rng: RNG ->
+        val (i, rng2) = nonNegativeInt(rng)
+        val mod = i % n
+        if (i + (n - 1) - mod >= 0)
+            mod to rng2
+        else nonNegativeLessThan(n)(rng2)
+    }
