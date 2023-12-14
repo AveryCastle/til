@@ -15,7 +15,9 @@ repositories {
 }
 
 val kotestVersion = "5.8.0"
-val arrowVersion = "0.11.0"
+// foldLeft deprecated.
+val arrowVersion = "0.12.1"
+//val arrowVersion = "0.10.2"
 
 dependencies {
     implementation("io.arrow-kt:arrow-core:$arrowVersion")
