@@ -11,6 +11,7 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    jcenter()
     maven("https://dl.bintray.com/kotlin/kotlinx")
 }
 
@@ -25,8 +26,13 @@ dependencies {
 
     implementation("io.arrow-kt:arrow-core-data:$arrowVersion")
     implementation("io.arrow-kt:arrow-fx:$arrowVersion")
-    implementation("io.arrow-kt:arrow-mtl:$arrowVersion")
+    implementation("io.arrow-kt:arrow-mtl:0.11.0")
     implementation("io.arrow-kt:arrow-syntax:$arrowVersion")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.6")
+    implementation("io.github.microutils:kotlin-logging:3.0.5")
+    implementation("org.awaitility:awaitility:4.0.2")
+    implementation("org.slf4j:slf4j-simple:2.0.9")
 
     // to use kotlin worksheet
     implementation(kotlin("script-runtime"))
