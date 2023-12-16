@@ -1,17 +1,31 @@
 package chapter07.sec03
 
+import arrow.fx.extensions.io.async.asyncF
 import chapter07.sec03.Pars.map2
 import chapter07.sec03.Pars.unit
-import java.util.concurrent.Callable
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Future
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.*
 
 typealias Par<A> = (ExecutorService) -> Future<A>
 
 object Pars {
     fun <A> unit(a: A): Par<A> =
-        { es: ExecutorService -> UnitFuture(a) }
+        { es: ExecutorService -> CompletableFuture.completedFuture(a) }
+
+    val <T> List<T>.head: T
+        get() = first()
+
+    val <T> List<T>.tail: List<T>
+        get() = this.drop(1)
+
+    val Nil = listOf<Nothing>()
+
+    fun <A, B> asyncF(f: (A) -> B): (A) -> Par<B> =
+        { a: A ->
+            lazyUnit { f(a) }
+        }
+
+    fun <A> lazyUnit(a: () -> A): Par<A> =
+        fork { unit(a()) }
 
     data class UnitFuture<A>(val a: A) : Future<A> {
         override fun cancel(mayInterruptIfRunning: Boolean): Boolean {
@@ -99,6 +113,27 @@ object Pars {
         { es: ExecutorService ->
             es.submit(Callable<A> { a()(es).get() })
         }
+
+    fun <A> sequence(ps: List<Par<A>>): Par<List<A>> =
+        when {
+            ps.isEmpty() -> unit(Nil)
+            ps.size == 1 -> map(ps.head) { listOf(it) }
+            else -> {
+                val l = ps.subList(0, ps.size / 2)
+                val r = ps.subList(ps.size / 2, ps.size)
+                map2(sequence(l), sequence(r)) { la, lb ->
+                    la + lb
+                }
+            }
+        }
+
+    fun <A, B> parMap(
+        ps: List<A>,
+        f: (A) -> B
+    ): Par<List<B>> = fork {
+        val fbs: List<Par<B>> = ps.map(asyncF(f))
+        sequence(fbs)
+    }
 }
 
 //fun sortPar(parList: Par<List<Int>>): Par<List<Int>> =
