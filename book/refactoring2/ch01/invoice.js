@@ -7,13 +7,12 @@ function statement(invoice, plays) {
                               minimumFractionDigits: 2 }).format;
                       
   for (let perf of invoice.performances) {
-    let thisAmount = amountFor(perf);
     // 포인트 적립한다.
     volumeCredits += Math.max(perf.audience - 30, 0);
     if ("comedy" == playFor(perf).type) volumeCredits += Math.floor(perf.audience / 5);
 
-    result += `  ${playFor(perf).name}: ${format(thisAmount/100)} (${perf.audience}석)\n`;
-    totalAmount += thisAmount;
+    result += `  ${playFor(perf).name}: ${format(amountFor(perf)/100)} (${perf.audience}석)\n`;
+    totalAmount += amountFor(perf);
   }
 
   result += `총액: ${format(totalAmount/100)}\n`;
