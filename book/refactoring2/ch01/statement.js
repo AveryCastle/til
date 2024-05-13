@@ -1,6 +1,6 @@
 import createStatementData from './createStatementData.js'; // invoice.js에서 함수를 가져옴
 
-export default function statement(invoice, plays) {
+function statement(invoice, plays) {
   return renderPlainText(createStatementData(invoice, plays));
 }
 
@@ -39,3 +39,5 @@ function usd(aNumber) {
                     { "style": "currency", currency: "USD",
                       minimumFractionDigits: 2 }).format(aNumber/100);
 }
+
+export { statement }
