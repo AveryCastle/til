@@ -7,7 +7,7 @@ export default function createStatementData(invoice, plays) {
   return statementData;
 
   function enrichPerformance(aPerformance) {
-    const calculator = new PerformanceCalculator(aPerformance, playFor(aPerformance));
+    const calculator = createPerformaceCalculator(aPerformance, playFor(aPerformance));
     const result = Object.assign({}, aPerformance);
     result.play = calculator.play;
     result.amount = calculator.amount;
@@ -27,6 +27,15 @@ export default function createStatementData(invoice, plays) {
   function totalVolumeCredits(data) {
     return data.performances
             .reduce((total, p) => total + p.volumeCredits, 0);
+  }
+}
+
+function createPerformaceCalculator(aPerformance, aPlay) {
+  switch(aPlay.type) {
+    case "tragedy": return new TragedyCalculator(aPerformance, aPlay);
+    case "comedy": return new ComedyCalculator(aPerformance, aPlay);
+    default:
+      throw new Error(`알 수 없는 장르: ${aPlay.type}`);
   }
 }
 
@@ -65,4 +74,12 @@ class PerformanceCalculator {
       result += Math.floor(this.performance.audience / 5);
     return result;
   }
+}
+
+class TragedyCalculator extends PerformanceCalculator {
+
+}
+
+class ComedyCalculator extends PerformanceCalculator {
+
 }
