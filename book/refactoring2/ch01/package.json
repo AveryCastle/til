@@ -1,0 +1,13 @@
+{
+  "name": "ch01",
+  "version": "1.0.0",
+  "description": "- `brew install node` - 설치 완료 확인 방법   ```code   node -v   npm -v   ``` ### invoce.js 에 있는 function 실행  -  ```code     node index.js     ```",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module"
+}
