@@ -2,8 +2,9 @@ import os
 from openai import OpenAI
 
 api_key = os.getenv("OPENAI_API_KEY")
+PROJECT_ID = 'proj_CDixB8aUF6mvyvzLMzMfsvPx'
 
-client = OpenAI(api_key=api_key)
+client = OpenAI(api_key=api_key, project=PROJECT_ID)
 
 # 사용자로부터 여러 줄의 입력을 받습니다.
 print("질문을 입력하세요. 입력을 마치려면 Enter 키를 두 번 누르세요.")
