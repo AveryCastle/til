@@ -1,15 +1,25 @@
+import os
 from openai import OpenAI
-client = OpenAI()
 
-# 질문 설정
-question = """
-    대한민국 역대 대통령을 과거부터 현재 순서로 이름과 임기 기간을 '{키:값}' 쌍으로 출력해주세요.
-    이때, 예시와 같은 포맷으로 출력해주세요.
-    예시) 문재인: 2017년 5월 10일 ~ 2022년 5월 9일
-  """
+api_key = os.getenv("OPENAI_API_KEY")
+
+client = OpenAI(api_key=api_key)
+
+# 사용자로부터 여러 줄의 입력을 받습니다.
+print("질문을 입력하세요. 입력을 마치려면 Enter 키를 두 번 누르세요.")
+
+lines = []
+while True:
+    line = input()
+    if line == "":
+        break
+    lines.append(line)    
+question = "\n".join(lines)
+
+print("잠시만 기다려주세요.")
 
 response = client.chat.completions.create(
-  model="gpt-4-turbo",
+  model="gpt-4",
   messages=[
     {"role": "system", "content": "You are a helpful assistant."},
     {"role": "user", "content": question},
