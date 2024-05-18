@@ -12,7 +12,7 @@ assistant = client.beta.assistants.create(
   name="Math Tutor",
   instructions="당신은 수학 과외 선생님입니다. 수학 질문에 대한 답변을 코드를 쓰고 실행해주세요.",
   tools=[{"type": "code_interpreter"}],
-  model="gpt-4",
+  model="gpt-3.5-turbo",
 )
 
 # thread 생성

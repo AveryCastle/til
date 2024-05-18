@@ -7,7 +7,7 @@ client = OpenAI(api_key=api_key)
 # function 정의 및 assistant 생성
 assistant = client.beta.assistants.create(
   instructions="날씨 봇입니다. 제공된 함수를 사용하여 질문에 답하세요.",
-  model="gpt-4o",
+  model="gpt-3.5-turbo",
   tools=[
     {
       "type": "function",
@@ -62,42 +62,64 @@ from typing_extensions import override
 from openai import AssistantEventHandler
  
 class EventHandler(AssistantEventHandler):
+    def __init__(self, client):
+        self.client = client
+        self.current_run = None  # 현재 실행 중인 run 정보 저장
+
     @override
     def on_event(self, event):
-      # Retrieve events that are denoted with 'requires_action'
-      # since these will have our tool_calls
-      if event.event == 'thread.run.requires_action':
-        run_id = event.data.id  # Retrieve the run ID from the event data
-        self.handle_requires_action(event.data, run_id)
- 
+        if event.event == 'thread.run.started':
+            self.current_run = event.data  # run 시작 시 정보 저장
+        elif event.event == 'thread.run.requires_action':
+            run_id = event.data.id
+            self.handle_requires_action(event.data, run_id)
+
     def handle_requires_action(self, data, run_id):
-      tool_outputs = []
-        
-      for tool in data.required_action.submit_tool_outputs.tool_calls:
-        if tool.function.name == "get_current_temperature":
-          tool_outputs.append({"tool_call_id": tool.id, "output": "27"})
-        elif tool.function.name == "get_rain_probability":
-          tool_outputs.append({"tool_call_id": tool.id, "output": "0.03"})
-        
-      # Submit all tool_outputs at the same time
-      self.submit_tool_outputs(tool_outputs, run_id)
- 
+        tool_outputs = []
+
+        for tool in data.required_action.submit_tool_outputs.tool_calls:
+            function_name = tool.function.name
+            function_args = tool.function.arguments
+
+            # 실제 함수 호출 (예시: OpenAI API를 사용하여 날씨 정보 가져오기)
+            if function_name == "get_current_temperature":
+                temperature_response = self.client.chat.completions.create(
+                    model="gpt-3.5-turbo",
+                    messages=[
+                        {"role": "system", "content": "당신은 날씨 봇입니다."},
+                        {"role": "user", "content": f"현재 {function_args['location']}의 온도는 {function_args['unit']} 단위로 알려줘."}
+                    ]
+                )
+                output = temperature_response.choices[0].message.content
+            elif function_name == "get_rain_probability":
+                rain_response = self.client.chat.completions.create(
+                    model="gpt-3.5-turbo",
+                    messages=[
+                        {"role": "system", "content": "당신은 날씨 봇입니다."},
+                        {"role": "user", "content": f"현재 {function_args['location']}의 비 올 확률은?"}
+                    ]
+                )
+                output = rain_response.choices[0].message.content
+
+            tool_outputs.append({"tool_call_id": tool.id, "output": output})
+
+        self.submit_tool_outputs(tool_outputs, run_id)
+
     def submit_tool_outputs(self, tool_outputs, run_id):
-      # Use the submit_tool_outputs_stream helper
-      with client.beta.threads.runs.submit_tool_outputs_stream(
-        thread_id=self.current_run.thread_id,
-        run_id=self.current_run.id,
-        tool_outputs=tool_outputs,
-        event_handler=EventHandler(),
-      ) as stream:
-        for text in stream.text_deltas:
-          print(text, end="", flush=True)
-        print()
- 
- 
+        with self.client.beta.threads.runs.submit_tool_outputs_stream(
+            thread_id=self.current_run.thread_id,  # 저장된 run 정보 사용
+            run_id=self.current_run.id,             # 저장된 run 정보 사용
+            tool_outputs=tool_outputs,
+            event_handler=EventHandler(self.client),
+        ) as stream:
+            for text in stream.text_deltas:
+                print(text, end="", flush=True)
+            print()
+
+
 with client.beta.threads.runs.stream(
-  thread_id=thread.id,
-  assistant_id=assistant.id,
-  event_handler=EventHandler()
+    thread_id=thread.id,
+    assistant_id=assistant.id,
+    event_handler=EventHandler(client)  # 이벤트 핸들러에 client 전달
 ) as stream:
-  stream.until_done()
+    stream.until_done()
