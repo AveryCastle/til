@@ -3,12 +3,18 @@ import openai
 from openai import OpenAI
 
 class FrenAssistant:
-    def __init__(self, assistant_id):
+    def __init__(self, assistant_id, thread_id=None):
         api_key = os.getenv("OPENAI_API_KEY")
+        print("api_key=", api_key)
         self.client = OpenAI(api_key=api_key)
         self.assistant_id = 'asst_YaAriwexxjH8XhKZE3nXwoBk'
         # 생성한 assistant 가져오기
-        self.thread = self.client.beta.assistants.retrieve(assistant_id=self.assistant_id)
+        self.assistant = self.client.beta.assistants.retrieve(assistant_id=self.assistant_id)
+        if thread_id:
+            self.thread = self.client.beta.threads.retrieve(thread_id=thread_id)
+        else:
+            self.thread = self.client.beta.threads.create()
+        print("thread_id=", self.thread.id)
 
     def ask_question(self, question):
         # message 를 쓰레드에 추가하기
@@ -21,15 +27,16 @@ class FrenAssistant:
         # run 생성 및 실행 
         run = self.client.beta.threads.runs.create_and_poll(
             thread_id=self.thread.id,
-            assistant_id=self.assistant_id
+            assistant_id=self.assistant.id,
         )
-        return run
+        return self.__get_response__(run)
       
-    def get_response(thread_id):
-      messages = self.client.beta.threads.messages.list(
-        thread_id=thread_id
-      )
-      if messages.data:
-        return messages.data[0].content[0].text.value
-      else:
-        return None
+    def __get_response__(self, run):
+        if run.status == 'completed': 
+            messages = self.client.beta.threads.messages.list(
+                thread_id=self.thread.id
+            )
+            return messages.data[0].content[0].text.value
+        else:
+            return run.status
+    
