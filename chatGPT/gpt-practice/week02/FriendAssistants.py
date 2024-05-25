@@ -3,18 +3,19 @@ import openai
 from openai import OpenAI
 
 class FrenAssistant:
-    def __init__(self, assistant_id, thread_id=None):
+    def __init__(self, thread_id=None):
         api_key = os.getenv("OPENAI_API_KEY")
-        print("api_key=", api_key)
         self.client = OpenAI(api_key=api_key)
-        self.assistant_id = 'asst_YaAriwexxjH8XhKZE3nXwoBk'
+        
         # 생성한 assistant 가져오기
+        self.assistant_id = 'asst_YaAriwexxjH8XhKZE3nXwoBk'
         self.assistant = self.client.beta.assistants.retrieve(assistant_id=self.assistant_id)
+        
+        # thread 생성하기
         if thread_id:
             self.thread = self.client.beta.threads.retrieve(thread_id=thread_id)
         else:
             self.thread = self.client.beta.threads.create()
-        print("thread_id=", self.thread.id)
 
     def ask_question(self, question):
         # message 를 쓰레드에 추가하기

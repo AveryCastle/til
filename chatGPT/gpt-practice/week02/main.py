@@ -3,7 +3,7 @@ from FriendAssistants import FrenAssistant
 # 메인 함수
 def main():
     # FrenAssistant 객체 생성
-    assistant = FrenAssistant(assistant_id='asst_YaAriwexxjH8XhKZE3nXwoBk', thread_id='thread_5ZZXs8U7zFJW2qT1i1ymMgVS')
+    assistant = FrenAssistant(thread_id='thread_5ZZXs8U7zFJW2qT1i1ymMgVS')
 
     while True:
         # 사용자로부터 질문 입력 받기
