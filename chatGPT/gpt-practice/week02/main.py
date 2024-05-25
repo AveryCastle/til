@@ -7,7 +7,7 @@ def main():
 
     while True:
         # 사용자로부터 질문 입력 받기
-        user_question = input("질문을 입력하세요 (종료하려면 'exit' 입력): ")
+        user_question = input("하고 싶은 말 해(종료하려면 'exit' 입력): ")
 
         # 사용자가 'exit'를 입력하면 종료
         if user_question.lower() == 'exit':
