@@ -1,9 +1,19 @@
+from database_manager import DatabaseManager
+from user_manager import UserManager
 from FriendAssistants import FrenAssistant
 
-# 메인 함수
 def main():
+    db_manager = DatabaseManager()
+    user_manager = UserManager(db_manager)
+    user_id, thread_id = user_manager.user_input()
+    
     # FrenAssistant 객체 생성
-    assistant = FrenAssistant(thread_id='thread_5ZZXs8U7zFJW2qT1i1ymMgVS')
+    assistant = FrenAssistant(thread_id)
+    
+    # thread_id가 None인 경우, assistant를 통해 thread_id 획득 및 업데이트
+    if thread_id is None:
+        thread_id = assistant.get_thread_id()        
+        user_manager.update_thread_id(user_id, thread_id)
 
     while True:
         # 사용자로부터 질문 입력 받기

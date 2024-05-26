@@ -17,6 +17,9 @@ class FrenAssistant:
         else:
             self.thread = self.client.beta.threads.create()
 
+    def get_thread_id(self):
+        return self.thread.id
+        
     def ask_question(self, question):
         # message 를 쓰레드에 추가하기
         message = self.client.beta.threads.messages.create(
