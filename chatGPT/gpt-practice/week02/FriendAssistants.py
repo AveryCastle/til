@@ -83,15 +83,15 @@ class FrenAssistant:
                 messages = self.client.beta.threads.messages.list(
                     thread_id=self.thread.id
                 )
-                print(messages)
+                return messages.data[0].content[0].text.value
             else:
-                print(run.status)
+                return run.status
 
         elif run.status == 'completed': 
             messages = self.client.beta.threads.messages.list(
                 thread_id=self.thread.id
             )
-            return messages
+            return messages.data[0].content[0].text.value
         else:
             return run.status
     
