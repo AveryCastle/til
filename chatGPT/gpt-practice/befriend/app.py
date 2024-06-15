@@ -7,10 +7,12 @@ app = Flask(__name__)
 
 # Configure database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
+app.config['SECRET_KEY'] = 'your_secret_key'
 db = SQLAlchemy(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+login_manager.login_view = 'login'
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -24,10 +26,14 @@ class Post(db.Model):
     content = db.Column(db.String(1000))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
 @app.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
-    hashed_password = generate_password_hash(data['password'], method='sha256')
+    hashed_password = generate_password_hash(data['password'], method='pbkdf2:sha256')
     new_user = User(email=data['email'], password=hashed_password)
     db.session.add(new_user)
     db.session.commit()
@@ -62,5 +68,6 @@ def get_posts():
     return jsonify({'posts': output})
 
 if __name__ == '__main__':
-    db.create_all()
+    with app.app_context():
+        db.create_all()
     app.run(debug=True)
