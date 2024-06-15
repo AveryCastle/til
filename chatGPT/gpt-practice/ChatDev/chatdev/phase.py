@@ -314,11 +314,18 @@ class DemandAnalysis(Phase):
         super().__init__(**kwargs)
 
     def update_phase_env(self, chat_env):
-        pass
+        self.phase_env.update({"task": chat_env.env_dict['task_prompt']})
 
     def update_chat_env(self, chat_env) -> ChatEnv:
-        if len(self.seminar_conclusion) > 0:
-            chat_env.env_dict['modality'] = self.seminar_conclusion.split("<INFO>")[-1].lower().replace(".", "").strip()
+        print("seminar_conclusion => ", self.seminar_conclusion)
+        if len(self.seminar_conclusion) > 0 and "<INFO>" in self.seminar_conclusion:
+            chat_env.env_dict['ideas'] = self.seminar_conclusion.split("<INFO>")[-1].lower().replace(".", "").strip()
+        elif len(self.seminar_conclusion) > 0:
+            chat_env.env_dict['ideas'] = self.seminar_conclusion
+        else:
+            chat_env.env_dict['ideas'] = "I have no idea"
+        
+        print("chat_env.env_dict['ideas'] => ", chat_env.env_dict['ideas'])
         return chat_env
 
 
@@ -347,22 +354,17 @@ class Coding(Phase):
         super().__init__(**kwargs)
 
     def update_phase_env(self, chat_env):
-        gui = "" if not chat_env.config.gui_design \
-            else "The software should be equipped with graphical user interface (GUI) so that user can visually and graphically use it; so you must choose a GUI framework (e.g., in Python, you can implement GUI via tkinter, Pygame, Flexx, PyGUI, etc,)."
+        print("Coding chat_env.env_dict['ideas'] => ", chat_env.env_dict['ideas'])
         self.phase_env.update({"task": chat_env.env_dict['task_prompt'],
-                               "description": chat_env.env_dict['task_description'],
-                               "modality": chat_env.env_dict['modality'],
-                               "ideas": chat_env.env_dict['ideas'],
-                               "language": chat_env.env_dict['language'],
-                               "gui": gui})
+                               "ideas": chat_env.env_dict['ideas']})
 
     def update_chat_env(self, chat_env) -> ChatEnv:
-        chat_env.update_codes(self.seminar_conclusion)
-        if len(chat_env.codes.codebooks.keys()) == 0:
-            raise ValueError("No Valid Codes.")
-        chat_env.rewrite_codes("Finish Coding")
-        log_visualize(
-            "**[Software Info]**:\n\n {}".format(get_info(chat_env.env_dict['directory'], self.log_filepath)))
+        if len(self.seminar_conclusion) > 0 and "<INFO>" in self.seminar_conclusion:
+            chat_env.env_dict['plan'] = self.seminar_conclusion.split("<INFO>")[-1].lower().replace(".", "").strip()
+        elif len(self.seminar_conclusion) > 0:
+            chat_env.env_dict['plan'] = self.seminar_conclusion
+        else:
+            chat_env.env_dict['plan'] = "I have no plan"
         return chat_env
 
 
@@ -649,4 +651,36 @@ class Manual(Phase):
         chat_env._update_manuals(self.seminar_conclusion)
         chat_env.rewrite_manuals()
         return chat_env
+
+# class CustomDemandAnalysis(Phase):
+#     def __init__(self, **kwargs):
+#         super().__init__(**kwargs)
+
+#     def update_phase_env(self, chat_env):
+#         self.phase_env.update({"task": chat_env.env_dict['task_prompt']})
+
+#     def update_chat_env(self, chat_env) -> ChatEnv:
+#         if len(self.seminar_conclusion) > 0 and "<INFO>" in self.seminar_conclusion:
+#             chat_env.env_dict['ideas'] = self.seminar_conclusion.split("<INFO>")[-1].lower().replace(".", "").strip()
+#         elif len(self.seminar_conclusion) > 0:
+#             chat_env.env_dict['ideas'] = self.seminar_conclusion
+#         else:
+#             chat_env.env_dict['ideas'] = "I have no idea"
+#         return chat_env
     
+# class CustomCoding(Phase):
+#     def __init__(self, **kwargs):
+#         super().__init__(**kwargs)
+
+#     def update_phase_env(self, chat_env):
+#         self.phase_env.update({"task": chat_env.env_dict['task_prompt'],
+#                                 "ideas": chat_env.env_dict['ideas']})
+
+#     def update_chat_env(self, chat_env) -> ChatEnv:
+#         if len(self.seminar_conclusion) > 0 and "<INFO>" in self.seminar_conclusion:
+#             chat_env.env_dict['plan'] = self.seminar_conclusion.split("<INFO>")[-1].lower().replace(".", "").strip()
+#         elif len(self.seminar_conclusion) > 0:
+#             chat_env.env_dict['plan'] = self.seminar_conclusion
+#         else:
+#             chat_env.env_dict['plan'] = "I have no plan"
+#         return chat_env 
