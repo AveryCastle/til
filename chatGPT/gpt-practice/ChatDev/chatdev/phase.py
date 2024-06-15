@@ -649,3 +649,4 @@ class Manual(Phase):
         chat_env._update_manuals(self.seminar_conclusion)
         chat_env.rewrite_manuals()
         return chat_env
+    
