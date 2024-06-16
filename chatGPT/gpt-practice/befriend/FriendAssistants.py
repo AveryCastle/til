@@ -19,7 +19,22 @@ class FrenAssistant:
 
     def get_thread_id(self):
         return self.thread.id
-        
+
+    def fetch_messages(self):
+        messages = self.client.beta.threads.messages.list(
+            thread_id=self.thread.id,
+            order="asc"
+        )
+        return self.__extract_text_values__(messages.data)
+    
+    def __extract_text_values__(self, messages):
+        text_values = []
+        for message in messages:
+            for content in message.content:
+                if content.type == 'text':
+                    text_values.append({ 'role': message.role, 'message': content.text.value })
+        return text_values
+
     def ask_question(self, question):
         # message 를 쓰레드에 추가하기
         message = self.client.beta.threads.messages.create(

@@ -16,8 +16,11 @@ def main():
     
     # thread_id가 None인 경우, assistant를 통해 thread_id 획득 및 업데이트
     if thread_id is None:
-        thread_id = assistant.get_thread_id()        
+        thread_id = assistant.get_thread_id()      
         user_manager.update_thread_id(user_id, thread_id)
+        
+    messages = assistant.fetch_messages()
+    print("Chat history:", messages)
 
     while True:
         # 사용자로부터 질문 입력 받기
