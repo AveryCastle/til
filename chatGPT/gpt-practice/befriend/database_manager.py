@@ -31,6 +31,7 @@ class DatabaseManager:
                                                     id integer PRIMARY KEY AUTOINCREMENT,
                                                     user_id integer NOT NULL,
                                                     messages text NOT NULL,
+                                                    thread_id text,
                                                     FOREIGN KEY (user_id) REFERENCES fren_users (id)
                                                 ); """
             
@@ -39,23 +40,3 @@ class DatabaseManager:
             c.execute(sql_create_conversation_table)
         except Error as e:
             print(e)
-
-    def insert_conversation(self, user_id, messages):
-        try:
-            sql_insert_conversation = """INSERT INTO conversation (user_id, messages) VALUES (?, ?);"""
-            c = self.conn.cursor()
-            c.execute(sql_insert_conversation, (user_id, json.dumps(messages)))
-            self.conn.commit()
-        except Error as e:
-            print(e)
-
-    def get_conversations(self, user_id):
-        try:
-            sql_get_conversations = """SELECT messages FROM conversation WHERE user_id = ?;"""
-            c = self.conn.cursor()
-            c.execute(sql_get_conversations, (user_id,))
-            rows = c.fetchall()
-            return [json.loads(row[0]) for row in rows]
-        except Error as e:
-            print(e)
-            return []
