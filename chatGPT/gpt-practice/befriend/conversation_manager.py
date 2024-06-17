@@ -5,11 +5,16 @@ class ConversationManager:
     def __init__(self, db_manager):
         self.conn = db_manager.conn
 
-    def upsert_conversation(self, user_id, messages):    
+    def upsert_conversation(self, user_id, messages, thread_id):
+        print("upsert_conversation", user_id, messages, thread_id) 
         try:
-            sql_insert_conversation = """INSERT INTO conversation (user_id, messages) VALUES (?, ?);"""
+            sql_upsert_conversation = """INSERT INTO conversation (user_id, messages, thread_id)
+                                VALUES (?, ?, ?)
+                                ON CONFLICT(user_id) DO UPDATE SET
+                                messages=excluded.messages,
+                                thread_id=excluded.thread_id;"""
             c = self.conn.cursor()
-            c.execute(sql_insert_conversation, (user_id, json.dumps(messages, ensure_ascii=False)))
+            c.execute(sql_upsert_conversation, (user_id, json.dumps(messages, ensure_ascii=False), thread_id))
             self.conn.commit()
         except Error as e:
             print(e)
