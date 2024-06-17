@@ -23,15 +23,19 @@ class DatabaseManager:
                                             id integer PRIMARY KEY AUTOINCREMENT,
                                             email text NOT NULL UNIQUE,
                                             password text NOT NULL,
-                                            thread_id text
+                                            thread_id text,
+                                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                                         ); """
             
             # conversation 테이블 생성
             sql_create_conversation_table = """ CREATE TABLE IF NOT EXISTS conversation (
                                                     id integer PRIMARY KEY AUTOINCREMENT,
-                                                    user_id integer NOT NULL,
+                                                    user_id integer NOT NULL UNIQUE,
                                                     messages text NOT NULL,
                                                     thread_id text,
+                                                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                                     FOREIGN KEY (user_id) REFERENCES fren_users (id)
                                                 ); """
             

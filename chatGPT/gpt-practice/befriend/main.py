@@ -24,10 +24,8 @@ def main():
 
     # 사용자와의 대화 히스토리 출력
     conversation_history, history_thread_id = conversation_manager.get_conversations(user_id)
-    print("대화 히스토리: ", conversation_history, history_thread_id)
     
     smartGreetingAssistant = SmartGreetingAssistant(thread_id=history_thread_id)
-    print("smartGreetingAssistant.thread_id", smartGreetingAssistant.get_thread_id())
     greeting = smartGreetingAssistant.generate_smart_greeting(conversation_history)
     print(greeting)
 
@@ -40,8 +38,8 @@ def main():
         
         # 사용자가 'exit'를 입력하면 종료
         if user_question.lower() == 'exit':
-            print("smartGreetingAssistant.get_thread_id() => ", smartGreetingAssistant.get_thread_id())
-            # conversation_manager.upsert_conversation(new_conversation, smartGreetingAssistant.get_thread_id())
+            new_conversation.pop()
+            conversation_manager.upsert_conversation(user_id, new_conversation, smartGreetingAssistant.get_thread_id())
             break
 
         # 질문 제출

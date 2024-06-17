@@ -6,7 +6,6 @@ class ConversationManager:
         self.conn = db_manager.conn
 
     def upsert_conversation(self, user_id, messages, thread_id):
-        print("upsert_conversation", user_id, messages, thread_id) 
         try:
             sql_upsert_conversation = """INSERT INTO conversation (user_id, messages, thread_id)
                                 VALUES (?, ?, ?)
@@ -21,7 +20,7 @@ class ConversationManager:
 
     def get_conversations(self, user_id):
         try:
-            sql_get_conversations = """SELECT messages FROM conversation WHERE user_id = ?;"""
+            sql_get_conversations = """SELECT messages, thread_id FROM conversation WHERE user_id = ?;"""
             c = self.conn.cursor()
             c.execute(sql_get_conversations, (user_id,))
             rows = c.fetchall()
@@ -30,7 +29,7 @@ class ConversationManager:
                 # 데이터가 없을 때 기본 메시지 반환
                 return [{'role': 'user', 'message': '안녕?'}], None
             
-            return [json.loads(row[0]) for row in rows], rows[0][1]
+            return json.loads(rows[0][0]), rows[0][1]
         except Error as e:
             print(e)
             return []
