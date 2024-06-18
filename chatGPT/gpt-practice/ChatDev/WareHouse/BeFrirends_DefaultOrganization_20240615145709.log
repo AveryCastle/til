@@ -1,0 +1,201 @@
+[2024-15-06 14:57:09 INFO] **[Preprocessing]**
+
+**ChatDev Starts** (20240615145709)
+
+**Timestamp**: 20240615145709
+
+**config_path**: /Users/avery/workspace/til/chatGPT/gpt-practice/ChatDev/CompanyConfig/Fren/ChatChainConfig.json
+
+**config_phase_path**: /Users/avery/workspace/til/chatGPT/gpt-practice/ChatDev/CompanyConfig/Fren/PhaseConfig.json
+
+**config_role_path**: /Users/avery/workspace/til/chatGPT/gpt-practice/ChatDev/CompanyConfig/Fren/RoleConfig.json
+
+**task_prompt**: Due to the increase in single-person households, we will create an app that sends friendly and simple greetings to people at scheduled times through SNS to help them feel less lonely.
+
+**project_name**: BeFrirends
+
+**Log File**: /Users/avery/workspace/til/chatGPT/gpt-practice/ChatDev/WareHouse/BeFrirends_DefaultOrganization_20240615145709.log
+
+**ChatDevConfig**:
+ChatEnvConfig.with_memory: False
+ChatEnvConfig.clear_structure: True
+ChatEnvConfig.git_management: False
+ChatEnvConfig.gui_design: True
+ChatEnvConfig.incremental_develop: False
+ChatEnvConfig.background_prompt: ChatDev is a software company powered by multiple intelligent agents, such as chief executive officer, chief human resources officer, chief product officer, chief technology officer, etc, with a multi-agent organizational structure and the mission of 'changing the digital world through programming'.
+
+
+**ChatGPTConfig**:
+ChatGPTConfig(temperature=0.2, top_p=1.0, n=1, stream=False, stop=None, max_tokens=None, presence_penalty=0.0, frequency_penalty=0.0, logit_bias={}, user='')
+
+
+
+[2024-15-06 14:57:09 INFO] flask app.py did not start for online log
+[2024-15-06 14:57:09 INFO] System: **[chatting]**
+
+| Parameter | Value |
+| --- | --- |
+| **task_prompt** | Due to the increase in single-person households, we will create an app that sends friendly and simple greetings to people at scheduled times through SNS to help them feel less lonely. |
+| **need_reflect** | True |
+| **assistant_role_name** | Product Owner |
+| **user_role_name** | Product Owner |
+| **phase_prompt** | Fren has made products in the following form before: Image: can present information in line chart, bar chart, flow chart, cloud chart, Gantt chart, etc. Document: can present information via .docx files. PowerPoint: can present information via .pptx files. Excel: can present information via .xlsx files. PDF: can present information via .pdf files. Website: can present personal resume, tutorial, products, or ideas, via .html files. Application: can implement visualized game, software, tool, etc, via python. Dashboard: can display a panel visualizing real-time information. Mind Map: can represent ideas, with related concepts arranged around a core concept. As the {assistant_role}, to satisfy the new user's demand and the product should be realizable, you should keep discussing with me to decide which product modality do we want the product to be? Note that we must ONLY discuss the product modality and do not discuss anything else! Once we all have expressed our opinion(s) and agree with the results of the discussion unanimously, any of us must actively terminate the discussion by replying with only one line, which starts with a single word , followed by our final product modality without any other words, e.g., " PowerPoint". |
+| **phase_name** | DemandAnalysis |
+| **assistant_role_prompt** | You are Chief Product Officer. we are both working at BeFriend. We share a common interest in collaborating to successfully complete a task assigned by a new customer. You are responsible for all product-related matters in BeFriend. Usually includes product design, product strategy, product vision, product innovation, project management and product marketing. Here is a new customer's task: {task}. To complete the task, you must write a response that appropriately solves the requested instruction based on your expertise and customer's needs. As a {assistant_role}, you must come up with one idea that best meets the customer's requirements and convey the core features to the developer. The core features can be up to a maximum of five. You must brainstorm only relevant content and do not discuss anything else and cease discussions once they are complete. You must derive the core idea in a single sentence.  blah blah blah |
+| **user_role_prompt** | You are Chief Product Officer. we are both working at BeFriend. We share a common interest in collaborating to successfully complete a task assigned by a new customer. You are responsible for all product-related matters in BeFriend. Usually includes product design, product strategy, product vision, product innovation, project management and product marketing. Here is a new customer's task: {task}. To complete the task, you must write a response that appropriately solves the requested instruction based on your expertise and customer's needs. As a {assistant_role}, you must come up with one idea that best meets the customer's requirements and convey the core features to the developer. The core features can be up to a maximum of five. You must brainstorm only relevant content and do not discuss anything else and cease discussions once they are complete. You must derive the core idea in a single sentence.  blah blah blah |
+| **chat_turn_limit** | 10 |
+| **placeholders** | {'task': 'Due to the increase in single-person households, we will create an app that sends friendly and simple greetings to people at scheduled times through SNS to help them feel less lonely.'} |
+| **memory** | No existed memory |
+| **model_type** | ModelType.GPT_3_5_TURBO_NEW |
+
+[2024-15-06 14:57:09 INFO] flask app.py did not start for online log
+[2024-15-06 14:57:09 INFO] System: **[RolePlaying]**
+
+| Parameter | Value |
+| --- | --- |
+| **assistant_role_name** | Product Owner |
+| **user_role_name** | Product Owner |
+| **assistant_role_prompt** | You are Chief Product Officer. we are both working at BeFriend. We share a common interest in collaborating to successfully complete a task assigned by a new customer. You are responsible for all product-related matters in BeFriend. Usually includes product design, product strategy, product vision, product innovation, project management and product marketing. Here is a new customer's task: {task}. To complete the task, you must write a response that appropriately solves the requested instruction based on your expertise and customer's needs. As a {assistant_role}, you must come up with one idea that best meets the customer's requirements and convey the core features to the developer. The core features can be up to a maximum of five. You must brainstorm only relevant content and do not discuss anything else and cease discussions once they are complete. You must derive the core idea in a single sentence.  blah blah blah |
+| **user_role_prompt** | You are Chief Product Officer. we are both working at BeFriend. We share a common interest in collaborating to successfully complete a task assigned by a new customer. You are responsible for all product-related matters in BeFriend. Usually includes product design, product strategy, product vision, product innovation, project management and product marketing. Here is a new customer's task: {task}. To complete the task, you must write a response that appropriately solves the requested instruction based on your expertise and customer's needs. As a {assistant_role}, you must come up with one idea that best meets the customer's requirements and convey the core features to the developer. The core features can be up to a maximum of five. You must brainstorm only relevant content and do not discuss anything else and cease discussions once they are complete. You must derive the core idea in a single sentence.  blah blah blah |
+| **task_prompt** | Due to the increase in single-person households, we will create an app that sends friendly and simple greetings to people at scheduled times through SNS to help them feel less lonely. |
+| **with_task_specify** | False |
+| **memory** | No existed memory |
+| **model_type** | ModelType.GPT_3_5_TURBO_NEW |
+| **background_prompt** | ChatDev is a software company powered by multiple intelligent agents, such as chief executive officer, chief human resources officer, chief product officer, chief technology officer, etc, with a multi-agent organizational structure and the mission of 'changing the digital world through programming'. |
+
+[2024-15-06 14:57:09 INFO] flask app.py did not start for online log
+[2024-15-06 14:57:09 INFO] Product Owner: **[Start Chat]**
+
+[You are Chief Product Officer. we are both working at BeFriend. We share a common interest in collaborating to successfully complete a task assigned by a new customer.
+You are responsible for all product-related matters in BeFriend. Usually includes product design, product strategy, product vision, product innovation, project management and product marketing.
+Here is a new customer's task: Due to the increase in single-person households, we will create an app that sends friendly and simple greetings to people at scheduled times through SNS to help them feel less lonely..
+To complete the task, you must write a response that appropriately solves the requested instruction based on your expertise and customer's needs.
+As a Product Owner, you must come up with one idea that best meets the customer's requirements and convey the core features to the developer. The core features can be up to a maximum of five. You must brainstorm only relevant content and do not discuss anything else and cease discussions once they are complete.
+You must derive the core idea in a single sentence. <INFO> blah blah blah]
+
+Fren has made products in the following form before:
+
+Image: can present information in line chart, bar chart, flow chart, cloud chart, Gantt chart, etc.
+
+Document: can present information via .docx files.
+
+PowerPoint: can present information via .pptx files.
+
+Excel: can present information via .xlsx files.
+
+PDF: can present information via .pdf files.
+
+Website: can present personal resume, tutorial, products, or ideas, via .html files.
+
+Application: can implement visualized game, software, tool, etc, via python.
+
+Dashboard: can display a panel visualizing real-time information.
+
+Mind Map: can represent ideas, with related concepts arranged around a core concept.
+
+As the Product Owner, to satisfy the new user's demand and the product should be realizable, you should keep discussing with me to decide which product modality do we want the product to be?
+
+Note that we must ONLY discuss the product modality and do not discuss anything else! Once we all have expressed our opinion(s) and agree with the results of the discussion unanimously, any of us must actively terminate the discussion by replying with only one line, which starts with a single word <INFO>, followed by our final product modality without any other words, e.g., "<INFO> PowerPoint".
+
+[2024-15-06 14:57:09 INFO] flask app.py did not start for online log
+[2024-15-06 14:57:11 INFO] HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2024-15-06 14:57:11 INFO] **[OpenAI_Usage_Info Receive]**
+prompt_tokens: 483
+completion_tokens: 15
+total_tokens: 498
+cost: $0.001509
+
+
+[2024-15-06 14:57:11 INFO] flask app.py did not start for online log
+[2024-15-06 14:57:12 INFO] HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2024-15-06 14:57:12 INFO] **[OpenAI_Usage_Info Receive]**
+prompt_tokens: 502
+completion_tokens: 16
+total_tokens: 518
+cost: $0.001570
+
+
+[2024-15-06 14:57:12 INFO] flask app.py did not start for online log
+[2024-15-06 14:57:12 INFO] Product Owner: **Product Owner<->Product Owner on : DemandAnalysis, turn 0**
+
+[You are Chief Product Officer. we are both working at BeFriend. We share a common interest in collaborating to successfully complete a task assigned by a new customer.
+You are responsible for all product-related matters in BeFriend. Usually includes product design, product strategy, product vision, product innovation, project management and product marketing.
+Here is a new customer's task: Due to the increase in single-person households, we will create an app that sends friendly and simple greetings to people at scheduled times through SNS to help them feel less lonely..
+To complete the task, you must write a response that appropriately solves the requested instruction based on your expertise and customer's needs.
+As a Product Owner, you must come up with one idea that best meets the customer's requirements and convey the core features to the developer. The core features can be up to a maximum of five. You must brainstorm only relevant content and do not discuss anything else and cease discussions once they are complete.
+You must derive the core idea in a single sentence. <INFO> blah blah blah]
+
+I think the best product modality for this task would be an Application.
+
+[2024-15-06 14:57:12 INFO] flask app.py did not start for online log
+[2024-15-06 14:57:12 INFO] Product Owner: **Product Owner<->Product Owner on : DemandAnalysis, turn 0**
+
+[You are Chief Product Officer. we are both working at BeFriend. We share a common interest in collaborating to successfully complete a task assigned by a new customer.
+You are responsible for all product-related matters in BeFriend. Usually includes product design, product strategy, product vision, product innovation, project management and product marketing.
+Here is a new customer's task: Due to the increase in single-person households, we will create an app that sends friendly and simple greetings to people at scheduled times through SNS to help them feel less lonely..
+To complete the task, you must write a response that appropriately solves the requested instruction based on your expertise and customer's needs.
+As a Product Owner, you must come up with one idea that best meets the customer's requirements and convey the core features to the developer. The core features can be up to a maximum of five. You must brainstorm only relevant content and do not discuss anything else and cease discussions once they are complete.
+You must derive the core idea in a single sentence. <INFO> blah blah blah]
+
+I agree, an Application would be the most suitable modality for this task.
+
+[2024-15-06 14:57:12 INFO] flask app.py did not start for online log
+[2024-15-06 14:57:13 INFO] HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2024-15-06 14:57:13 INFO] **[OpenAI_Usage_Info Receive]**
+prompt_tokens: 522
+completion_tokens: 4
+total_tokens: 526
+cost: $0.001582
+
+
+[2024-15-06 14:57:13 INFO] flask app.py did not start for online log
+[2024-15-06 14:57:13 INFO] Product Owner: **Product Owner<->Product Owner on : DemandAnalysis, turn 1**
+
+[You are Chief Product Officer. we are both working at BeFriend. We share a common interest in collaborating to successfully complete a task assigned by a new customer.
+You are responsible for all product-related matters in BeFriend. Usually includes product design, product strategy, product vision, product innovation, project management and product marketing.
+Here is a new customer's task: Due to the increase in single-person households, we will create an app that sends friendly and simple greetings to people at scheduled times through SNS to help them feel less lonely..
+To complete the task, you must write a response that appropriately solves the requested instruction based on your expertise and customer's needs.
+As a Product Owner, you must come up with one idea that best meets the customer's requirements and convey the core features to the developer. The core features can be up to a maximum of five. You must brainstorm only relevant content and do not discuss anything else and cease discussions once they are complete.
+You must derive the core idea in a single sentence. <INFO> blah blah blah]
+
+<INFO> Application
+
+[2024-15-06 14:57:13 INFO] flask app.py did not start for online log
+[2024-15-06 14:57:13 INFO] **[Seminar Conclusion]**:
+
+ <INFO> Application
+
+[2024-15-06 14:57:13 INFO] flask app.py did not start for online log
+[2024-15-06 14:57:13 INFO] System: **[chatting]**
+
+| Parameter | Value |
+| --- | --- |
+| **task_prompt** | Due to the increase in single-person households, we will create an app that sends friendly and simple greetings to people at scheduled times through SNS to help them feel less lonely. |
+| **need_reflect** | False |
+| **assistant_role_name** | Programmer |
+| **user_role_name** | Programmer |
+| **phase_prompt** | According to the new user's task and our software designs listed below:  Task: "{task}". Ideas: "{ideas}" We have decided to complete the task through a executable software with multiple files implemented via {language}. As the {assistant_role}, to satisfy the new user's demands, you should write one or multiple files and make sure that every detail of the architecture is, in the end, implemented as code. {gui} Think step by step and reason yourself to the right decisions to make sure we get it right. You will first lay out the names of the core classes, functions, methods that will be necessary, as well as a quick comment on their purpose. Then you will output the content of each file including complete code. Each file must strictly follow a markdown code block format, where the following tokens must be replaced such that "FILENAME" is the lowercase file name including the file extension, "LANGUAGE" in the programming language, "DOCSTRING" is a string literal specified in source code that is used to document a specific segment of code, and "CODE" is the original code: FILENAME ```LANGUAGE ''' DOCSTRING ''' CODE ``` You will start with the "main" file, then go to the ones that are imported by that file, and so on. Please note that the code should be fully functional. Ensure to implement all functions. No placeholders (such as 'pass' in Python). |
+| **phase_name** | Coding |
+| **assistant_role_prompt** | {chatdev_prompt} You are Programmer. We are both working at Fren. We share a common interest in collaborating to successfully complete a task assigned by a new customer. You can write/create computer software or applications by providing a specific programming language to the computer. You have extensive computing and coding experience in many varieties of programming languages and platforms, such as Python, Java, C, C++, HTML, CSS, JavaScript, XML, SQL, PHP, etc,. Goal: "{task}". Ideas: "{ideas}". As a {assistant_role}, you need to determine whether the final selected ideas and core features are feasible to implement, and briefly outline the necessary technical specifications for the implementation plan. |
+| **user_role_prompt** | {chatdev_prompt} You are Programmer. We are both working at Fren. We share a common interest in collaborating to successfully complete a task assigned by a new customer. You can write/create computer software or applications by providing a specific programming language to the computer. You have extensive computing and coding experience in many varieties of programming languages and platforms, such as Python, Java, C, C++, HTML, CSS, JavaScript, XML, SQL, PHP, etc,. Goal: "{task}". Ideas: "{ideas}". As a {assistant_role}, you need to determine whether the final selected ideas and core features are feasible to implement, and briefly outline the necessary technical specifications for the implementation plan. |
+| **chat_turn_limit** | 1 |
+| **placeholders** | {'task': 'Due to the increase in single-person households, we will create an app that sends friendly and simple greetings to people at scheduled times through SNS to help them feel less lonely.', 'ideas': ' Application'} |
+| **memory** | No existed memory |
+| **model_type** | ModelType.GPT_3_5_TURBO_NEW |
+
+[2024-15-06 14:57:13 INFO] flask app.py did not start for online log
+[2024-15-06 14:57:13 INFO] System: **[RolePlaying]**
+
+| Parameter | Value |
+| --- | --- |
+| **assistant_role_name** | Programmer |
+| **user_role_name** | Programmer |
+| **assistant_role_prompt** | {chatdev_prompt} You are Programmer. We are both working at Fren. We share a common interest in collaborating to successfully complete a task assigned by a new customer. You can write/create computer software or applications by providing a specific programming language to the computer. You have extensive computing and coding experience in many varieties of programming languages and platforms, such as Python, Java, C, C++, HTML, CSS, JavaScript, XML, SQL, PHP, etc,. Goal: "{task}". Ideas: "{ideas}". As a {assistant_role}, you need to determine whether the final selected ideas and core features are feasible to implement, and briefly outline the necessary technical specifications for the implementation plan. |
+| **user_role_prompt** | {chatdev_prompt} You are Programmer. We are both working at Fren. We share a common interest in collaborating to successfully complete a task assigned by a new customer. You can write/create computer software or applications by providing a specific programming language to the computer. You have extensive computing and coding experience in many varieties of programming languages and platforms, such as Python, Java, C, C++, HTML, CSS, JavaScript, XML, SQL, PHP, etc,. Goal: "{task}". Ideas: "{ideas}". As a {assistant_role}, you need to determine whether the final selected ideas and core features are feasible to implement, and briefly outline the necessary technical specifications for the implementation plan. |
+| **task_prompt** | Due to the increase in single-person households, we will create an app that sends friendly and simple greetings to people at scheduled times through SNS to help them feel less lonely. |
+| **with_task_specify** | False |
+| **memory** | No existed memory |
+| **model_type** | ModelType.GPT_3_5_TURBO_NEW |
+| **background_prompt** | ChatDev is a software company powered by multiple intelligent agents, such as chief executive officer, chief human resources officer, chief product officer, chief technology officer, etc, with a multi-agent organizational structure and the mission of 'changing the digital world through programming'. |
+
+[2024-15-06 14:57:13 INFO] flask app.py did not start for online log
