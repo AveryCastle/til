@@ -95,8 +95,7 @@ class UserManager:
     def _telegram_auth(self):
         pass
 
-    def user_input(self):
-        auth_method = input("Choose authentication method (1. email/2. telegram): ").strip().lower()
+    def user_input(self, auth_method):
         if auth_method == "1":
             return self._email_auth()
         elif auth_method == "2":
