@@ -39,6 +39,17 @@ class UserManager:
             print(f"Error creating user: {e}")
             self.conn.rollback()
             return None
+        
+    def register_telegram_user(self, telegram_id, first_name, last_name, username):
+        try:
+            user_id = self._insert_user()
+            auth_method_id = self._insert_auth_method(user_id, 'telegram')
+            self._insert_telegram_auth(user_id, auth_method_id, telegram_id, first_name, last_name, username)
+            return user_id, None
+        except sqlite3.IntegrityError as e:
+            print(f"Error registering user: {e}")
+            self.conn.rollback()
+            return None, None  
     
     def _insert_user(self):
         cursor = self.conn.cursor()
@@ -64,6 +75,14 @@ class UserManager:
             (user_id, auth_method_id, email, self._hash_password(password))
         )
         self.conn.commit()
+        
+    def _insert_telegram_auth(self, user_id, auth_method_id, telegram_id, first_name, last_name, username):
+        cursor = self.conn.cursor()
+        cursor.execute(
+            "INSERT INTO telegram_auth (user_id, auth_method_id, telegram_id, first_name, last_name, username) VALUES (?, ?, ?, ?, ?, ?)",
+            (user_id, auth_method_id, telegram_id, first_name, last_name, username)
+        )
+        self.conn.commit()      
 
     def update_thread_id(self, user_id, thread_id):
         c = self.conn.cursor()
@@ -92,14 +111,28 @@ class UserManager:
             print("Existing user. User id and thread_id: ", user_check)
             return user_check
         
-    def _telegram_auth(self):
-        pass
+    def telegram_auth(self, telegram_id):
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute("""
+                SELECT u.id, u.thread_id
+                FROM users u
+                JOIN telegram_auth ta ON u.id = ta.user_id
+                WHERE ta.telegram_id = ?
+            """, (telegram_id,))
+            row = cursor.fetchone()
+            if row:
+                return row  # (id, thread_id)
+            return None
+        except sqlite3.Error as e:
+            print(e)
+            return None
 
     def user_input(self, auth_method):
         if auth_method == "1":
             return self._email_auth()
         elif auth_method == "2":
-            return self._telegram_auth()
+            return self.telegram_auth()
         else:
             print("Invalid authentication method")
             return None, None

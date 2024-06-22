@@ -15,8 +15,8 @@ def main():
         email_conversation = EmailConversation(user_manager, conversation_manager)
         email_conversation.start()
     elif choice == "2":
-        telegram_conversation = TelegramConversation()
-        telegram_conversation.start()
+        telegram_conversation = TelegramConversation(user_manager, conversation_manager)
+        telegram_conversation.run()
     else:
         print("Invalid choice. Please enter 1 or 2.")
 
