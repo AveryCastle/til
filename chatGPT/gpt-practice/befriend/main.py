@@ -1,4 +1,4 @@
-from database_manager import DatabaseManager
+from db.database_manager import DatabaseManager
 from user_manager import UserManager
 from FriendAssistants import FrenAssistant
 from conversation_manager import ConversationManager
