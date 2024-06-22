@@ -71,6 +71,9 @@ class DatabaseManager:
             
             c = self.conn.cursor()
             c.execute(sql_create_user_table)
+            c.execute(sql_create_user_auth_table)
+            c.execute(sql_create_email_auth_table)
+            c.execute(sql_create_telegram_auth_table)
             c.execute(sql_create_conversation_table)
         except Error as e:
             print(e)
