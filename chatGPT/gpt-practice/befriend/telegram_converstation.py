@@ -17,6 +17,7 @@ bot.
 
 import os
 import logging
+import asyncio
 
 from telegram import ForceReply, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, CallbackContext, JobQueue
@@ -45,6 +46,7 @@ class TelegramConversation:
         self.thread_id = None
         self.chat_id = None
         self.conversation = []
+        self.timeout_task = None  # Task to handle the inactivity timeout
         
         # Create Application with JobQueue
         self.application = Application.builder().token(token).job_queue(JobQueue()).build()
@@ -80,7 +82,7 @@ class TelegramConversation:
         self.conversation.append({'role': 'assistant', 'message': greeting})
         
         # Schedule the inactivity timeout
-        self.schedule_timeout(context, update.message.chat_id)
+        self.schedule_timeout(context)
 
 
     async def help_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -102,8 +104,8 @@ class TelegramConversation:
 
         await update.message.reply_text(response)
         
-        # Reschedule the inactivity timeout
-        self.schedule_timeout(context, update.message.chat_id)
+        # Schedule the inactivity timeout
+        self.schedule_timeout(context)
 
     async def end_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         """End the conversation and save it to the database."""
@@ -111,27 +113,32 @@ class TelegramConversation:
             self.conversation_manager.upsert_conversation(self.user_id, self.conversation, self.thread_id)
             self.conversation = []  # Clear the conversation history
             await update.message.reply_text("Conversation ended and saved.")
+            
+            if self.timeout_task:
+                self.timeout_task.cancel()
 
-    def schedule_timeout(self, context: CallbackContext, chat_id: int) -> None:
-        """Schedule a timeout job for inactivity."""
-        # Cancel the existing job if it exists
-        logger.info(f"context.chat_data={context.chat_data}, chat_id={chat_id}")
-        if 'timeout_job' in context.chat_data:
-            old_job = context.chat_data['timeout_job']
-            old_job.schedule_removal()
-
-        # Schedule a new timeout job
-        new_job = context.job_queue.run_once(self.timeout, INACTIVITY_TIMEOUT, data={'chat_id': chat_id})
-        context.chat_data['timeout_job'] = new_job
-        
-    async def timeout(self, context: CallbackContext) -> None:
+    async def timeout(self, chat_id):
         """Handle inactivity timeout."""
-
         if self.user_id and self.conversation:
             self.conversation_manager.upsert_conversation(self.user_id, self.conversation, self.thread_id)
             self.conversation = []  # Clear the conversation history
 
-        await self.application.bot.send_message(self.chat_id, "Conversation ended due to inactivity.")
+        await self.application.bot.send_message(chat_id, "Conversation ended due to inactivity.")
+
+    def schedule_timeout(self, context: CallbackContext):
+        """Schedule a timeout task for inactivity."""
+        if self.timeout_task:
+            self.timeout_task.cancel()  # Cancel the existing timeout task
+        chat_id = context._chat_id
+        self.timeout_task = asyncio.create_task(self._timeout_handler(chat_id))
+
+    async def _timeout_handler(self, chat_id):
+        """Timeout handler to wait for the inactivity period and then call the timeout function."""
+        try:
+            await asyncio.sleep(INACTIVITY_TIMEOUT)
+            await self.timeout(chat_id)
+        except asyncio.CancelledError:
+            pass  # Task was cancelled, do nothing
 
             
     def run(self):
