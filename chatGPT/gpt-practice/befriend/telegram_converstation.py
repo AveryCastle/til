@@ -19,12 +19,13 @@ import os
 import logging
 
 from telegram import ForceReply, Update
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
+from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, CallbackContext, JobQueue
 
 from conversation_assistant import FrenAssistant
 from smart_greeting_assistant import SmartGreetingAssistant
 
 TOKEN = os.getenv('TELEGRAM_TOKEN')
+INACTIVITY_TIMEOUT = 60  # 1분 (60초)
 
 # Enable logging
 logging.basicConfig(
@@ -42,9 +43,11 @@ class TelegramConversation:
         self.assistant = None
         self.user_id = None
         self.thread_id = None
+        self.chat_id = None
         self.conversation = []
         
-        self.application = Application.builder().token(token).build()
+        # Create Application with JobQueue
+        self.application = Application.builder().token(token).job_queue(JobQueue()).build()
         
         self.application.add_handler(CommandHandler("start", self.start))
         self.application.add_handler(CommandHandler("help", self.help_command))
@@ -54,6 +57,7 @@ class TelegramConversation:
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         """Send a message when the command /start is issued."""
         user = update.effective_user
+        self.chat_id = update.message.chat.id
         user_auth = self.user_manager.telegram_auth(user.id)
         if user_auth is None:
             user_auth = self.user_manager.register_telegram_user(user.id, user.first_name, user.last_name, user.username)
@@ -67,23 +71,27 @@ class TelegramConversation:
             self.user_manager.update_thread_id(self.user_id, self.thread_id)
         
         conversation_history, history_thread_id = self.conversation_manager.get_conversations(self.user_id)
-        logging.info(f"conversation_history={conversation_history}, history_thread_id={history_thread_id}")
+        logging.info(f"conversation_history={conversation_history}")
         
         smartGreetingAssistant = SmartGreetingAssistant(thread_id=history_thread_id)
         greeting = smartGreetingAssistant.generate_smart_greeting(conversation_history)
 
         await update.message.reply_html(greeting)
         self.conversation.append({'role': 'assistant', 'message': greeting})
+        
+        # Schedule the inactivity timeout
+        self.schedule_timeout(context, update.message.chat_id)
 
 
     async def help_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         """Send a message when the command /help is issued."""
         await update.message.reply_text("Help!")
 
-    async def chat(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    async def chat(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:        
         """Generate a response from the AI assistant and send it back to the user."""
         if self.assistant is None:
-            await update.message.reply_text("Please start the conversation using /start command.")
+            # await update.message.reply_text("Please start the conversation using /start command.")
+            await self.start(update, context)
             return
 
         user_message = update.message.text
@@ -93,13 +101,38 @@ class TelegramConversation:
         self.conversation.append({'role': 'assistant', 'message': response})
 
         await update.message.reply_text(response)
+        
+        # Reschedule the inactivity timeout
+        self.schedule_timeout(context, update.message.chat_id)
 
     async def end_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         """End the conversation and save it to the database."""
         if self.user_id and self.conversation:
             self.conversation_manager.upsert_conversation(self.user_id, self.conversation, self.thread_id)
-            await update.message.reply_text("Conversation ended and saved.")
             self.conversation = []  # Clear the conversation history
+            await update.message.reply_text("Conversation ended and saved.")
+
+    def schedule_timeout(self, context: CallbackContext, chat_id: int) -> None:
+        """Schedule a timeout job for inactivity."""
+        # Cancel the existing job if it exists
+        logger.info(f"context.chat_data={context.chat_data}, chat_id={chat_id}")
+        if 'timeout_job' in context.chat_data:
+            old_job = context.chat_data['timeout_job']
+            old_job.schedule_removal()
+
+        # Schedule a new timeout job
+        new_job = context.job_queue.run_once(self.timeout, INACTIVITY_TIMEOUT, data={'chat_id': chat_id})
+        context.chat_data['timeout_job'] = new_job
+        
+    async def timeout(self, context: CallbackContext) -> None:
+        """Handle inactivity timeout."""
+
+        if self.user_id and self.conversation:
+            self.conversation_manager.upsert_conversation(self.user_id, self.conversation, self.thread_id)
+            self.conversation = []  # Clear the conversation history
+
+        await self.application.bot.send_message(self.chat_id, "Conversation ended due to inactivity.")
+
             
     def run(self):
         """Start the bot."""
