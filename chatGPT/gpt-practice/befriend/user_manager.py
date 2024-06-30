@@ -136,3 +136,27 @@ class UserManager:
         else:
             print("Invalid authentication method")
             return None, None
+    
+    def get_telegram_users(self):
+        """
+        auth_type이 'telegram'인 모든 사용자의 정보를 조회합니다.
+        
+        Returns:
+            list of tuples: 각 튜플은 (user_id, thread_id, telegram_id, first_name, last_name, username) 형식입니다.
+        """
+        query = """
+        SELECT u.id, u.thread_id, t.telegram_id, t.first_name, t.last_name, t.username
+        FROM users u
+        JOIN auth_methods am ON u.id = am.user_id
+        JOIN telegram_auth t ON am.id = t.auth_method_id
+        WHERE am.auth_type = 'telegram'
+        """
+        
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute(query)
+            results = cursor.fetchall()
+            return results
+        except sqlite3.Error as e:
+            print(f"데이터베이스 쿼리 실행 중 오류 발생: {e}")
+            return []

@@ -19,6 +19,8 @@ import os
 import logging
 import asyncio
 
+from datetime import time
+
 from telegram import ForceReply, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, CallbackContext, JobQueue
 
@@ -49,7 +51,14 @@ class TelegramConversation:
         self.timeout_task = None  # Task to handle the inactivity timeout
         
         # Create Application with JobQueue
-        self.application = Application.builder().token(token).job_queue(JobQueue()).build()
+        self.application = Application.builder().token(token).build()
+        
+         # 정기적인 메시지 전송 설정
+        job_queue = self.application.job_queue
+        job_queue.run_daily(self.send_smart_greeting, time=time(9, 0), days=(0, 1, 2, 3, 4, 5, 6))
+        job_queue.run_daily(self.send_smart_greeting, time=time(13, 0), days=(0, 1, 2, 3, 4, 5, 6))
+        job_queue.run_daily(self.send_smart_greeting, time=time(18, 0), days=(0, 1, 2, 3, 4, 5, 6))
+        job_queue.run_daily(self.send_smart_greeting, time=time(21, 0), days=(0, 1, 2, 3, 4, 5, 6))
         
         self.application.add_handler(CommandHandler("start", self.start))
         self.application.add_handler(CommandHandler("help", self.help_command))
@@ -60,6 +69,7 @@ class TelegramConversation:
         """Send a message when the command /start is issued."""
         user = update.effective_user
         self.chat_id = update.message.chat.id
+        print(f"chat_id = {self.chat_id}")
         user_auth = self.user_manager.telegram_auth(user.id)
         if user_auth is None:
             user_auth = self.user_manager.register_telegram_user(user.id, user.first_name, user.last_name, user.username)
@@ -84,6 +94,18 @@ class TelegramConversation:
         # Schedule the inactivity timeout
         self.schedule_timeout(context)
 
+    async def send_smart_greeting(self, context: CallbackContext):
+        """Send a smart greeting to all users."""
+        users = self.user_manager.get_telegram_users()  # 모든 사용자 가져오기
+        for user in users:
+            user_id, thread_id, telegram_id, first_name, last_name, username = user
+            print(f"User ID: {user_id}, Thread ID: {thread_id}, Telegram ID: {telegram_id}, Name: {first_name} {last_name}, Username: {username}")
+            conversation_history, history_thread_id = self.conversation_manager.get_conversations(user_id)
+            
+            smartGreetingAssistant = SmartGreetingAssistant(thread_id=history_thread_id)
+            greeting = smartGreetingAssistant.generate_smart_greeting(conversation_history)
+            
+            await context.bot.send_message(chat_id=telegram_id, text=greeting)
 
     async def help_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         """Send a message when the command /help is issued."""
@@ -122,7 +144,7 @@ class TelegramConversation:
         if self.user_id and self.conversation:
             self.conversation_manager.upsert_conversation(self.user_id, self.conversation, self.thread_id)
             self.conversation = []  # Clear the conversation history
-
+        print(f"chat_id = {chat_id}")
         await self.application.bot.send_message(chat_id, "Conversation ended due to inactivity.")
 
     def schedule_timeout(self, context: CallbackContext):
@@ -130,11 +152,13 @@ class TelegramConversation:
         if self.timeout_task:
             self.timeout_task.cancel()  # Cancel the existing timeout task
         chat_id = context._chat_id
+        print(f"chat_id = {chat_id}")
         self.timeout_task = asyncio.create_task(self._timeout_handler(chat_id))
 
     async def _timeout_handler(self, chat_id):
         """Timeout handler to wait for the inactivity period and then call the timeout function."""
         try:
+            print(f"chat_id = {chat_id}")
             await asyncio.sleep(INACTIVITY_TIMEOUT)
             await self.timeout(chat_id)
         except asyncio.CancelledError:
