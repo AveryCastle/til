@@ -74,6 +74,15 @@ class DatabaseManager:
                                                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                                     FOREIGN KEY (user_id) REFERENCES fren_users (id)
                                                 ); """
+                                                
+            sql_create_message_schedule_table = """
+                CREATE TABLE IF NOT EXISTS message_schedule (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL,
+                    schedule_time TIME NOT NULL,
+                    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+                );
+                """
             
             c = self.conn.cursor()
             c.execute(sql_create_user_table)
@@ -81,5 +90,6 @@ class DatabaseManager:
             c.execute(sql_create_email_auth_table)
             c.execute(sql_create_telegram_auth_table)
             c.execute(sql_create_conversation_table)
+            c.execute(sql_create_message_schedule_table)
         except Error as e:
             print(e)

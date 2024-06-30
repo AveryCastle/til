@@ -1,5 +1,6 @@
 import hashlib
 import sqlite3
+from datetime import datetime
 
 class UserManager:
     def __init__(self, db_manager):
@@ -160,3 +161,16 @@ class UserManager:
         except sqlite3.Error as e:
             print(f"데이터베이스 쿼리 실행 중 오류 발생: {e}")
             return []
+    
+    def set_message_times(self, user_id, times):
+        c = self.conn.cursor()
+        c.execute("DELETE FROM message_schedule WHERE user_id = ?", (user_id,))
+        for t in times:
+            c.execute("INSERT INTO message_schedule (user_id, schedule_time) VALUES (?, ?)", 
+                        (user_id, t.strftime("%H:%M")))
+        self.conn.commit()
+        
+    def get_message_times(self, user_id):
+        c = self.conn.cursor()
+        c.execute("SELECT schedule_time FROM message_schedule WHERE user_id = ?", (user_id,))
+        return [datetime.strptime(row[0], "%H:%M").time() for row in c.fetchall()]

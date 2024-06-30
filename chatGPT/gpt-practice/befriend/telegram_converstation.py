@@ -19,7 +19,8 @@ import os
 import logging
 import asyncio
 
-from datetime import time
+import re
+from datetime import time, datetime
 
 from telegram import ForceReply, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, CallbackContext, JobQueue
@@ -61,6 +62,7 @@ class TelegramConversation:
         job_queue.run_daily(self.send_smart_greeting, time=time(21, 0), days=(0, 1, 2, 3, 4, 5, 6))
         
         self.application.add_handler(CommandHandler("start", self.start))
+        self.application.add_handler(CommandHandler("set_times", self.set_message_times))
         self.application.add_handler(CommandHandler("help", self.help_command))
         self.application.add_handler(CommandHandler("end", self.end_conversation))
         self.application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.chat))
@@ -94,6 +96,49 @@ class TelegramConversation:
         # Schedule the inactivity timeout
         self.schedule_timeout(context)
 
+    async def set_message_times(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        user_id = update.effective_user.id
+        message = update.message.text.split(maxsplit=1)
+        
+        if len(message) == 1:
+            await update.message.reply_text("시간을 입력해주세요. 예: /set_times 09:00 13:00 17:30")
+            return
+
+        times = message[1].split()
+        if len(times) > 5:
+            await update.message.reply_text("최대 5개의 시간만 설정할 수 있습니다.")
+            return
+
+        valid_times = []
+        for t in times:
+            if re.match(r'^\d{2}:\d{2}$', t):
+                try:
+                    valid_time = datetime.strptime(t, "%H:%M").time()
+                    valid_times.append(valid_time)
+                except ValueError:
+                    await update.message.reply_text(f"잘못된 시간 형식입니다: {t}")
+                    return
+            else:
+                await update.message.reply_text(f"잘못된 시간 형식입니다: {t}")
+                return
+
+        if not valid_times:
+            valid_times = [time(9, 0)]  # 기본값: 오전 9시
+
+        self.user_manager.set_message_times(user_id, valid_times)
+        
+        await update.message.reply_text("메시지 수신 시간이 설정되었습니다.")
+        self.__schedule_user_messages__(user_id, valid_times)
+        
+    def __schedule_user_messages__(self, user_id, times):
+        for t in times:
+            self.application.job_queue.run_daily(
+                self.send_smart_greeting,
+                time=t,
+                days=(0, 1, 2, 3, 4, 5, 6),
+                context={'user_id': user_id}
+            )
+    
     async def send_smart_greeting(self, context: CallbackContext):
         """Send a smart greeting to all users."""
         users = self.user_manager.get_telegram_users()  # 모든 사용자 가져오기
