@@ -72,7 +72,7 @@ class DatabaseManager:
                                                     thread_id text,
                                                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                                    FOREIGN KEY (user_id) REFERENCES fren_users (id)
+                                                    FOREIGN KEY (user_id) REFERENCES users (id)
                                                 ); """
                                                 
             sql_create_message_schedule_table = """

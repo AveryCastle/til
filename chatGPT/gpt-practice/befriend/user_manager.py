@@ -162,6 +162,31 @@ class UserManager:
             print(f"데이터베이스 쿼리 실행 중 오류 발생: {e}")
             return []
     
+    def get_user_id_by_telegram_id(self, telegram_id):
+        """
+        telegram_id에 해당하는 user_id를 조회합니다.
+        
+        Args:
+            telegram_id (str): 텔레그램 사용자 ID
+        
+        Returns:
+            int or None: 해당하는 user_id, 없으면 None
+        """
+        query = """
+        SELECT user_id
+        FROM telegram_auth
+        WHERE telegram_id = ?
+        """
+        
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute(query, (telegram_id,))
+            result = cursor.fetchone()
+            return result[0] if result else None
+        except sqlite3.Error as e:
+            print(f"데이터베이스 쿼리 실행 중 오류 발생: {e}")
+            return None
+    
     def set_message_times(self, user_id, times):
         c = self.conn.cursor()
         c.execute("DELETE FROM message_schedule WHERE user_id = ?", (user_id,))
