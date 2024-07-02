@@ -127,20 +127,6 @@ class TelegramConversation:
             reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=False),
         )
         return self.CHOOSING_TIMES
-      
-        # self.__set_conversation_times__(update, context)
-        
-        # conversation_history, history_thread_id = self.conversation_manager.get_conversations(self.user_id)
-        # logging.info(f"conversation_history={conversation_history}")
-        
-        # smartGreetingAssistant = SmartGreetingAssistant(thread_id=history_thread_id)
-        # greeting = smartGreetingAssistant.generate_smart_greeting(conversation_history)
-
-        # await update.message.reply_html(greeting)
-        # self.conversation.append({'role': 'assistant', 'message': greeting})
-        
-        # Schedule the inactivity timeout
-        # self.schedule_timeout(context)
 
     async def initialize_user_info(self, update: Update):
         user = update.effective_user
@@ -238,50 +224,38 @@ class TelegramConversation:
     async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         user_id = update.effective_user.id
         logger.debug(f"user_id = ${user_id}, chat_id= {update.message.chat.id}")
-        # 여기에 대화 시작 로직을 구현합니다.
-        # 예: SmartGreetingAssistant를 사용하여 인사 메시지 생성
+        
         conversation_history, history_thread_id = self.conversation_manager.get_conversations(user_id)
         logger.info(f"conversation_history=${conversation_history}, history_thread_id=${history_thread_id}")
-        # smart_greeting_assistant = SmartGreetingAssistant(thread_id=history_thread_id)
-        # greeting = smart_greeting_assistant.generate_smart_greeting(conversation_history)
-        greeting = update.message.text
+        smart_greeting_assistant = SmartGreetingAssistant(thread_id=history_thread_id)
+        greeting = smart_greeting_assistant.generate_smart_greeting(conversation_history)
+        # greeting = update.message.text
         await update.message.reply_text(greeting)
         return self.CHATTING
       
     async def send_smart_greeting(self, context: CallbackContext):
         """Send a smart greeting to all users."""
-        # users = self.user_manager.get_telegram_users()  # 모든 사용자 가져오기
-        # for user in users:
-        #     user_id, thread_id, telegram_id, first_name, last_name, username = user
-        #     print(f"User ID: {user_id}, Thread ID: {thread_id}, Telegram ID: {telegram_id}, Name: {first_name} {last_name}, Username: {username}")
-        #     conversation_history, history_thread_id = self.conversation_manager.get_conversations(user_id)
-            
-        #     smartGreetingAssistant = SmartGreetingAssistant(thread_id=history_thread_id)
-        #     greeting = smartGreetingAssistant.generate_smart_greeting(conversation_history)
-            
-        #     await self.application.bot.send_message(chat_id=telegram_id, text=greeting)
         telegram_id = context.job.data['user_id']
         user_id = self.user_manager.get_user_id_by_telegram_id(telegram_id)
         logger.info(f"send_smart_greeting scheduleing: telegram_id=${telegram_id}, user_id=${user_id}")
         if user_id:
             conversation_history, history_thread_id = self.conversation_manager.get_conversations(user_id)
-            # smart_greeting_assistant = SmartGreetingAssistant(thread_id=history_thread_id)
-            # greeting = smart_greeting_assistant.generate_smart_greeting(conversation_history)
-            greeting = "임시 메세지2"
+            smart_greeting_assistant = SmartGreetingAssistant(thread_id=history_thread_id)
+            greeting = smart_greeting_assistant.generate_smart_greeting(conversation_history)
+            # greeting = "임시 메세지2"
             await context.bot.send_message(chat_id=telegram_id, text=greeting)
 
     async def chat(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:        
         """Generate a response from the AI assistant and send it back to the user."""
         if self.assistant is None:
             logger.info("self.assistant is None")
-            # await update.message.reply_text("Please start the conversation using /start command.")
             await self.initialize_user_info(update)
 
         user_message = update.message.text
         self.conversation.append({'role': 'user', 'message': user_message})
 
-        # response = self.assistant.ask_question(user_message)
-        response = "임시 답변"
+        response = self.assistant.ask_question(user_message)
+        # response = "임시 답변"
         self.conversation.append({'role': 'assistant', 'message': response})
 
         await update.message.reply_text(response)
