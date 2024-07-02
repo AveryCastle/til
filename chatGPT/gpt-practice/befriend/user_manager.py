@@ -199,3 +199,18 @@ class UserManager:
         c = self.conn.cursor()
         c.execute("SELECT schedule_time FROM message_schedule WHERE user_id = ?", (user_id,))
         return [datetime.strptime(row[0], "%H:%M").time() for row in c.fetchall()]
+    
+    def get_users_by_schedule_time(self):
+        c = self.conn.cursor()
+        c.execute("SELECT user_id, schedule_time FROM message_schedule")
+        
+        schedule_dict = {}
+        for row in c.fetchall():
+            user_id = row[0]
+            schedule_time = datetime.strptime(row[1], "%H:%M").time()
+            
+            if schedule_time not in schedule_dict:
+                schedule_dict[schedule_time] = []
+            schedule_dict[schedule_time].append(user_id)
+        
+        return schedule_dict
