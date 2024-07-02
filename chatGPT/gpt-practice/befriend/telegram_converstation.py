@@ -109,7 +109,7 @@ class TelegramConversation:
         self.application.add_handler(chat_handler)
         
         # Register user message schedules
-        self.schedule_user_messages()
+        self.schedule_user_conversations()
 
 
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -182,14 +182,14 @@ class TelegramConversation:
         selected_times.append(time)
         context.user_data['selected_times'] = selected_times
         
-    def schedule_user_messages(self):
+    def schedule_user_conversations(self):
         users_by_time = self.user_manager.get_users_by_schedule_time()
         for scheduled_time, user_ids in users_by_time.items():
             for user_id in user_ids:
                 logger.debug(f"user {user_id} at {scheduled_time} schedule setting.")
                 self._schedule_job(user_id, scheduled_time)
 
-    def schedule_user_messages_for_user(self, user_id, times):
+    def schedule_user_conversations_for_user(self, user_id, times):
         for t in times:
             scheduled_time = t.replace(tzinfo=KST)
             self._schedule_job(user_id, scheduled_time)
@@ -242,7 +242,6 @@ class TelegramConversation:
             conversation_history, history_thread_id = self.conversation_manager.get_conversations(user_id)
             smart_greeting_assistant = SmartGreetingAssistant(thread_id=history_thread_id)
             greeting = smart_greeting_assistant.generate_smart_greeting(conversation_history)
-            # greeting = "임시 메세지2"
             await context.bot.send_message(chat_id=telegram_id, text=greeting)
 
     async def chat(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:        
@@ -255,7 +254,6 @@ class TelegramConversation:
         self.conversation.append({'role': 'user', 'message': user_message})
 
         response = self.assistant.ask_question(user_message)
-        # response = "임시 답변"
         self.conversation.append({'role': 'assistant', 'message': response})
 
         await update.message.reply_text(response)
@@ -270,7 +268,7 @@ class TelegramConversation:
         if self.user_id and self.conversation:
             self.conversation_manager.upsert_conversation(self.user_id, self.conversation, self.thread_id)
             self.conversation = []  # Clear the conversation history
-            await update.message.reply_text("Conversation ended and saved.")
+            logger.info("Conversation ended and saved.")
             
             if self.timeout_task:
                 self.timeout_task.cancel()
@@ -283,8 +281,8 @@ class TelegramConversation:
         )
         user_id = update.effective_user.id
         default_time = [time(9, 0)]
-        self.user_manager.set_message_times(user_id, default_time)
-        self.schedule_user_messages_for_user(user_id, default_time)
+        self.user_manager.set_conversation_times(user_id, default_time)
+        self.schedule_user_conversations_for_user(user_id, default_time)
         return ConversationHandler.END
     
     async def done(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -295,9 +293,9 @@ class TelegramConversation:
             selected_times = ["09:00"]  # 기본값: 오전 9시
 
         times = [datetime.strptime(t, "%H:%M").time() for t in selected_times]
-        self.user_manager.set_message_times(user_id, times)
+        self.user_manager.set_conversation_times(user_id, times)
 
-        self.schedule_user_messages_for_user(user_id, times)
+        self.schedule_user_conversations_for_user(user_id, times)
         
         await update.message.reply_text(
             f"선택하신 시간: {', '.join(selected_times)}\n"
@@ -312,7 +310,7 @@ class TelegramConversation:
         if self.user_id and self.conversation:
             self.conversation_manager.upsert_conversation(self.user_id, self.conversation, self.thread_id)
             self.conversation = []  # Clear the conversation history
-        await self.application.bot.send_message(chat_id, "Conversation ended due to inactivity.")
+        logger.info("Conversation ended due to inactivity.")
 
     def schedule_timeout(self, context: CallbackContext):
         """Schedule a timeout task for inactivity."""

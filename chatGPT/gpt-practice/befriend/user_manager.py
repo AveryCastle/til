@@ -187,7 +187,7 @@ class UserManager:
             print(f"데이터베이스 쿼리 실행 중 오류 발생: {e}")
             return None
     
-    def set_message_times(self, user_id, times):
+    def set_conversation_times(self, user_id, times):
         c = self.conn.cursor()
         c.execute("DELETE FROM message_schedule WHERE user_id = ?", (user_id,))
         for t in times:
