@@ -107,6 +107,10 @@ class TelegramConversation:
 
         self.application.add_handler(time_setting_handler)
         self.application.add_handler(chat_handler)
+        
+        # Register user message schedules
+        self.schedule_user_messages()
+
 
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         """Send a message when the command /start is issued."""
@@ -192,16 +196,25 @@ class TelegramConversation:
         selected_times.append(time)
         context.user_data['selected_times'] = selected_times
         
-    def schedule_user_messages(self, user_id, times):
+    def schedule_user_messages(self):
+        users_by_time = self.user_manager.get_users_by_schedule_time()
+        for scheduled_time, user_ids in users_by_time.items():
+            for user_id in user_ids:
+                logger.debug(f"user {user_id} at {scheduled_time} schedule setting.")
+                self._schedule_job(user_id, scheduled_time)
+
+    def schedule_user_messages_for_user(self, user_id, times):
         for t in times:
             scheduled_time = t.replace(tzinfo=KST)
-            print(f"user {user_id} is {t} time setting.")  # 로깅을 위한 출력
-            self.application.job_queue.run_daily(
-                self.send_smart_greeting,
-                time=scheduled_time,
-                days=(0, 1, 2, 3, 4, 5, 6),
-                data={'user_id': user_id}
-            )
+            self._schedule_job(user_id, scheduled_time)
+
+    def _schedule_job(self, user_id, scheduled_time):
+        self.application.job_queue.run_daily(
+            self.send_smart_greeting,
+            time=scheduled_time,
+            days=(0, 1, 2, 3, 4, 5, 6),
+            data={'user_id': user_id}
+        )
     
     async def choose_action(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         user_choice = update.message.text
@@ -224,11 +237,11 @@ class TelegramConversation:
 
     async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         user_id = update.effective_user.id
-        print(f"user_id = ${user_id}, chat_id= {update.message.chat.id}")
+        logger.debug(f"user_id = ${user_id}, chat_id= {update.message.chat.id}")
         # 여기에 대화 시작 로직을 구현합니다.
         # 예: SmartGreetingAssistant를 사용하여 인사 메시지 생성
         conversation_history, history_thread_id = self.conversation_manager.get_conversations(user_id)
-        print(f"conversation_history=${conversation_history}, history_thread_id=${history_thread_id}")
+        logger.info(f"conversation_history=${conversation_history}, history_thread_id=${history_thread_id}")
         # smart_greeting_assistant = SmartGreetingAssistant(thread_id=history_thread_id)
         # greeting = smart_greeting_assistant.generate_smart_greeting(conversation_history)
         greeting = update.message.text
@@ -249,7 +262,7 @@ class TelegramConversation:
         #     await self.application.bot.send_message(chat_id=telegram_id, text=greeting)
         telegram_id = context.job.data['user_id']
         user_id = self.user_manager.get_user_id_by_telegram_id(telegram_id)
-        print(f"send_smart_greeting scheduleing: telegram_id=${telegram_id}, user_id=${user_id}")
+        logger.info(f"send_smart_greeting scheduleing: telegram_id=${telegram_id}, user_id=${user_id}")
         if user_id:
             conversation_history, history_thread_id = self.conversation_manager.get_conversations(user_id)
             # smart_greeting_assistant = SmartGreetingAssistant(thread_id=history_thread_id)
@@ -260,7 +273,7 @@ class TelegramConversation:
     async def chat(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:        
         """Generate a response from the AI assistant and send it back to the user."""
         if self.assistant is None:
-            print("self.assistant is None")
+            logger.info("self.assistant is None")
             # await update.message.reply_text("Please start the conversation using /start command.")
             await self.initialize_user_info(update)
 
@@ -297,7 +310,7 @@ class TelegramConversation:
         user_id = update.effective_user.id
         default_time = [time(9, 0)]
         self.user_manager.set_message_times(user_id, default_time)
-        self.schedule_user_messages(user_id, default_time)
+        self.schedule_user_messages_for_user(user_id, default_time)
         return ConversationHandler.END
     
     async def done(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -310,7 +323,7 @@ class TelegramConversation:
         times = [datetime.strptime(t, "%H:%M").time() for t in selected_times]
         self.user_manager.set_message_times(user_id, times)
 
-        self.schedule_user_messages(user_id, times)
+        self.schedule_user_messages_for_user(user_id, times)
         
         await update.message.reply_text(
             f"선택하신 시간: {', '.join(selected_times)}\n"
