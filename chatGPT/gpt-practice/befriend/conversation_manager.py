@@ -6,6 +6,7 @@ class ConversationManager:
         self.conn = db_manager.conn
 
     def upsert_conversation(self, user_id, messages, thread_id):
+        print(f"upsert_conversation - {user_id}, {messages}, {thread_id}")
         try:
             sql_upsert_conversation = """INSERT INTO conversation (user_id, messages, thread_id)
                                 VALUES (?, ?, ?)

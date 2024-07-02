@@ -222,14 +222,14 @@ class TelegramConversation:
             return self.CHOOSING_ACTION
 
     async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-        user_id = update.effective_user.id
-        logger.debug(f"user_id = ${user_id}, chat_id= {update.message.chat.id}")
+        if self.assistant is None:
+            await self.initialize_user_info(update)
         
-        conversation_history, history_thread_id = self.conversation_manager.get_conversations(user_id)
+        conversation_history, history_thread_id = self.conversation_manager.get_conversations(self.user_id)
         logger.info(f"conversation_history=${conversation_history}, history_thread_id=${history_thread_id}")
+        
         smart_greeting_assistant = SmartGreetingAssistant(thread_id=history_thread_id)
         greeting = smart_greeting_assistant.generate_smart_greeting(conversation_history)
-        # greeting = update.message.text
         await update.message.reply_text(greeting)
         return self.CHATTING
       
