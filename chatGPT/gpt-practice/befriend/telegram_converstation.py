@@ -223,6 +223,7 @@ class TelegramConversation:
 
     async def start_conversation(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         if self.assistant is None:
+            logger.info("start_conversation - self.assistant is None")
             await self.initialize_user_info(update)
         
         conversation_history, history_thread_id = self.conversation_manager.get_conversations(self.user_id)
