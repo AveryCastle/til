@@ -5,3 +5,6 @@ source .venv/bin/activate
 
 jupyter lab
 ```
+
+# 책 실습 코드
+- https://github.com/onlybooks/llm
