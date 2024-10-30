@@ -22,3 +22,13 @@
             ```
 2. Lambda Function
     2.1 dev-stay-platform-checkIn-gateway
+        - Lambda Function 을 만든 IAM Role 에서 DBPut, DBDelete, DBGet 할 수 있는 권한이 있는지 확인해야 한다. 
+
+3. DynamoDB Name: dev-employee-check-in
+    - partition_key: employee_id
+    - schema
+        employee_id(string)
+        check_in_time(string)
+        event_type(string)
+        message_count(number)
+        event_rule_name(string)
