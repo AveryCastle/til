@@ -40,15 +40,15 @@ SLACK_BOT_TOKEN = os.environ["CHEERY_MATE_SLACK_BOT_TOKEN"]
 SLACK_APP_TOKEN = os.environ["CHEERY_MATE_SLACK_APP_TOKEN"]
 
 # DynamoDB setup
-dynamodb = boto3.resource('dynamodb')
+dynamodb = boto3.resource('dynamodb', region_name = 'ap-northeast-2')
 table = dynamodb.Table('dev-stay-exhibition-conversation')
 
 # 사용자와의 대화 상태 저장
-user_conversations = {}
+all_conversations = {}
 
 app = App(token=SLACK_BOT_TOKEN)
 
-def fetch_recent_conversation(user_id):
+def fetch_recent_messages(user_id):
     """Fetches a recent conversation within 5 minutes for the user from DynamoDB."""
     try:
         response = table.get_item(Key={'user_id': user_id})
@@ -56,23 +56,24 @@ def fetch_recent_conversation(user_id):
             item = response['Item']
             last_message_time = item['last_message_time']
             if int(time.time()) - last_message_time < timedelta(minutes=5).total_seconds():
-                return item['message'], item['conversation_id']  # return conversation history if recent
+                logger.debug(f"Data found. item['message']={item['message']}, conversation_id={item['conversation_id']}, item['status']={item['status']}")
+                return item['message'], item['conversation_id'], item['status']  # return conversation history if recent
     except Exception as e:
         logger.error(f"Error fetching conversation for user {user_id}: {e}")
-    return []
+    return [], None, None
 
-def store_conversation(user_id, conversation, conversation_id):
+def store_conversation(user_id, conversations, conversation_id):
     """Stores the conversation in DynamoDB."""
-    logger.debug(f"user_id={user_id}, conversation={conversation}, conversation_id={conversation_id}")
+    logger.debug(f"save converations. user_id={user_id}, conversations={conversations}, conversation_id={conversation_id}")
     try:
         table.put_item(Item={
                 'user_id': user_id,
-                'message_count': len(conversation),
-                'message': conversation,
+                'message_count': get_user_message_count(user_id),
+                'message': conversations,
                 'last_message_time': int(time.time()),
                 'conversation_id': conversation_id,
                 'event_type': 'check_in',
-                'status': 'active'
+                'status': 'limit'
         })
     except Exception as e:
         logger.error(f"Error storing conversation for user {user_id}: {e}")
@@ -94,48 +95,90 @@ def get_user_id(email):
         logger.error(f"Error fetching user by email '{email}': {e}")
         return None
 
+def get_user_message_count(user_id):
+    """
+    Checks if the user has more than five messages under the 'user' key in all_conversations.
+
+    Args:
+        user_id (str): The ID of the user.
+
+    Returns:
+        bool: True if the user has more than five messages, False otherwise.
+    """
+    if user_id in all_conversations:
+        conversations = all_conversations[user_id]
+        # 'user' 키가 있는 데이터만 필터링하여 개수를 셉니다.
+        user_conversation_count = sum(1 for user_conversation in conversations['messages'] if 'user' in user_conversation)
+        return user_conversation_count
+    return 0
+
+def add_message(conversations, user_id, message):
+    """
+    Adds a user conversation to the all_conversations object.
+
+    Args:
+        conversations (dict): The dictionary storing all conversations.
+        user_id (str): The ID of the user.
+        conversation (dict): The conversation data to add.
+
+    Returns:
+        None
+    """
+    if user_id in conversations:
+        conversations[user_id]["messages"].append(message)
+    else:
+        conversations[user_id]["messages"] = { "messages": [message] }
+
+
+
 # 각종 이벤트를 annotation 안에 설정하면 된다.
 @app.event("message")
 @app.event("app_mention")
 def conversation(message):
     conversations_response = app.client.conversations_open(users=message['user'])
     channel_id = conversations_response['channel']['id']
-    logger.debug(f"channel_id = {channel_id}, user = {message['user']}")
+    logger.debug(f"channel_id = {channel_id}, user_id = {message['user']}")
 
     # Retrieve recent conversation from DynamoDB if within 5 minutes
     user_id = message['user']
-    conversation_id = ''
-    if user_id not in user_conversations:
-        recent_conversation = fetch_recent_conversation(user_id)
-        logger.debug(f"recent_conversation={recent_conversation}")
-        # recent_conversation의 요소를 처리하는 부분
-        if len(recent_conversation) > 0:
+    if user_id not in all_conversations:
+        recent_messages, conversation_id, status = fetch_recent_messages(user_id)
+        if status == 'limit':
+            return
+        
+        # recent_messages 의 요소를 처리하는 부분
+        if len(recent_messages) > 0:
             # 각 튜플의 첫 번째 요소에서 메시지와 대화 ID를 가져옵니다.
-            for message, conversation_id in recent_conversation:
-                logger.debug(f"Message: {message}, Conversation ID: {conversation_id}")
-                user_conversations[user_id].append(message)
-                conversation_id = conversation_id
+            for recent_message in recent_messages:
+                all_conversations[user_id] = { 
+                    "messages": [ recent_message ],
+                    "conversation_id": conversation_id
+                }
         else:
-            logger.debug("No recent conversations found.")
-            recent_conversation = []
-            user_conversations[user_id] = recent_conversation
+            recent_messages = []
             conversation_id = generate_conversation_id_with_uuid(user_id)
+            logger.debug(f"No recent conversations found. so setting conversation id = {conversation_id}")
+            all_conversations[user_id] = { "messages": [], "conversation_id" : conversation_id }
 
-    logger.debug(f"user_conversations[{user_id}] = {user_conversations[user_id]}")
-    # Add current message to conversation
-    user_conversations[user_id].append({
+    logger.debug(f"After fetching user info. Conversation_id = {all_conversations[user_id]['conversation_id']}, Message = {message}")
+
+    # Add current message to conversation as user
+    user_message_info = {
         "user": message['text'], 
         "last_message_time": int(time.time())
-    })
+    }
+    add_message(all_conversations, user_id, user_message_info)
 
     # Check conversation limit (5 messages or 5 minutes)
-    if len(user_conversations[user_id]) >= 5 or (
-        user_conversations[user_id] and
-        int(time.time()) - user_conversations[user_id][0]['last_message_time'] > timedelta(minutes=5).total_seconds()
+    if get_user_message_count(user_id) > 5 or (
+        all_conversations[user_id] and
+        int(time.time()) - all_conversations[user_id]["messages"][len(all_conversations[user_id]["messages"])-1]['last_message_time'] > timedelta(minutes=5).total_seconds()
     ):
-        store_conversation(user_id, user_conversations[user_id], conversation_id)
-        user_conversations.pop(user_id)  # Clear conversation after saving
+        store_conversation(user_id, all_conversations[user_id]["messages"], all_conversations[user_id]["conversation_id"])
+        all_conversations.pop(user_id)  # Clear conversation after saving
+        return
 
+    # Send system message and save it in user_conversations.
     system_message = f"{message['text']} response"
     system_time = int(time.time())
     result = app.client.chat_postMessage(
@@ -143,13 +186,15 @@ def conversation(message):
         text=system_message,
         as_user=True
     )
-    user_conversations[user_id].append({
-        "system": system_message,
-        "last_message_time": system_time  # 시스템 응답에 대해서도 타임스탬프 추가
-    })
-    logger.debug(f"conversation result = {result}")
 
-
+    if result['ok'] == True:
+        system_message_info = {
+            "system": system_message,
+            "last_message_time": system_time  # 시스템 응답에 대해서도 타임스탬프 추가
+        }
+        add_message(all_conversations, user_id, system_message_info)
+    else:
+        logger.error(f"result = {result}")
 
 if __name__ == '__main__':
     handler = SocketModeHandler(app_token=SLACK_APP_TOKEN, app=app)
