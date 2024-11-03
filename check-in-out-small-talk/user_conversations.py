@@ -59,10 +59,6 @@ def lambda_handler(event, context):
         event_type = event['event_type']
         print(f"email = {email}, event_type={event_type}")
 
-        # Parse the incoming event body
-        # body = json.loads(event['body'])
-        # email = body.get('email')
-        
         if not email:
             return {
                 'statusCode': 400,
