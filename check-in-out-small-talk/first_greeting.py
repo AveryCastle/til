@@ -56,11 +56,16 @@ def lambda_handler(event, context):
             )
 
             print(f"result: {result}")
+            system_conversation = {}
+            system_conversation.append({
+                "system": message,
+                "last_message_time": current_time
+            })
             if result['statusCode'] == 200:
                 conversation = {
                         'user_id': user_id,
                         'message_count': 0,
-                        'message': message,
+                        'message': system_conversation,
                         'last_message_time': current_time,
                         'conversation_id': generate_conversation_id_with_uuid(user_id),
                         'event_type': event_type,
