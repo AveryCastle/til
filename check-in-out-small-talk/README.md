@@ -42,3 +42,5 @@
 4. EC2
     4.1 D-avery-chat-ec2-001
     - Socket Mode 로 사용자와 대화를 나누는 서버이다.
+    - Private IP: 200.0.100.137
+    - ``` ssh -i devwithincokr.pem  ec2-user@200.0.100.137 ```
