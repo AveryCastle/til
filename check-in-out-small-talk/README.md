@@ -10,7 +10,8 @@
                 -d '{
                         "email": "avery@gccompany.co.kr",
                         "event_type": "check_in",
-                        "check_in_time": "2024-11-03T07:50:05"
+                        "check_in_time": "2024-11-03T07:50:05",
+                        "leave_type": "full_working"
                     }'
             ```
 2. Lambda Function
