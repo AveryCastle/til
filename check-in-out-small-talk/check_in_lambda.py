@@ -64,25 +64,75 @@ def lambda_handler(event, context):
 
         # 다른 람다 함수 호출
         # 호출할 대상 Lambda 함수의 이름
-        target_lambda_function_name = 'dev-stay-exhibition-first-greeting'
+        target_lambda_function_name1 = 'dev-stay-exhibition-first-greeting'
         
-        # 호출에 사용할 payload (event)
-        payload = {
+        payload1 = {
             "email": email,
             "event_type": event_type
         }
 
          # 다른 Lambda 함수 호출
         response = lambda_client.invoke(
-            FunctionName=target_lambda_function_name,
+            FunctionName=target_lambda_function_name1,
             InvocationType='RequestResponse',  # 즉시 호출
-            Payload=json.dumps(payload)
+            Payload=json.dumps(payload1)
+        )
+
+        # 호출 결과를 읽기
+        response_payload = json.loads(response['Payload'].read())       
+        print(f"response_payload= {response_payload}")
+
+
+        # EventBridge 클라이언트 생성
+        eventbridge = boto3.client('events')
+        # 호출할 대상 Lambda 함수의 이름
+        target_lambda_function_name2 = 'dev-stay-exhibition-goodbye-schedule'
+
+        # 호출에 사용할 payload (event)
+        # check_in_time이 문자열이므로 datetime 객체로 변환
+        check_in_datetime = datetime.strptime(check_in_time, "%Y-%m-%dT%H:%M:%S")
+        # 9시간 추가
+        check_out_time = check_in_datetime + timedelta(hours=9)
+        # 결과를 문자열로 변환
+        check_out_time_str = check_out_time.strftime("%Y-%m-%dT%H:%M:%S")
+        
+        # email에서 사용자 이름만 추출 (@ 이전 부분)
+        username = email.split('@')[0]
+
+        # EventBridge 규칙 생성을 위한 데이터 준비
+        rule_name = f"checkout-notification-{username}-{check_out_time.strftime("%Y-%m-%d.%H-%M-%S")}"
+        target_lambda_arn = "arn:aws:lambda:ap-northeast-2:269388641688:function:dev-stay-exhibition-goodbye"
+
+
+        # 이벤트 규칙 생성
+        response2 = eventbridge.put_rule(
+            Name=rule_name,
+            ScheduleExpression=f"cron({check_out_time.minute} {check_out_time.hour} {check_out_time.day} {check_out_time.month} ? {check_out_time.year})",
+            State='ENABLED',
+            Description=f'Checkout notification for {email}'
         )
         
-        # 호출 결과를 읽기
-        response_payload = json.loads(response['Payload'].read())
+        # 퇴근 알림 Lambda를 타겟으로 설정
+        payload2 = {
+            "email": email,
+            "event_type": "check_out",
+            "check_out_time": check_out_time_str,
+            "check_out_day": check_out_time.strftime("%Y-%m-%d")
+        }
 
-        print(f"response_payload= {response_payload}")
+        target_id = f"{username}-checkout-{check_out_time.strftime('%Y%m%d')}"
+        eventbridge.put_targets(
+            Rule=rule_name,
+            Targets=[
+                {
+                    'Id': target_id,
+                    'Arn': target_lambda_arn,
+                    'Input': json.dumps(payload2)
+                }
+            ]
+        )
+
+        print(f"response event-bridge= {response2}")
         
         return {
             "statusCode": 200,
