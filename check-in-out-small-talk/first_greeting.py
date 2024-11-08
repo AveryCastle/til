@@ -36,6 +36,8 @@ def generate_conversation_id_with_uuid(user_id):
 def lambda_handler(event, context):
     email = event['email']
     event_type = event['event_type']
+    check_in_day = event['check_in_day']
+
 
     if event_type == "check_in":
         db_access = DatabaseAccess('dev-stay-exhibition-conversation')
@@ -56,18 +58,19 @@ def lambda_handler(event, context):
             )
 
             print(f"result: {result}")
-            system_conversation = {}
+            system_conversation = []
             system_conversation.append({
                 "system": message,
                 "last_message_time": current_time
             })
-            if result['statusCode'] == 200:
+            if result['ok'] == True:
                 conversation = {
                         'user_id': user_id,
                         'message_count': 0,
                         'message': system_conversation,
                         'last_message_time': current_time,
                         'conversation_id': generate_conversation_id_with_uuid(user_id),
+                        'conversation_day': check_in_day,
                         'event_type': event_type,
                         'status': 'active'
                 } 

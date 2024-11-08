@@ -62,12 +62,14 @@ def store_conversation(user_id, conversations, conversation_id):
     """Stores the conversation in DynamoDB."""
     logger.debug(f"Saving conversation. user_id={user_id}, conversations={conversations}, conversation_id={conversation_id}")
     try:
+        now = time.time()
         conversation_table.put_item(Item={
             'user_id': user_id,
             'message_count': get_user_message_count(user_id),
             'message': conversations,
-            'last_message_time': int(time.time()),
+            'last_message_time': int(now),
             'conversation_id': conversation_id,
+            'conversation_day': datetime.fromtimestamp(now).strftime('%Y-%m-%d'),
             'event_type': 'check_in',
             'status': 'limit'
         })
@@ -76,6 +78,13 @@ def store_conversation(user_id, conversations, conversation_id):
 
 def generate_conversation_id(user_id):
     return f"conv-{user_id}-{uuid.uuid4()}"
+
+def get_korean_date(utc_time):    
+    # UTC 시간을 한국 시간(KST)으로 변환 (UTC + 9 시간 차이)
+    korean_time = datetime.fromtimestamp(utc_time) + timedelta(hours=9)
+    logger.debug(f"korean_time={korean_time}")
+    # 한국 시간을 'yyyy-mm-dd' 형식으로 반환
+    return korean_time.strftime('%Y-%m-%d')
 
 def get_user_id(email):
     """Fetches the Slack user ID based on the provided email."""
