@@ -146,19 +146,24 @@ def lambda_handler(event, context):
         print(f"Error adding Lambda permission: {str(perm_error)}")
         raise perm_error
 
-    # 2-3. 타겟 추가 (Lambda 함수를 EventBridge 규칙의 타겟으로 설정)
+    # Target Id 생성
+    target_id = get_target_id(email, local_checkout_time)
+
     payload = {
         "email": email,
         "event_type": "check_out",
         "check_out_time": local_checkout_time.strftime('%Y-%m-%dT%H:%M:%S'),
-        "check_out_day": local_checkout_time.strftime('%Y-%m-%d')
+        "check_out_day": local_checkout_time.strftime('%Y-%m-%d'),
+        "rule_name": rule_name,
+        "target_id": target_id
     }
 
+    # 2-3. 타겟 추가 (Lambda 함수를 EventBridge 규칙의 타겟으로 설정)
     target_response = eventbridge.put_targets(
         Rule=rule_name,
         Targets=[
             {
-                'Id': get_target_id(email, local_checkout_time), # Target Id 생성
+                'Id': target_id,
                 'Arn': target_lambda_arn,
                 'Input': json.dumps(payload)
             }
@@ -184,7 +189,7 @@ def lambda_handler(event, context):
                 "message": "Checkout EventBridge created", 
                 "email": email,
                 "check_out_day": local_checkout_time.strftime('%Y-%m-%d'),
-                "check_out_time": local_checkout_time.strftime('%Y-%m-%dT%H:%M:%S')
+                "check_out_time": target_time_kst.strftime('%Y-%m-%dT%H:%M:%S')
             }
         ),
         "headers": {

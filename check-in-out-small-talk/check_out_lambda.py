@@ -1,5 +1,6 @@
 import os
 import json
+import uuid
 import time
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError

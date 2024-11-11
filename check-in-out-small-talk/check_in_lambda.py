@@ -22,19 +22,19 @@ def get_localtime_str(input_time, hours):
 
 def lambda_handler(event, context):
     # 0-1. API Gateway 통해서 호출할 때
-    # print(f"event = ${event}")
-    # print(f"context = ${context}")
-    # print(f"body = ${event['body']}")
+    print(f"event = ${event}")
+    print(f"context = ${context}")
+    print(f"body = ${event['body']}")
 
-    # body = json.loads(event['body'])
-    # email = body.get('email')
-    # event_type = body.get('event_type')
-    # check_in_time = body.get('check_in_time')
+    body = json.loads(event['body'])
+    email = body.get('email')
+    event_type = body.get('event_type')
+    check_in_time = body.get('check_in_time')
 
     # 0-2. Lambda 에서 Event Test 할 때 사용
-    email = event['email']
-    event_type = event['event_type']
-    check_in_time = event['check_in_time']
+    # email = event['email']
+    # event_type = event['event_type']
+    # check_in_time = event['check_in_time']
 
     # 1. event_type 검사
     if event_type != "check_in":
