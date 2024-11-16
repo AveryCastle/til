@@ -20,6 +20,8 @@
         - Lambda Function 을 만든 IAM Role 에서 DBPut, DBDelete, DBGet 할 수 있는 권한이 있는지 확인해야 한다.
     2.2 dev-stay-exhibition-first-greeting
         - 사용자가 출석 체크를 하면 처음으로 사용자에게 보낼 메세지를 생성하여 사용자에게 슬랙으로 발송한다.
+    2.3 dev-stay-exhibition-checkout
+        - 사용자가 퇴근할 시점에 퇴근 인사를 한다.
 
 3. DynamoDB Name
 3.1 dev-employee-check-in
@@ -45,3 +47,4 @@
     - Socket Mode 로 사용자와 대화를 나누는 서버이다.
     - Private IP: 200.0.100.137
     - ``` ssh -i devwithincokr.pem  ec2-user@200.0.100.137 ```
+    - search_user_send_receive_socket_mode.py
