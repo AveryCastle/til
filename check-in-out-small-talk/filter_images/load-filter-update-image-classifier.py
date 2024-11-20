@@ -6,35 +6,11 @@ import logging
 import pymysql
 import boto3
 from botocore.exceptions import ClientError
-
-# Configure logging
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-
-# Environment variables
-DB_HOST = 'with-yeogi-rds-read.abouthere.kr'#os.environ['DB_HOST']
-DB_NAME = 'yeogi' # os.environ['DB_NAME']
-DB_USER = 'within_dev'# 'within_dev' # 'yeogi' #os.environ['DB_USER']
-DB_PASSWORD = 'With!n@()' #'With!n@()' # 'DQlapaTm&79()' #os.environ['DB_PASSWORD']
+from contextlib import contextmanager
+from typing import Optional, Union, List, Tuple, Dict
+import time
 
 vertexai.init(project="seb-dev-440401", location="asia-northeast3")
-
-images = [
-    "https://dev-image.withinapi.com/373/333/144/dad77a0e8af54bbab60e2d293fa46bb3.jpg", # 외관
-    "https://dev-image.withinapi.com/448/142/257/771f53a82a174302bdb6038b53593cbe.jpg", # 로비
-    "https://image.goodchoice.kr/exhibition/itemContents/a6b561c3bc867d43a03d849d558d09e0.jpg", # 야외수영장
-    "https://image.goodchoice.kr/exhibition/itemContents/8d7dc0827fad0a1a81c7b7fa7138b749.jpg", # 야외수영장, 전경
-    "https://image.goodchoice.kr/exhibition/itemContents/b2bc58c319399e0317feeded808faa49.jpg", # 로비
-    "https://image.goodchoice.kr/exhibition/itemContents/64d644a61fd916b6f0c2687dbf5b6316.jpg", # 외관
-    "https://image.goodchoice.kr/exhibition/itemContents/7c1fa1413b977557062f277f2696a6e8.jpg", # 객실
-    "https://image.goodchoice.kr/exhibition/itemContents/b0506b4dda143ed46523c2eaf2bd7d44.jpg", # 객실
-    "https://image.goodchoice.kr/exhibition/itemContents/a0523a9a5e7d6fc0516512f738b4f0a3.jpg", # 객실
-    "https://image.goodchoice.kr/exhibition/itemContents/968f0b48c45768422e046f5a30daf095.jpg", # 레스토랑
-    "https://image.goodchoice.kr/exhibition/itemContents/f4df28f71095ec047ceb5a4df74fb0f5.jpg", # 레스토랑
-    "https://image.goodchoice.kr/exhibition/itemContents/6b07bfad8a8dbc56cfc8678c5d2100a5.jpg", # 라운지, 레스토랑
-    "https://image.goodchoice.kr/exhibition/itemContents/cdbb0b4daac6cb7858cd0336bf52a522.jpg", # 공용공간, 라운지
-    "https://image.goodchoice.kr/exhibition/itemContents/b0fb9f3bda428f5752582c2b53c65cd1.jpg", # 레스토랑, 전경
-]
 
 textsi_1 = """
 우리는 아고다나 booking.com 과 같은 숙소 예약 시스템을 서비스하고 있습니다.
@@ -76,6 +52,27 @@ json
         }
     ]
 }
+
+{
+    \"accurcy\": 92.25,
+    \"categories\": [
+        {
+            \"code\": \"ROOM\",
+            \"name\": \"객실\"
+        }
+    ]
+}
+
+{
+    \"accurcy\": 65.34,
+    \"categories\": [
+        {
+            \"code\": \"LOBBY\",
+            \"name\": \"로비\"
+        }
+    ]
+}
+
 케이스 2: 복수 카테고리 (최고 확률이 60% 미만)
 json
 {
@@ -88,6 +85,34 @@ json
         {
             \"code\": \"PUBLIC_AREA\",
             \"name\": \"공용공간\"
+        }
+    ]
+}
+
+{
+    \"accurcy\": 53.24,
+    \"categories\": [
+        {
+            \"code\": \"ROOM\",
+            \"name\": \"객실\"
+        },
+        {
+            \"code\": \"APPEARANCE\",
+            \"name\": \"외관\"
+        }
+    ]
+}
+
+{
+    \"accurcy\": 10.91,
+    \"categories\": [
+        {
+            \"code\": \"APPEARANCE\",
+            \"name\": \"외관\"
+        },
+        {
+            \"code\": \"VIEW\",
+            \"name\": \"전경\"
         }
     ]
 }
@@ -119,6 +144,11 @@ json
 }
 """
 
+model = GenerativeModel(
+    model_name="gemini-1.5-pro-002",
+    system_instruction=[textsi_1]
+)
+
 generation_config = {
     "max_output_tokens": 8192,
     "temperature": 0,
@@ -146,78 +176,257 @@ safety_settings = [
     ),
 ]
 
+# Environment variables
+DB_HOST = 'with-yeogi-rds-read.abouthere.kr'#os.environ['DB_HOST']
+DB_NAME = 'yeogi' # os.environ['DB_NAME']
+DB_USER = 'within_dev'# 'within_dev' # 'yeogi' #os.environ['DB_USER']
+DB_PASSWORD = 'With!n@()' #'With!n@()' # 'DQlapaTm&79()' #os.environ['DB_PASSWORD']
 
-model = GenerativeModel(
-    model_name="gemini-1.5-pro-002",
-    system_instruction=[textsi_1]
-)
+class DatabaseManager:
+    def __init__(self, 
+                 host='localhost', 
+                 database='your_database', 
+                 user='your_username', 
+                 password='your_password', 
+                 port=3306):
+        """
+        Initialize database connection parameters.
+        
+        Args:
+            host (str): Database host
+            database (str): Database name
+            user (str): Database username
+            password (str): Database password
+            port (int): Database port
+        """
+        self.config = {
+            'host': host,
+            'database': database,
+            'user': user,
+            'password': password,
+            'port': port,
+            'charset': 'utf8mb4',
+            'connect_timeout': 5,
+            'read_timeout': 60,
+            'write_timeout': 60,
+            'cursorclass': pymysql.cursors.DictCursor
+        }
+        self.logger = logging.getLogger(__name__)
 
-def get_db_connection():
-    """Create and return a database connection"""
-    try:
-        conn = pymysql.connect(
-            host=DB_HOST,
-            user=DB_USER,
-            passwd=DB_PASSWORD,
-            db=DB_NAME,
-            connect_timeout=5,
-            read_timeout=60,
-            write_timeout=60,
-            cursorclass=pymysql.cursors.DictCursor
-        )
-        return conn
-    except pymysql.Error as e:
-        logger.error(f"Failed to connect to database: {str(e)}")
-        raise
+    @contextmanager
+    def get_connection(self):
+        """
+        Context manager to get database connection.
+        
+        Yields:
+            pymysql connection object
+        """
+        connection = None
+        try:
+            connection = pymysql.connect(**self.config)
+            yield connection
+        except pymysql.Error as error:
+            self.logger.error(f"Database connection error: {error}")
+            raise
+        finally:
+            if connection:
+                connection.close()
 
-def get_property_images(property_seq):
-    """Fetch property images from database"""
-    conn = get_db_connection()
-    try:
-        with conn.cursor() as cursor:
-            query = """
-                SELECT
-                    pi.property_seq,
-                    pi.property_image_seq,
-                    pi.image_seq,
-                    CONCAT('https://dev-image.withinapi.com', '', ti.path, '/', ti.file_name, '.', ti.mime_type) as image_path
-                 FROM tb_property_image pi
-                INNER JOIN tb_image ti ON pi.image_seq = ti.image_seq
-                WHERE 1=1
-                  AND pi.property_seq = %s
-                  AND pi.image_type = 'HOTEL_AFFILIATE'
-             ORDER BY pi.image_sort
-            """
-            cursor.execute(query, (property_seq,))
-            return cursor.fetchall()
-    except pymysql.Error as e:
-        logger.error(f"Database query failed: {str(e)}")
-        raise
-    finally:
-        conn.close()
+    def get_all_property_images(self) -> List[Dict[str, Union[int, str]]]:
+        """
+        Retrieve property images for a given property sequence.
+        
+        Args:
+            property_seq (int): Property sequence number
+        
+        Returns:
+            List of dictionaries containing image details
+        """
+        query = """
+        SELECT
+                pi.property_seq,
+                pi.property_image_seq,
+                pi.image_seq,
+                CONCAT('https://dev-image.withinapi.com', '', ti.path, '/', ti.file_name, '.', ti.mime_type) as image_path
+         FROM tb_property_image pi
+   INNER JOIN tb_image ti ON pi.image_seq = ti.image_seq
+        WHERE 1=1
+          AND pi.image_type = 'HOTEL_AFFILIATE'
+          AND pi.property_image_category IS NULL
+     ORDER BY pi.image_sort
+        """
+        
+        try:
+            with self.get_connection() as connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(query)
+                    results = cursor.fetchall()
+                    connection.commit()
+            return results
+        except Exception as e:
+            self.logger.error(f"Error retrieving property images for property {property_seq}: {e}")
+            return []
+
+    def get_property_images(self, property_seq: int) -> List[Dict[str, Union[int, str]]]:
+        """
+        Retrieve property images for a given property sequence.
+        
+        Args:
+            property_seq (int): Property sequence number
+        
+        Returns:
+            List of dictionaries containing image details
+        """
+        query = """
+        SELECT
+                pi.property_seq,
+                pi.property_image_seq,
+                pi.image_seq,
+                CONCAT('https://dev-image.withinapi.com', '', ti.path, '/', ti.file_name, '.', ti.mime_type) as image_path
+         FROM tb_property_image pi
+   INNER JOIN tb_image ti ON pi.image_seq = ti.image_seq
+        WHERE 1=1
+          AND pi.property_seq = %s
+          AND pi.image_type = 'HOTEL_AFFILIATE'
+     ORDER BY pi.image_sort
+        """
+        
+        try:
+            with self.get_connection() as connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(query, (property_seq,))
+                    results = cursor.fetchall()
+                    connection.commit()
+            return results
+        except Exception as e:
+            self.logger.error(f"Error retrieving property images for property {property_seq}: {e}")
+            return []
+        
+    def update_image(self, image_seq: int, image_category: str) -> int:
+        """
+        Update image category for a specific image sequence.
+        
+        Args:
+            image_seq (int): Image sequence number
+            image_category (str): Category to update
+        
+        Returns:
+            int: Number of rows affected
+        """
+        # Update my_image table with image category
+        query = """
+        UPDATE tb_property_image 
+           SET property_image_category = %s 
+         WHERE property_image_seq = %s
+        """
+        
+        try:
+            with self.get_connection() as connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(query, (image_category, image_seq))
+                    rows_affected = cursor.rowcount
+                    connection.commit()
+            
+            self.logger.info(f"Updated image {image_seq} with category {image_category}")
+            return rows_affected
+        except Exception as e:
+            self.logger.error(f"Error updating image {image_seq}: {e}")
+            return 0
+
+
+class ImageCategoryClassifier:
+    def __init__(self, model, generation_config, safety_settings):
+        """
+        Initialize the image category classifier.
+        
+        Args:
+            model: Vertex AI generative model
+            generation_config: Generation configuration for model
+            safety_settings: Safety settings for model queries
+        """
+        self.model = model
+        self.generation_config = generation_config
+        self.safety_settings = safety_settings
+        self.logger = logging.getLogger(__name__)
+
+    def classify_image_category(self, image_path: str) -> str:
+        """
+        Classify the category of an image using Vertex AI.
+        
+        Args:
+            image_path (str): Path to the image file
+        
+        Returns:
+            str: Identified image category
+        """
+        try:
+            image_file = Part.from_uri(image_path, "image/jpeg")
+            response = self.model.generate_content(
+                [image_file, "이 이미지는 어떤 category 인가?"],
+                generation_config=self.generation_config,
+                safety_settings=self.safety_settings
+            )
+            return response.candidates[0].content.parts[0].text
+        except Exception as e:
+            self.logger.error(f"Error classifying image {image_path}: {e}")
+            return "{ \"accuracy\": 0.0, \"message\": \"Unknown\" }"
+
+    def update_image_categories(self, property_ids: List[int], db_manager: DatabaseManager) -> None:
+        """
+        Update image categories for given property IDs.
+        
+        Args:
+            property_ids (List[int]): List of property IDs to process
+            db_manager (DatabaseManager): Database manager for query execution
+        """
+        for property_id in property_ids:
+            try:
+                property_images = db_manager.get_all_property_images()
+                
+                for property_image in property_images:
+                    image_category_result = self.classify_image_category(property_image['image_path'])
+                    image_category = json.loads(image_category_result)
+                    if image_category.get('message') == 'Unknown':
+                        time.sleep(10)
+                        self.logger.info("Woke up after 10 seconds.")
+
+                    if len(image_category.get('categories', [])) > 0:
+                        self.logger.info(f"Selected property {property_id} image {property_image['property_image_seq']}'s accuracy is {image_category.get('accuracy')}")
+                        db_manager.update_image(property_image['property_image_seq'], image_category.get('categories')[0]['code'])
+                    else:
+                        self.logger.warning(f"{image_category} No categories found in image classification response.")
+                self.logger.info(f"Processed images for property {property_id}")
+            
+            except Exception as e:
+                self.logger.error(f"Error processing property {property_id}: {e}")
+
+
+def main():
+    # Configure logging
+    logging.basicConfig(level=logging.INFO, 
+                        format='%(asctime)s - %(levelname)s - %(message)s')
+    
+    # Example property IDs
+    property_ids = [6674] #[76065, 6674]  # Add more IDs as needed
+    
+    # Initialize classifier with existing model, configs
+    classifier = ImageCategoryClassifier(
+        model=model, 
+        generation_config=generation_config, 
+        safety_settings=safety_settings
+    )
+
+    # Global database manager instance
+    db_manager = DatabaseManager(
+        host=DB_HOST,
+        database=DB_NAME,
+        user=DB_USER,
+        password=DB_PASSWORD
+    )
+    
+    # Process image categories
+    classifier.update_image_categories(property_ids, db_manager)
 
 
 if __name__ == '__main__':
-    property_ids = [6674] #[76065, 6674]
-
-    for property_id in property_ids:
-        property_images = get_property_images(property_id)
-        
-        # Extract image_path and property_seq
-        result = [
-            {"property_seq": property_image["property_seq"], "image_path": property_image["image_path"]}
-            for property_image in property_images
-        ]
-
-        for property_image in result:
-            image_path = property_image['image_path']
-            image_file = Part.from_uri(image_path, "image/jpeg")
-            logger.debug(f"image_file={image_file}")
-            # Query the model
-            response = model.generate_content(
-                    [image_file, "이 이미지는 어떤 category 인가?"],
-                    generation_config = generation_config,
-                    safety_settings=safety_settings,
-                )
-
-            print(f"{image_path} => {json.dumps(response.candidates[0].content.parts[0].text, ensure_ascii=False)}")
+    main()
