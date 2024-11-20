@@ -1,6 +1,21 @@
 import vertexai
 from vertexai.generative_models import GenerativeModel, Part
 import json
+import os
+import logging
+import pymysql
+import boto3
+from botocore.exceptions import ClientError
+
+# Configure logging
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+# Environment variables
+DB_HOST = 'with-yeogi-rds-read.abouthere.kr'#os.environ['DB_HOST']
+DB_NAME = 'yeogi' # os.environ['DB_NAME']
+DB_USER = 'within_dev'# 'within_dev' # 'yeogi' #os.environ['DB_USER']
+DB_PASSWORD = 'With!n@()' #'With!n@()' # 'DQlapaTm&79()' #os.environ['DB_PASSWORD']
 
 vertexai.init(project="seb-dev-440401", location="asia-northeast3")
 
@@ -33,22 +48,34 @@ textsi_1 = """
 2. 응답 포맷:
 - JSON 형식으로 반환
 - 카테고리는 자연어로 된 문자열 배열로 제공
-- 키 이름은 \"category_type\", \"categories\"를 사용
+- 키 이름은 \"category_type\", \"categories\", \"accuracy\"를 사용
 3. 카테고리
-- 외관, 객실, 숙소지도, 공용공간, 전경, 주변, 레스토랑, 라운지, 야외수영장, 실내수영장, 로비, 피트니스
-
+- 외관: APPEARANCE
+- 객실: ROOM
+- 숙소지도: SITEMAP
+- 공용공간: PUBLIC_AREA
+- 전경: VIEW
+- 주변: SURROUNDING
+- 레스토랑: RESTAURANT
+- 라운지: LOUNGE
+- 야외수영장: OUTDOOR_POOL
+- 실내수영장: INDOOR_POOL
+- 로비: LOBBY
+- 피트니스: FITNESS
 
 응답 예시
 케이스 1: 단일 카테고리 (확률 60% 이상)
 json
 {
     \"category_type\": \"specific\",
+    \"accurcy\": 99.91,
     \"categories\": [\"풍경사진\"]
 }
 케이스 2: 복수 카테고리 (최고 확률이 60% 미만)
 json
 {
     \"category_type\": \"anonymous\",
+    \"accurcy\": 55.17,
     \"categories\": [\"인물사진\", \"패션사진\"]
 }
 
@@ -58,7 +85,8 @@ json
 3. 확률에 따른 카테고리 선정
 - 최고 확률이 60% 이상: 해당 카테고리만 선정
 - 최고 확률이 60% 미만: 상위 2개 카테고리 선정
-4. JSON 형식으로 결과 반환
+4. 확률이 60% 미만일 때, 상위 2번째 확률에 대해 accuracy 에 표시
+5. JSON 형식으로 결과 반환
 
 주의사항
 1. 확률 계산은 내부적으로만 사용하며, 결과에는 포함하지 않습니다.
@@ -80,10 +108,10 @@ json
 
 generation_config = {
     "max_output_tokens": 8192,
-    "temperature": 1,
+    "temperature": 0,
     "top_p": 0,
     "response_mime_type": "application/json",
-    "response_schema": {"type":"OBJECT","properties":{"category_type":{"type":"STRING","enum":["specific","ambiguous"]},"categories":{"type":"ARRAY","items":{"type":"STRING"}}},"required":["category_type","categories"]},
+    "response_schema": {"type":"OBJECT","properties":{"category_type":{"type":"STRING","enum":["specific","ambiguous"]},"accuracy":{"type":"NUMBER"},"categories":{"type":"ARRAY","items":{"type":"STRING"}}},"required":["category_type"]},
 }
 
 
@@ -92,12 +120,70 @@ model = GenerativeModel(
     system_instruction=[textsi_1]
 )
 
-for image in images:
-    image_file = Part.from_uri(image, "image/jpeg")
-    # Query the model
-    response = model.generate_content(
-            [image_file, "이 이미지는 어떤 category 인가?"],
-            generation_config = generation_config
+def get_db_connection():
+    """Create and return a database connection"""
+    try:
+        conn = pymysql.connect(
+            host=DB_HOST,
+            user=DB_USER,
+            passwd=DB_PASSWORD,
+            db=DB_NAME,
+            connect_timeout=5,
+            read_timeout=60,
+            write_timeout=60,
+            cursorclass=pymysql.cursors.DictCursor
         )
+        return conn
+    except pymysql.Error as e:
+        logger.error(f"Failed to connect to database: {str(e)}")
+        raise
 
-    print(f"{image} => {json.dumps(response.candidates[0].content.parts[0].text, ensure_ascii=False)}")
+def get_property_images(property_seq):
+    """Fetch property images from database"""
+    conn = get_db_connection()
+    try:
+        with conn.cursor() as cursor:
+            query = """
+                SELECT
+                    pi.property_seq,
+                    pi.property_image_seq,
+                    pi.image_seq,
+                    CONCAT('https://dev-image.withinapi.com', '', ti.path, '/', ti.file_name, '.', ti.mime_type) as image_path
+                 FROM tb_property_image pi
+                INNER JOIN tb_image ti ON pi.image_seq = ti.image_seq
+                WHERE 1=1
+                  AND pi.property_seq = %s
+                  AND pi.image_type = 'HOTEL_AFFILIATE'
+             ORDER BY pi.image_sort
+            """
+            cursor.execute(query, (property_seq,))
+            return cursor.fetchall()
+    except pymysql.Error as e:
+        logger.error(f"Database query failed: {str(e)}")
+        raise
+    finally:
+        conn.close()
+
+
+if __name__ == '__main__':
+    property_ids = [76065] #[76065, 6674]
+
+    for property_id in property_ids:
+        property_images = get_property_images(property_id)
+        
+        # Extract image_path and property_seq
+        result = [
+            {"property_seq": property_image["property_seq"], "image_path": property_image["image_path"]}
+            for property_image in property_images
+        ]
+
+        for property_image in result:
+            image_path = property_image['image_path']
+            image_file = Part.from_uri(image_path, "image/jpeg")
+            # Query the model
+            response = model.generate_content(
+                    [image_file, "이 이미지는 어떤 category 인가?"],
+                    generation_config = generation_config
+                )
+
+            print(f"{image_path} => {json.dumps(response.candidates[0].content.parts[0].text, ensure_ascii=False)}")
