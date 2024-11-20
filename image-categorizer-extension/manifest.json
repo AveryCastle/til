@@ -1,0 +1,25 @@
+{
+    "manifest_version": 3,
+    "name": "Image Categorizer",
+    "version": "1.0",
+    "permissions": ["activeTab", "scripting"],
+    "host_permissions": ["https://ht.dev.hoteltime.kr/*"],
+    "background": {
+      "service_worker": "background.js"
+    },
+    "content_scripts": [
+      {
+        "matches": ["https://ht.dev.hoteltime.kr/*"],
+        "js": ["content.js"]
+      }
+    ],
+    "action": {
+      "default_popup": "popup.html",
+      "default_icon": {
+        "16": "icon16.png",
+        "48": "icon48.png",
+        "128": "icon128.png"
+      }
+    }
+  }
+  
