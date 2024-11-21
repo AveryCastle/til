@@ -21,6 +21,7 @@ textsi_1 = """
 결과 반환 규칙:
 - 하나의 카테고리가 60% 이상의 확률(accuracy)을 보일 경우: 해당 카테고리만 반환
 - 최고 확률(accuracy)의 카테고리가 60% 미만일 경우: 상위 2개의 카테고리를 반환
+- 이미지가 모든 카테고리에 60% 미만일 경우: 카테고리 반환하지 않음
 2. 응답 포맷:
 - JSON 형식으로 반환
 - 카테고리는 자연어로 된 문자열 배열로 제공
@@ -117,6 +118,12 @@ json
     ]
 }
 
+케이스 3: 모든 카테고리에 해당하는 확률이 60% 미만일 경우
+{
+    \"accuracy\": 0.0,
+    \"message\": \"Unknown\"
+}
+
 프로세스 흐름
 1. 이미지 수신 및 분석
 2. 각 카테고리별 확률 계산
@@ -124,13 +131,15 @@ json
 - 최고 확률이 60% 이상: 해당 카테고리만 선정
 - 최고 확률이 60% 미만: 상위 2개 카테고리 선정
 4. 확률이 60% 미만일 때, 상위 1번째 확률에 대해 accuracy 에 표시
-5. JSON 형식으로 결과 반환
+5. 모든 카테고리에 속하지 않을 경우 카테고리 반환하지 않음
+6. JSON 형식으로 결과 반환
 
 주의사항
 1. 확률 계산은 내부적으로만 사용하며, 결과에는 포함하지 않습니다.
 2. 카테고리 이름과 코드는 `3. 카테고리` 에 있는 정보만 활용한다.
 3. 응답은 반드시 지정된 JSON 형식을 따라야 합니다.
 4. 불확실한 경우 상위 2개 카테고리를 반환하는 것을 선호합니다.
+5. 어떤 카테고리에도 속하지 않을 경우 카테고리를 반환하지 않습니다.
 
 오류 처리
 {
@@ -391,10 +400,10 @@ class ImageCategoryClassifier:
                         self.logger.info("Woke up after 10 seconds.")
 
                     if len(image_category.get('categories', [])) > 0:
-                        self.logger.info(f"Selected property {property_id} image {property_image['property_image_seq']}'s accuracy is {image_category.get('accuracy')}")
+                        self.logger.info(f"Selected property {property_image['property_seq']}, image {property_image['property_image_seq']}'s accuracy is {image_category.get('accuracy')}")
                         db_manager.update_image(property_image['property_image_seq'], image_category.get('categories')[0]['code'])
                     else:
-                        self.logger.warning(f"{image_category} No categories found in image classification response.")
+                        self.logger.warning(f"property {property_image['property_seq']}'s image {property_image['property_image_seq']}: no categories found in image classification response.")
                 self.logger.info(f"Processed images for property {property_id}")
             
             except Exception as e:
