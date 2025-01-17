@@ -1,3 +1,4 @@
+import os
 from youtube_transcript_api import YouTubeTranscriptApi
 
 def extract_unique_sentences(video_id):
