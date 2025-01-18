@@ -10,7 +10,7 @@
 .flashcard-container {
     position: relative;
     width: 100%;
-    height: calc(100vh - 90px);  /* nav-header 높이 고려 */
+    height: calc(100vh - 90px);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -18,8 +18,8 @@
 }
 
 .flashcard {
-    width: 300px;
-    height: 200px;
+    width: 600px;
+    height: 400px;
     perspective: 1000px;
     cursor: pointer;
 }
@@ -35,8 +35,16 @@
     justify-content: center;
     align-items: center;
     background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 15px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+.flashcard .front p,
+.flashcard .back p {
+    font-size: 2.5rem;
+    padding: 2rem;
+    text-align: center;
+    line-height: 1.4;
 }
 
 .flashcard .back {
@@ -55,8 +63,8 @@
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     border: none;
     background: none;
     cursor: pointer;
@@ -78,15 +86,15 @@
 }
 
 .prev-btn {
-    left: 40px;
+    left: 100px;
 }
 
 .next-btn {
-    right: 40px;
+    right: 100px;
 }
 
 .prev-btn::before {
-    border-width: 15px 20px 15px 0;
+    border-width: 20px 25px 20px 0;
     border-color: transparent #4285f4 transparent transparent;
     position: absolute;
     content: '';
@@ -96,7 +104,7 @@
 }
 
 .next-btn::before {
-    border-width: 15px 0 15px 20px;
+    border-width: 20px 0 20px 25px;
     border-color: transparent transparent transparent #4285f4;
     position: absolute;
     content: '';
