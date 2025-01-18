@@ -1,311 +1,315 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>FlashCard Study</title>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-    <style>
-        .flashcard-container {
-            position: relative;
-            width: 100%;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 0;
-        }
+{% extends "base.html" %}
 
-        .flashcard {
-            width: 300px;
-            height: 200px;
-            perspective: 1000px;
-            cursor: pointer;
-        }
+{% block title %}플래시카드{% endblock %}
 
-        .flashcard .front,
-        .flashcard .back {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            transition: transform 0.6s;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
+{% block head_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+{% endblock %}
 
-        .flashcard .back {
-            transform: rotateY(180deg);
-        }
+{% block styles %}
+.flashcard-container {
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 90px);  /* nav-header 높이 고려 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+}
 
-        .flashcard.flipped .front {
-            transform: rotateY(180deg);
-        }
+.flashcard {
+    width: 300px;
+    height: 200px;
+    perspective: 1000px;
+    cursor: pointer;
+}
 
-        .flashcard.flipped .back {
-            transform: rotateY(0deg);
-        }
+.flashcard .front,
+.flashcard .back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    transition: transform 0.6s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
 
-        .nav-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 40px;
-            height: 40px;
-            border: none;
-            background: none;
-            cursor: pointer;
-            opacity: 0.7;
-            transition: opacity 0.3s;
-            padding: 0;
-        }
+.flashcard .back {
+    transform: rotateY(180deg);
+}
 
-        .nav-btn:hover {
-            opacity: 1;
-        }
+.flashcard.flipped .front {
+    transform: rotateY(180deg);
+}
 
-        .nav-btn::before {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 0;
-            border-style: solid;
-        }
+.flashcard.flipped .back {
+    transform: rotateY(0deg);
+}
 
-        .prev-btn {
-            left: 40px;
-        }
+.nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.3s;
+    padding: 0;
+}
 
-        .next-btn {
-            right: 40px;
-        }
+.nav-btn:hover {
+    opacity: 1;
+}
 
-        .prev-btn::before {
-            border-width: 15px 20px 15px 0;
-            border-color: transparent #4285f4 transparent transparent;
-            position: absolute;
-            content: '';
-            top: 50%;
-            left: 50%;
-            transform: translate(-25%, -50%);
-        }
+.nav-btn::before {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-style: solid;
+}
 
-        .next-btn::before {
-            border-width: 15px 0 15px 20px;
-            border-color: transparent transparent transparent #4285f4;
-            position: absolute;
-            content: '';
-            top: 50%;
-            left: 50%;
-            transform: translate(-75%, -50%);
-        }
+.prev-btn {
+    left: 40px;
+}
 
-        .hidden {
-            display: none;
-        }
+.next-btn {
+    right: 40px;
+}
 
-        .celebration-message {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            text-align: center;
-            font-size: 1.5rem;
-            color: #4285f4;
-            z-index: 1000;
-            display: none;
-        }
+.prev-btn::before {
+    border-width: 15px 20px 15px 0;
+    border-color: transparent #4285f4 transparent transparent;
+    position: absolute;
+    content: '';
+    top: 50%;
+    left: 50%;
+    transform: translate(-25%, -50%);
+}
 
-        .celebration-message.show {
-            display: block;
-            animation: fadeIn 0.5s ease-in;
-        }
+.next-btn::before {
+    border-width: 15px 0 15px 20px;
+    border-color: transparent transparent transparent #4285f4;
+    position: absolute;
+    content: '';
+    top: 50%;
+    left: 50%;
+    transform: translate(-75%, -50%);
+}
 
-        .flashcard-container.hide {
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.5s ease-out, visibility 0.5s;
-        }
+.hidden {
+    display: none;
+}
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-    </style>
-</head>
-<body>
-    <div class="flashcard-container">
-        <button class="nav-btn prev-btn {% if current_index == 0 %}hidden{% endif %}" 
-                onclick="navigate('prev')" 
-                aria-label="이전 카드">
-        </button>
-        
-        <div class="flashcard" onclick="flipCard()">
-            <div class="front">
-                <p>{{ front_text }}</p>
-            </div>
-            <div class="back">
-                <p>{{ back_text }}</p>
-            </div>
+.celebration-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    text-align: center;
+    font-size: 1.5rem;
+    color: #4285f4;
+    z-index: 1000;
+    display: none;
+}
+
+.celebration-message.show {
+    display: block;
+    animation: fadeIn 0.5s ease-in;
+}
+
+.flashcard-container.hide {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease-out, visibility 0.5s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+{% endblock %}
+
+{% block content %}
+<div class="flashcard-container">
+    <button class="nav-btn prev-btn {% if current_index == 0 %}hidden{% endif %}" 
+            onclick="navigate('prev')" 
+            aria-label="이전 카드">
+    </button>
+    
+    <div class="flashcard" onclick="flipCard()">
+        <div class="front">
+            <p>{{ front_text }}</p>
         </div>
+        <div class="back">
+            <p>{{ back_text }}</p>
+        </div>
+    </div>
+    
+    <button class="nav-btn next-btn {% if current_index >= all_data|length - 1 %}hidden{% endif %}" 
+            onclick="navigate('next')" 
+            aria-label="다음 카드">
+    </button>
+</div>
+
+<div class="celebration-message" id="celebrationMessage">
+    오늘 공부를 모두 마쳤습니다! 축하드립니다! 🎉
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let isFlipped = false;
+    let autoFlipTimer;
+    let autoNextTimer;
+    let currentIndex = {{ current_index }};
+    const totalCards = {{ all_data|length }};
+    const selectedLanguage = "{{ selected_language }}";
+    const allData = {{ all_data|tojson|safe }};
+
+    function updateCardContent(index) {
+        const card = allData[index];
+        const frontElement = document.querySelector('.front p');
+        const backElement = document.querySelector('.back p');
         
-        <button class="nav-btn next-btn {% if current_index >= all_data|length - 1 %}hidden{% endif %}" 
-                onclick="navigate('next')" 
-                aria-label="다음 카드">
-        </button>
-    </div>
-
-    <div class="celebration-message" id="celebrationMessage">
-        오늘 공부를 모두 마쳤습니다! 축하드립니다! 🎉
-    </div>
-
-    <script>
-        let isFlipped = false;
-        let autoFlipTimer;
-        let autoNextTimer;
-        let currentIndex = {{ current_index }};
-        const totalCards = {{ all_data|length }};
-        const selectedLanguage = "{{ selected_language }}";
-        const allData = {{ all_data|tojson|safe }};
-
-        function updateCardContent(index) {
-            const card = allData[index];
-            const frontElement = document.querySelector('.front p');
-            const backElement = document.querySelector('.back p');
-            
-            if (frontElement && backElement) {
-                if (selectedLanguage === 'korean') {
-                    frontElement.textContent = card.korean;
-                    backElement.textContent = card.english;
-                } else {
-                    frontElement.textContent = card.english;
-                    backElement.textContent = card.korean;
-                }
+        if (frontElement && backElement) {
+            if (selectedLanguage === 'korean') {
+                frontElement.textContent = card.korean;
+                backElement.textContent = card.english;
+            } else {
+                frontElement.textContent = card.english;
+                backElement.textContent = card.korean;
             }
         }
+    }
 
-        function startConfetti() {
-            const duration = 3000;
-            const animationEnd = Date.now() + duration;
-            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+    function startConfetti() {
+        const duration = 3000;
+        const animationEnd = Date.now() + duration;
+        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
 
-            function randomInRange(min, max) {
-                return Math.random() * (max - min) + min;
+        function randomInRange(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        const interval = setInterval(function() {
+            const timeLeft = animationEnd - Date.now();
+
+            if (timeLeft <= 0) {
+                return clearInterval(interval);
             }
 
-            const interval = setInterval(function() {
-                const timeLeft = animationEnd - Date.now();
-
-                if (timeLeft <= 0) {
-                    return clearInterval(interval);
-                }
-
-                const particleCount = 50 * (timeLeft / duration);
-                
-                // 왼쪽과 오른쪽에서 폭죽 발사
-                confetti({
-                    ...defaults,
-                    particleCount,
-                    origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
-                });
-                confetti({
-                    ...defaults,
-                    particleCount,
-                    origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
-                });
-            }, 250);
-        }
-
-        function showCelebration() {
-            const message = document.getElementById('celebrationMessage');
-            const container = document.querySelector('.flashcard-container');
+            const particleCount = 50 * (timeLeft / duration);
             
-            // 플래시카드 컨테이너 숨기기
-            container.classList.add('hide');
-            
-            // 축하 메시지 표시 및 폭죽 시작
-            message.classList.add('show');
-            startConfetti();
-        }
+            // 왼쪽과 오른쪽에서 폭죽 발사
+            confetti({
+                ...defaults,
+                particleCount,
+                origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+            });
+            confetti({
+                ...defaults,
+                particleCount,
+                origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+            });
+        }, 250);
+    }
 
-        function startTimers() {
-            clearTimers();
-            autoFlipTimer = setTimeout(() => {
+    function showCelebration() {
+        const message = document.getElementById('celebrationMessage');
+        const container = document.querySelector('.flashcard-container');
+        
+        // 플래시카드 컨테이너 숨기기
+        container.classList.add('hide');
+        
+        // 축하 메시지 표시 및 폭죽 시작
+        message.classList.add('show');
+        startConfetti();
+    }
+
+    function startTimers() {
+        clearTimers();
+        autoFlipTimer = setTimeout(() => {
+            flipCard();
+            if (currentIndex < totalCards - 1) {
+                autoNextTimer = setTimeout(() => {
+                    navigate('next');
+                }, 5000);
+            } else if (isFlipped) {
+                // 마지막 카드가 뒤집힌 후 5초 뒤에 축하 메시지 표시
+                setTimeout(() => {
+                    showCelebration();
+                }, 5000);
+            }
+        }, 5000);
+    }
+
+    function clearTimers() {
+        clearTimeout(autoFlipTimer);
+        clearTimeout(autoNextTimer);
+    }
+
+    function flipCard() {
+        const card = document.querySelector('.flashcard');
+        card.classList.toggle('flipped');
+        isFlipped = !isFlipped;
+    }
+
+    function updateNavigationButtons() {
+        const prevBtn = document.querySelector('.prev-btn');
+        const nextBtn = document.querySelector('.next-btn');
+        
+        // 이전 버튼은 currentIndex가 0보다 크면 표시
+        if (prevBtn) {
+            prevBtn.classList.toggle('hidden', currentIndex <= 0);
+        }
+        
+        // 다음 버튼은 currentIndex가 마지막 인덱스보다 작으면 표시
+        if (nextBtn) {
+            nextBtn.classList.toggle('hidden', currentIndex >= totalCards - 1);
+        }
+    }
+
+    async function navigate(direction) {
+        clearTimers();
+        const newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
+        
+        if (newIndex >= 0 && newIndex < totalCards) {
+            // 카드를 앞면으로 리셋
+            if (isFlipped) {
                 flipCard();
-                if (currentIndex < totalCards - 1) {
-                    autoNextTimer = setTimeout(() => {
-                        navigate('next');
-                    }, 5000);
-                } else if (isFlipped) {
-                    // 마지막 카드가 뒤집힌 후 5초 뒤에 축하 메시지 표시
-                    setTimeout(() => {
-                        showCelebration();
-                    }, 5000);
-                }
-            }, 5000);
-        }
-
-        function clearTimers() {
-            clearTimeout(autoFlipTimer);
-            clearTimeout(autoNextTimer);
-        }
-
-        function flipCard() {
-            const card = document.querySelector('.flashcard');
-            card.classList.toggle('flipped');
-            isFlipped = !isFlipped;
-        }
-
-        function updateNavigationButtons() {
-            const prevBtn = document.querySelector('.prev-btn');
-            const nextBtn = document.querySelector('.next-btn');
-            
-            // 이전 버튼은 currentIndex가 0보다 크면 표시
-            if (prevBtn) {
-                prevBtn.classList.toggle('hidden', currentIndex <= 0);
             }
             
-            // 다음 버튼은 currentIndex가 마지막 인덱스보다 작으면 표시
-            if (nextBtn) {
-                nextBtn.classList.toggle('hidden', currentIndex >= totalCards - 1);
-            }
-        }
-
-        async function navigate(direction) {
-            clearTimers();
-            const newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
+            // 현재 인덱스 업데이트
+            currentIndex = newIndex;
             
-            if (newIndex >= 0 && newIndex < totalCards) {
-                // 카드를 앞면으로 리셋
-                if (isFlipped) {
-                    flipCard();
-                }
-                
-                // 현재 인덱스 업데이트
-                currentIndex = newIndex;
-                
-                // 카드 내용 업데이트
-                updateCardContent(currentIndex);
-                
-                // 네비게이션 버튼 상태 업데이트
-                updateNavigationButtons();
-                
-                // 타이머 다시 시작
-                startTimers();
-            }
-        }
-
-        // 페이지 로드시 초기화
-        window.onload = function() {
+            // 카드 내용 업데이트
+            updateCardContent(currentIndex);
+            
+            // 네비게이션 버튼 상태 업데이트
             updateNavigationButtons();
+            
+            // 타이머 다시 시작
             startTimers();
-        };
-    </script>
-</body>
-</html> 
+        }
+    }
+
+    // 페이지 로드시 초기화
+    window.onload = function() {
+        updateNavigationButtons();
+        startTimers();
+    };
+</script>
+{% endblock %} 

@@ -224,23 +224,24 @@ def logout():
 
 @app.route('/next_card', methods=['POST'])
 def next_card():
+    data = request.get_json()
     all_data = session.get('all_data', [])
-    current_index = session.get('current_index', 0)
-    selected_language = request.form.get('selected_language')
+    current_index = data.get('current_index', 0)
+    selected_language = data.get('selected_language')
     
-    # 다음 카드 인덱스 계산
-    next_index = (current_index + 1) % len(all_data)
-    session['current_index'] = next_index
+    if 0 <= current_index < len(all_data):
+        current_card = all_data[current_index]
+        front_text = current_card['korean'] if selected_language == 'korean' else current_card['english']
+        back_text = current_card['english'] if selected_language == 'korean' else current_card['korean']
+        
+        return jsonify({
+            'front_text': front_text,
+            'back_text': back_text,
+            'description': current_card.get('description', ''),
+            'current_index': current_index
+        })
     
-    current_card = all_data[next_index]
-    front_text = current_card['korean'] if selected_language == 'korean' else current_card['english']
-    back_text = current_card['english'] if selected_language == 'korean' else current_card['korean']
-    
-    return jsonify({
-        'front_text': front_text,
-        'back_text': back_text,
-        'description': current_card.get('description', '')
-    })
+    return jsonify({'error': 'Invalid index'}), 400
 
 @app.route('/flashcard')
 def flashcard():

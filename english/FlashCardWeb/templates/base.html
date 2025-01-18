@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}FlashCard Web{% endblock %}</title>
+    {% block head_scripts %}{% endblock %}
+    <style>
+        /* 공통 스타일 */
+        .nav-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: #f8f9fa;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logout-btn {
+            padding: 0.5rem 1rem;
+            background-color: #dc3545;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+
+        .content {
+            margin-top: 70px;  /* nav-header 높이 + 여백 */
+            padding: 20px;
+        }
+
+        {% block styles %}{% endblock %}
+    </style>
+</head>
+<body>
+    <div class="nav-header">
+        <div class="user-info">
+            <span>안녕하세요, {{ session.name }}님!</span>
+            <span>({{ session.email }})</span>
+        </div>
+        <a href="/logout" class="logout-btn">로그아웃</a>
+    </div>
+
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

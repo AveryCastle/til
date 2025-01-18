@@ -1,85 +1,84 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>FlashCard Web</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <style>
-        .language-toggle {
-            display: inline-flex;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        .toggle-btn {
-            padding: 10px 20px;
-            border: none;
-            cursor: pointer;
-            margin: 0;
-            transition: all 0.3s ease;
-        }
-        /* 기본 상태 (비활성화) */
-        .toggle-btn {
-            background-color: white;
-            color: #4285f4;
-            border: 2px solid #4285f4;
-        }
-        /* 호버 상태 (비활성화) */
-        .toggle-btn:hover:not(.active) {
-            background-color: #f8f9fa;
-            color: #3367d6;
-            border-color: #3367d6;
-        }
-        /* 활성화 상태 */
-        .toggle-btn.active {
-            background-color: #4285f4;
-            color: white;
-            border: 2px solid #4285f4;
-        }
-        /* 활성화 + 호버 상태 */
-        .toggle-btn.active:hover {
-            background-color: #3367d6;
-            border-color: #3367d6;
-        }
-        /* 왼쪽 버튼 (한글) */
-        .toggle-btn:first-child {
-            border-top-right-radius: 0;
-            border-bottom-right-radius: 0;
-        }
-        /* 오른쪽 버튼 (영어) */
-        .toggle-btn:last-child {
-            border-top-left-radius: 0;
-            border-bottom-left-radius: 0;
-            border-left: none;
-        }
-        /* 오른쪽 버튼이 활성화될 때 왼쪽 테두리 추가 */
-        .toggle-btn:last-child.active {
-            border-left: 2px solid #4285f4;
-        }
-        .word-container {
-            display: none;
-        }
-        .study-btn {
-            display: block;
-            width: 200px;
-            margin: 20px auto;
-            padding: 15px 30px;
-            font-size: 1.2em;
-            background-color: #4285f4;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .study-btn:hover {
-            background-color: #3367d6;
-        }
-    </style>
-</head>
-<body>
-    <a href="/logout" class="logout-btn">로그아웃</a>
-    <p>Hello, {{session['name']}}님! ({{session['email']}})</p>
+{% extends "base.html" %}
 
-    {% if all_data %}
+{% block title %}영어 학습{% endblock %}
+
+{% block styles %}
+.language-toggle {
+    display: inline-flex;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.toggle-btn {
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    margin: 0;
+    transition: all 0.3s ease;
+    background-color: white;
+    color: #4285f4;
+    border: 2px solid #4285f4;
+}
+
+.toggle-btn:hover:not(.active) {
+    background-color: #f8f9fa;
+    color: #3367d6;
+    border-color: #3367d6;
+}
+
+.toggle-btn.active {
+    background-color: #4285f4;
+    color: white;
+    border: 2px solid #4285f4;
+}
+
+.toggle-btn.active:hover {
+    background-color: #3367d6;
+    border-color: #3367d6;
+}
+
+.toggle-btn:first-child {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.toggle-btn:last-child {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left: none;
+}
+
+.toggle-btn:last-child.active {
+    border-left: 2px solid #4285f4;
+}
+
+.study-btn {
+    display: block;
+    width: 200px;
+    margin: 20px auto;
+    padding: 15px 30px;
+    font-size: 1.2em;
+    background-color: #4285f4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.study-btn:hover {
+    background-color: #3367d6;
+}
+
+.empty-message {
+    text-align: center;
+    margin: 20px;
+    font-size: 18px;
+}
+{% endblock %}
+
+{% block content %}
+{% if all_data %}
     <div class="language-toggle">
         <button class="toggle-btn active" onclick="toggleLanguage('korean')">한글</button>
         <button class="toggle-btn" onclick="toggleLanguage('english')">영어</button>
@@ -88,27 +87,32 @@
         <input type="hidden" name="selected_language" id="selected_language" value="korean">
         <button type="submit" class="study-btn">공부 시작</button>
     </form>
-    <script>
-        function toggleLanguage(lang) {
-            const buttons = document.querySelectorAll('.toggle-btn');
-            buttons.forEach(btn => btn.classList.remove('active'));
-            
-            if (lang === 'korean') {
-                buttons[0].classList.add('active');
-            } else {
-                buttons[1].classList.add('active');
-            }
-            document.getElementById('selected_language').value = lang;
-        }
-        // 초기 상태 설정 (한글 선택)
-        window.onload = function() {
-            toggleLanguage('korean');
-        }
-    </script>
-    {% else %}
+{% else %}
     <div class="empty-message">
         영어 공부 새로 시작할까요?
     </div>
-    {% endif %}
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function toggleLanguage(lang) {
+        const buttons = document.querySelectorAll('.toggle-btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        
+        if (lang === 'korean') {
+            buttons[0].classList.add('active');
+        } else {
+            buttons[1].classList.add('active');
+        }
+        document.getElementById('selected_language').value = lang;
+    }
+
+    // 초기 상태 설정 (한글 선택)
+    window.onload = function() {
+        toggleLanguage('korean');
+    }
+</script>
+{% endblock %}
 </body>
 </html> 
