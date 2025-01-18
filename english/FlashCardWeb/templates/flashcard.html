@@ -127,6 +127,12 @@
             animation: fadeIn 0.5s ease-in;
         }
 
+        .flashcard-container.hide {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease-out, visibility 0.5s;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -218,6 +224,12 @@
 
         function showCelebration() {
             const message = document.getElementById('celebrationMessage');
+            const container = document.querySelector('.flashcard-container');
+            
+            // 플래시카드 컨테이너 숨기기
+            container.classList.add('hide');
+            
+            // 축하 메시지 표시 및 폭죽 시작
             message.classList.add('show');
             startConfetti();
         }
