@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>FlashCard Study</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
         .flashcard-container {
             position: relative;
@@ -104,6 +105,32 @@
         .hidden {
             display: none;
         }
+
+        .celebration-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            font-size: 1.5rem;
+            color: #4285f4;
+            z-index: 1000;
+            display: none;
+        }
+
+        .celebration-message.show {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -126,6 +153,10 @@
                 onclick="navigate('next')" 
                 aria-label="다음 카드">
         </button>
+    </div>
+
+    <div class="celebration-message" id="celebrationMessage">
+        오늘 공부를 모두 마쳤습니다! 축하드립니다! 🎉
     </div>
 
     <script>
@@ -153,15 +184,56 @@
             }
         }
 
+        function startConfetti() {
+            const duration = 3000;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+            function randomInRange(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            const interval = setInterval(function() {
+                const timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                const particleCount = 50 * (timeLeft / duration);
+                
+                // 왼쪽과 오른쪽에서 폭죽 발사
+                confetti({
+                    ...defaults,
+                    particleCount,
+                    origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+                });
+                confetti({
+                    ...defaults,
+                    particleCount,
+                    origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+                });
+            }, 250);
+        }
+
+        function showCelebration() {
+            const message = document.getElementById('celebrationMessage');
+            message.classList.add('show');
+            startConfetti();
+        }
+
         function startTimers() {
             clearTimers();
-            // 5초 후 자동 뒤집기
             autoFlipTimer = setTimeout(() => {
                 flipCard();
-                // 카드가 뒤집힌 후 5초 후 다음 카드로
                 if (currentIndex < totalCards - 1) {
                     autoNextTimer = setTimeout(() => {
                         navigate('next');
+                    }, 5000);
+                } else if (isFlipped) {
+                    // 마지막 카드가 뒤집힌 후 5초 뒤에 축하 메시지 표시
+                    setTimeout(() => {
+                        showCelebration();
                     }, 5000);
                 }
             }, 5000);
