@@ -144,6 +144,46 @@
     transition: opacity 0.5s ease-out, visibility 0.5s;
 }
 
+.hint-button {
+  position: absolute;
+  bottom: 100px;
+  right: 100px;
+  padding: 10px 20px;
+  background-color: #4285f4;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  opacity: 0.8;
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.hint-button:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.hint-tooltip {
+  display: none;
+  position: absolute;
+  bottom: 60px;
+  right: 20px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  white-space: nowrap;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+}
+
+.hint-button:hover + .hint-tooltip {
+  display: block;
+}
+
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -170,6 +210,10 @@
             onclick="navigate('next')" 
             aria-label="다음 카드">
     </button>
+
+    <!-- 힌트 버튼과 말풍선 추가 -->
+    <button class="hint-button">힌트</button>
+    <div class="hint-tooltip">{{ all_data[current_index].description }}</div>
 </div>
 
 <div class="celebration-message" id="celebrationMessage">
@@ -312,6 +356,29 @@
             // 타이머 다시 시작
             startTimers();
         }
+    }
+
+    function updateTooltipContent(index) {
+      const tooltip = document.querySelector('.hint-tooltip');
+      if (tooltip) {
+          tooltip.textContent = allData[index].description || '상세 설명이 없습니다.';
+      }
+    }
+
+    function navigate(direction) {
+      clearTimers();
+      const newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
+
+      if (newIndex >= 0 && newIndex < totalCards) {
+          if (isFlipped) {
+              flipCard();
+          }
+          currentIndex = newIndex;
+          updateCardContent(currentIndex);
+          updateNavigationButtons();
+          updateTooltipContent(currentIndex);
+          startTimers();
+      }
     }
 
     // 페이지 로드시 초기화
