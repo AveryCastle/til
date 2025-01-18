@@ -114,14 +114,10 @@
         
         <div class="flashcard" onclick="flipCard()">
             <div class="front">
-                {% if all_data %}
-                <p>{{ all_data[current_index]['korean'] }}</p>
-                {% endif %}
+                <p>{{ front_text }}</p>
             </div>
             <div class="back">
-                {% if all_data %}
-                <p>{{ all_data[current_index]['english'] }}</p>
-                {% endif %}
+                <p>{{ back_text }}</p>
             </div>
         </div>
         
@@ -134,6 +130,26 @@
         let isFlipped = false;
         let autoFlipTimer;
         let autoNextTimer;
+        let currentIndex = {{ current_index }};
+        const totalCards = {{ all_data|length }};
+        const selectedLanguage = "{{ selected_language }}";
+        const allData = {{ all_data|tojson|safe }};
+
+        function updateCardContent(index) {
+            const card = allData[index];
+            const frontElement = document.querySelector('.front p');
+            const backElement = document.querySelector('.back p');
+            
+            if (frontElement && backElement) {
+                if (selectedLanguage === 'korean') {
+                    frontElement.textContent = card.korean;
+                    backElement.textContent = card.english;
+                } else {
+                    frontElement.textContent = card.english;
+                    backElement.textContent = card.korean;
+                }
+            }
+        }
 
         function startTimers() {
             clearTimers();
@@ -141,7 +157,7 @@
             autoFlipTimer = setTimeout(() => {
                 flipCard();
                 // 카드가 뒤집힌 후 5초 후 다음 카드로
-                if ({{ current_index < all_data|length - 1 }}) {
+                if (currentIndex < totalCards - 1) {
                     autoNextTimer = setTimeout(() => {
                         navigate('next');
                     }, 5000);
@@ -158,18 +174,34 @@
             const card = document.querySelector('.flashcard');
             card.classList.toggle('flipped');
             isFlipped = !isFlipped;
-
-            if (!isFlipped) {
-                // 카드가 앞면으로 돌아왔을 때 타이머 다시 시작
-                startTimers();
-            }
         }
 
-        function navigate(direction) {
-            clearTimers(); // 타이머 초기화
-            const currentIndex = {{ current_index }};
+        async function navigate(direction) {
+            clearTimers();
             const newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
-            window.location.href = `/flashcard?index=${newIndex}`;
+            
+            if (newIndex >= 0 && newIndex < totalCards) {
+                // 카드를 앞면으로 리셋
+                if (isFlipped) {
+                    flipCard();
+                }
+                
+                // 현재 인덱스 업데이트
+                currentIndex = newIndex;
+                
+                // 카드 내용 업데이트
+                updateCardContent(currentIndex);
+                
+                // 이전/다음 버튼 상태 업데이트
+                const prevBtn = document.querySelector('.prev-btn');
+                const nextBtn = document.querySelector('.next-btn');
+                
+                if (prevBtn) prevBtn.style.display = currentIndex > 0 ? '' : 'none';
+                if (nextBtn) nextBtn.style.display = currentIndex < totalCards - 1 ? '' : 'none';
+                
+                // 타이머 다시 시작
+                startTimers();
+            }
         }
 
         // 페이지 로드시 타이머 시작
