@@ -132,36 +132,50 @@
 
     <script>
         let isFlipped = false;
-        let autoNavigationTimer;
+        let autoFlipTimer;
+        let autoNextTimer;
+
+        function startTimers() {
+            clearTimers();
+            // 5초 후 자동 뒤집기
+            autoFlipTimer = setTimeout(() => {
+                flipCard();
+                // 카드가 뒤집힌 후 5초 후 다음 카드로
+                if ({{ current_index < all_data|length - 1 }}) {
+                    autoNextTimer = setTimeout(() => {
+                        navigate('next');
+                    }, 5000);
+                }
+            }, 5000);
+        }
+
+        function clearTimers() {
+            clearTimeout(autoFlipTimer);
+            clearTimeout(autoNextTimer);
+        }
 
         function flipCard() {
             const card = document.querySelector('.flashcard');
             card.classList.toggle('flipped');
             isFlipped = !isFlipped;
 
-            // 카드가 뒤집혔을 때 자동 넘김 타이머 설정
-            if (isFlipped) {
-                {% if current_index < all_data|length - 1 %}
-                    autoNavigationTimer = setTimeout(() => {
-                        navigate('next');
-                    }, 5000);
-                {% endif %}
-            } else {
-                // 카드가 다시 앞면으로 돌아갈 때 타이머 취소
-                clearTimeout(autoNavigationTimer);
+            if (!isFlipped) {
+                // 카드가 앞면으로 돌아왔을 때 타이머 다시 시작
+                startTimers();
             }
         }
 
         function navigate(direction) {
-            // 자동 넘김 타이머 취소
-            clearTimeout(autoNavigationTimer);
-            
-            // 현재 URL에서 current_index 파라미터 업데이트
+            clearTimers(); // 타이머 초기화
             const currentIndex = {{ current_index }};
             const newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
-            
             window.location.href = `/flashcard?index=${newIndex}`;
         }
+
+        // 페이지 로드시 타이머 시작
+        window.onload = function() {
+            startTimers();
+        };
     </script>
 </body>
 </html> 
