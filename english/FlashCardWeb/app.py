@@ -201,22 +201,21 @@ def study():
     if not all_data:
         return redirect(url_for('index'))
     
-    # 디버깅을 위한 출력
-    print("Selected language:", selected_language)
-    print("All data:", all_data)
-    
-    current_card = all_data[0]
-    session['current_index'] = 0
+    current_index = 0  # 초기 인덱스 설정
+    current_card = all_data[current_index]
+    session['current_index'] = current_index
     
     front_text = current_card['korean'] if selected_language == 'korean' else current_card['english']
     back_text = current_card['english'] if selected_language == 'korean' else current_card['korean']
     
-    # 명시적으로 flashcard.html을 렌더링
     return render_template('flashcard.html', 
                          front_text=front_text,
                          back_text=back_text,
                          description=current_card.get('description', ''),
-                         total_cards=len(all_data))
+                         total_cards=len(all_data),
+                         selected_language=selected_language,
+                         current_index=current_index,  # current_index 추가
+                         all_data=all_data)  # all_data도 함께 전달
 
 @app.route("/logout")
 def logout():
@@ -242,6 +241,24 @@ def next_card():
         'back_text': back_text,
         'description': current_card.get('description', '')
     })
+
+@app.route('/flashcard')
+def flashcard():
+    if 'all_data' not in session:
+        return redirect(url_for('index'))
+    
+    current_index = request.args.get('index', 0, type=int)
+    all_data = session['all_data']
+    
+    # 인덱스가 범위를 벗어나지 않도록 보정
+    if current_index < 0:
+        current_index = 0
+    elif current_index >= len(all_data):
+        current_index = len(all_data) - 1
+    
+    return render_template('flashcard.html', 
+                         all_data=all_data,
+                         current_index=current_index)
 
 if __name__ == "__main__":
     app.debug = True
