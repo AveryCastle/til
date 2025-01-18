@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, session, request, render_template
+from flask import Flask, redirect, url_for, session, request, render_template, jsonify
 from google.oauth2 import id_token
 from google_auth_oauthlib.flow import Flow
 import google.auth.transport.requests
@@ -95,9 +95,9 @@ def check_and_create_spreadsheet(drive_service, sheets_service, folder_id, sheet
 
 @app.route("/")
 def index():
-    if 'google_id' not in session:
-        return render_template('login.html')
-
+    if 'email' not in session:
+        return redirect(url_for('login'))
+    
     try:
         credentials = flow.credentials
         sheets_service = create_sheets_service(credentials)
@@ -114,8 +114,10 @@ def index():
                         'korean': row[1],
                         'description': row[2] if len(row) > 2 else ''
                     })
-
-        return render_template('index.html', all_data=all_data, session=session)
+        
+        session['all_data'] = all_data
+        return render_template('index.html', all_data=all_data)
+        
     except Exception as error:
         logging.error(f"Index 페이지 에러: {str(error)}", exc_info=True)
         session.clear()
@@ -188,12 +190,59 @@ def callback():
         session.clear()
         return redirect(url_for('login'))
 
+@app.route('/study', methods=['POST'])
+def study():
+    if 'email' not in session:
+        return redirect(url_for('login'))
+        
+    selected_language = request.form.get('selected_language')
+    all_data = session.get('all_data', [])
+    
+    if not all_data:
+        return redirect(url_for('index'))
+    
+    # 디버깅을 위한 출력
+    print("Selected language:", selected_language)
+    print("All data:", all_data)
+    
+    current_card = all_data[0]
+    session['current_index'] = 0
+    
+    front_text = current_card['korean'] if selected_language == 'korean' else current_card['english']
+    back_text = current_card['english'] if selected_language == 'korean' else current_card['korean']
+    
+    # 명시적으로 flashcard.html을 렌더링
+    return render_template('flashcard.html', 
+                         front_text=front_text,
+                         back_text=back_text,
+                         description=current_card.get('description', ''),
+                         total_cards=len(all_data))
 
 @app.route("/logout")
 def logout():
     session.clear()
     return render_template('login.html')
 
+@app.route('/next_card', methods=['POST'])
+def next_card():
+    all_data = session.get('all_data', [])
+    current_index = session.get('current_index', 0)
+    selected_language = request.form.get('selected_language')
+    
+    # 다음 카드 인덱스 계산
+    next_index = (current_index + 1) % len(all_data)
+    session['current_index'] = next_index
+    
+    current_card = all_data[next_index]
+    front_text = current_card['korean'] if selected_language == 'korean' else current_card['english']
+    back_text = current_card['english'] if selected_language == 'korean' else current_card['korean']
+    
+    return jsonify({
+        'front_text': front_text,
+        'back_text': back_text,
+        'description': current_card.get('description', '')
+    })
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.debug = True
+    app.run()
