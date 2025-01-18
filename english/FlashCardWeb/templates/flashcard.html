@@ -10,6 +10,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            gap: 0;
         }
 
         .flashcard {
@@ -46,32 +47,71 @@
             transform: rotateY(0deg);
         }
 
-        .navigation-buttons {
-            position: absolute;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            padding: 0 50px;
-            box-sizing: border-box;
-        }
-
         .nav-btn {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
             border: none;
-            border-radius: 5px;
+            background: none;
             cursor: pointer;
-            transition: background-color 0.3s;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+            padding: 0;
         }
 
         .nav-btn:hover {
-            background-color: #45a049;
+            opacity: 1;
+        }
+
+        .nav-btn::before {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-style: solid;
+        }
+
+        .prev-btn {
+            left: 40px;
+        }
+
+        .next-btn {
+            right: 40px;
+        }
+
+        .prev-btn::before {
+            border-width: 15px 20px 15px 0;
+            border-color: transparent #4285f4 transparent transparent;
+            position: absolute;
+            content: '';
+            top: 50%;
+            left: 50%;
+            transform: translate(-25%, -50%);
+        }
+
+        .next-btn::before {
+            border-width: 15px 0 15px 20px;
+            border-color: transparent transparent transparent #4285f4;
+            position: absolute;
+            content: '';
+            top: 50%;
+            left: 50%;
+            transform: translate(-75%, -50%);
+        }
+
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
     <div class="flashcard-container">
+        {% if current_index > 0 %}
+        <button class="nav-btn prev-btn" onclick="navigate('prev')" aria-label="이전 카드"></button>
+        {% endif %}
+        
         <div class="flashcard" onclick="flipCard()">
             <div class="front">
                 {% if all_data %}
@@ -85,15 +125,9 @@
             </div>
         </div>
         
-        <div class="navigation-buttons">
-            {% if current_index > 0 %}
-            <button class="nav-btn prev-btn" onclick="navigate('prev')">이전</button>
-            {% endif %}
-            
-            {% if current_index < all_data|length - 1 %}
-            <button class="nav-btn next-btn" onclick="navigate('next')">다음</button>
-            {% endif %}
-        </div>
+        {% if current_index < all_data|length - 1 %}
+        <button class="nav-btn next-btn" onclick="navigate('next')" aria-label="다음 카드"></button>
+        {% endif %}
     </div>
 
     <script>
