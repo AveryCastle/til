@@ -108,9 +108,10 @@
 </head>
 <body>
     <div class="flashcard-container">
-        {% if current_index > 0 %}
-        <button class="nav-btn prev-btn" onclick="navigate('prev')" aria-label="이전 카드"></button>
-        {% endif %}
+        <button class="nav-btn prev-btn {% if current_index == 0 %}hidden{% endif %}" 
+                onclick="navigate('prev')" 
+                aria-label="이전 카드">
+        </button>
         
         <div class="flashcard" onclick="flipCard()">
             <div class="front">
@@ -121,9 +122,10 @@
             </div>
         </div>
         
-        {% if current_index < all_data|length - 1 %}
-        <button class="nav-btn next-btn" onclick="navigate('next')" aria-label="다음 카드"></button>
-        {% endif %}
+        <button class="nav-btn next-btn {% if current_index >= all_data|length - 1 %}hidden{% endif %}" 
+                onclick="navigate('next')" 
+                aria-label="다음 카드">
+        </button>
     </div>
 
     <script>
@@ -176,6 +178,21 @@
             isFlipped = !isFlipped;
         }
 
+        function updateNavigationButtons() {
+            const prevBtn = document.querySelector('.prev-btn');
+            const nextBtn = document.querySelector('.next-btn');
+            
+            // 이전 버튼은 currentIndex가 0보다 크면 표시
+            if (prevBtn) {
+                prevBtn.classList.toggle('hidden', currentIndex <= 0);
+            }
+            
+            // 다음 버튼은 currentIndex가 마지막 인덱스보다 작으면 표시
+            if (nextBtn) {
+                nextBtn.classList.toggle('hidden', currentIndex >= totalCards - 1);
+            }
+        }
+
         async function navigate(direction) {
             clearTimers();
             const newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
@@ -192,20 +209,17 @@
                 // 카드 내용 업데이트
                 updateCardContent(currentIndex);
                 
-                // 이전/다음 버튼 상태 업데이트
-                const prevBtn = document.querySelector('.prev-btn');
-                const nextBtn = document.querySelector('.next-btn');
-                
-                if (prevBtn) prevBtn.style.display = currentIndex > 0 ? '' : 'none';
-                if (nextBtn) nextBtn.style.display = currentIndex < totalCards - 1 ? '' : 'none';
+                // 네비게이션 버튼 상태 업데이트
+                updateNavigationButtons();
                 
                 // 타이머 다시 시작
                 startTimers();
             }
         }
 
-        // 페이지 로드시 타이머 시작
+        // 페이지 로드시 초기화
         window.onload = function() {
+            updateNavigationButtons();
             startTimers();
         };
     </script>
