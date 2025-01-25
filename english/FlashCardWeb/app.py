@@ -261,6 +261,12 @@ def flashcard():
                          all_data=all_data,
                          current_index=current_index)
 
+@app.route('/add_expression_form')
+def add_expression_form():
+    if 'email' not in session:
+        return redirect(url_for('login'))
+    return render_template('add_expression.html')
+
 if __name__ == "__main__":
     app.debug = True
     app.run()

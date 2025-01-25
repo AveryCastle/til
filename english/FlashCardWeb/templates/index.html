@@ -75,6 +75,34 @@
     margin: 20px;
     font-size: 18px;
 }
+
+.study-button-container {
+    text-align: center;
+    margin: 30px 0;
+}
+
+.study-button, .add-button {
+    display: inline-block;
+    padding: 15px 40px;
+    font-size: 20px;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    margin: 0 10px;
+}
+
+.study-button {
+    background-color: #4CAF50;
+}
+
+.add-button {
+    background-color: #2196F3;
+}
+
+.study-button:hover, .add-button:hover {
+    opacity: 0.9;
+}
 {% endblock %}
 
 {% block content %}
@@ -83,10 +111,10 @@
         <button class="toggle-btn active" onclick="toggleLanguage('korean')">한글</button>
         <button class="toggle-btn" onclick="toggleLanguage('english')">영어</button>
     </div>
-    <form action="{{ url_for('study') }}" method="POST" class="study-form">
-        <input type="hidden" name="selected_language" id="selected_language" value="korean">
-        <button type="submit" class="study-btn">공부 시작</button>
-    </form>
+    <div class="study-button-container">
+        <a href="{{ url_for('flashcard') }}" class="study-button">공부 시작</a>
+        <a href="{{ url_for('add_expression_form') }}" class="add-button">표현 등록</a>
+    </div>
 {% else %}
     <div class="empty-message">
         영어 공부 새로 시작할까요?
