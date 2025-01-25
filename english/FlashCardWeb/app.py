@@ -7,6 +7,9 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from spreadsheet_manager import SpreadsheetManager
 import logging  # 새로 추가
+from apscheduler.schedulers.background import BackgroundScheduler
+from datetime import datetime
+import pytz
 
 # 로깅 설정 추가
 logging.basicConfig(
@@ -300,6 +303,53 @@ def save_expression():
     except Exception as error:
         logging.error(f"표현 저장 중 에러: {str(error)}", exc_info=True)
         return jsonify({'success': False, 'error': str(error)})
+
+@app.route('/delete_expression', methods=['POST'])
+def delete_expression():
+    if 'email' not in session:
+        return jsonify({'success': False, 'error': 'Not logged in'})
+    
+    try:
+        credentials = flow.credentials
+        sheets_service = create_sheets_service(credentials)
+        sheet_manager = SpreadsheetManager(sheets_service, session['spreadsheet_id'])
+        
+        data = request.get_json()
+        row_id = int(data.get('rowId'))
+        
+        sheet_manager.delete_row('1일', row_id)
+        
+        return jsonify({'success': True})
+    except Exception as error:
+        logging.error(f"표현 삭제 중 에러: {str(error)}", exc_info=True)
+        return jsonify({'success': False, 'error': str(error)})
+
+scheduler = BackgroundScheduler()
+korea_tz = pytz.timezone('Asia/Seoul')
+
+def move_data_job():
+    try:
+        # 모든 활성 사용자의 스프레드시트에 대해 데이터 이동 실행
+        # 실제 구현에서는 데이터베이스에서 활성 사용자 목록을 가져와야 함
+        for user_email, spreadsheet_id in active_users_spreadsheets():
+            credentials = get_user_credentials(user_email)  # 사용자의 credentials 가져오기
+            sheets_service = create_sheets_service(credentials)
+            sheet_manager = SpreadsheetManager(sheets_service, spreadsheet_id)
+            sheet_manager.move_data_to_next_day()
+    except Exception as e:
+        logging.error(f"데이터 이동 작업 중 오류 발생: {str(e)}", exc_info=True)
+
+# 매일 자정에 실행되도록 스케줄러 설정
+scheduler.add_job(
+    move_data_job,
+    'cron',
+    hour=0,
+    minute=0,
+    timezone=korea_tz
+)
+
+# Flask 앱 시작 시 스케줄러 시작
+scheduler.start()
 
 if __name__ == "__main__":
     app.debug = True
