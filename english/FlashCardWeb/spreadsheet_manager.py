@@ -120,4 +120,20 @@ class SpreadsheetManager:
                 body=body
             ).execute()
         except Exception as e:
-            raise Exception(f"데이터 추가 중 오류 발생: {str(e)}") 
+            raise Exception(f"데이터 추가 중 오류 발생: {str(e)}")
+
+    def update_row(self, sheet_name, row_id, english, korean, description):
+        try:
+            range_name = f"{sheet_name}!A{row_id+1}:C{row_id+1}"
+            values = [[english, korean, description]]
+            body = {
+                'values': values
+            }
+            self.service.spreadsheets().values().update(
+                spreadsheetId=self.spreadsheet_id,
+                range=range_name,
+                valueInputOption='RAW',
+                body=body
+            ).execute()
+        except Exception as e:
+            raise Exception(f"데이터 수정 중 오류 발생: {str(e)}") 

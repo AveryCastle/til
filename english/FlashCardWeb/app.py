@@ -265,12 +265,21 @@ def flashcard():
 def add_expression_form():
     if 'email' not in session:
         return redirect(url_for('login'))
-    return render_template('add_expression.html')
+    
+    try:
+        credentials = flow.credentials
+        sheets_service = create_sheets_service(credentials)
+        sheet_manager = SpreadsheetManager(sheets_service, session['spreadsheet_id'])
+        expressions = sheet_manager.get_sheet_data('1일')
+        return render_template('add_expression.html', expressions=expressions)
+    except Exception as error:
+        logging.error(f"표현 조회 중 에러: {str(error)}", exc_info=True)
+        return redirect(url_for('index'))
 
 @app.route('/save_expression', methods=['POST'])
 def save_expression():
     if 'email' not in session:
-        return redirect(url_for('login'))
+        return jsonify({'success': False, 'error': 'Not logged in'})
     
     try:
         credentials = flow.credentials
@@ -280,14 +289,17 @@ def save_expression():
         english = request.form.get('english')
         korean = request.form.get('korean')
         description = request.form.get('description', '')
+        row_id = request.form.get('rowId')
         
-        # '1일' 시트에 데이터 추가
-        sheet_manager.append_to_sheet('1일', english, korean, description)
+        if row_id:  # 수정
+            sheet_manager.update_row('1일', int(row_id), english, korean, description)
+        else:  # 새로운 등록
+            sheet_manager.append_to_sheet('1일', english, korean, description)
         
-        return redirect(url_for('index'))
+        return jsonify({'success': True})
     except Exception as error:
         logging.error(f"표현 저장 중 에러: {str(error)}", exc_info=True)
-        return redirect(url_for('add_expression_form'))
+        return jsonify({'success': False, 'error': str(error)})
 
 if __name__ == "__main__":
     app.debug = True

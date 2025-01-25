@@ -4,9 +4,10 @@
     <title>표현 등록</title>
     <style>
         .container {
-            max-width: 600px;
+            max-width: 800px;
             margin: 50px auto;
             padding: 20px;
+            position: relative;
         }
 
         .form-group {
@@ -49,21 +50,54 @@
         }
 
         .back-link {
-            display: inline-block;
-            margin-top: 20px;
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 10px 20px;
             color: #666;
             text-decoration: none;
+            font-size: 16px;
         }
 
         .back-link:hover {
             text-decoration: underline;
         }
+
+        .expressions-table {
+            width: 100%;
+            margin-top: 40px;
+            border-collapse: collapse;
+        }
+
+        .expressions-table th,
+        .expressions-table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .expressions-table th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+
+        .expressions-table tr:hover {
+            background-color: #f9f9f9;
+            cursor: pointer;
+        }
+
+        #rowId {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>새로운 표현 등록</h2>
-        <form method="POST" action="{{ url_for('save_expression') }}">
+        <a href="{{ url_for('index') }}" class="back-link">← 메인으로 돌아가기</a>
+        
+        <h2>표현 등록/수정</h2>
+        <form id="expressionForm" method="POST" action="{{ url_for('save_expression') }}">
+            <input type="hidden" id="rowId" name="rowId">
             <div class="form-group">
                 <label for="english">영어 표현</label>
                 <input type="text" id="english" name="english" required>
@@ -78,7 +112,58 @@
             </div>
             <button type="submit" class="submit-button">등록</button>
         </form>
-        <a href="{{ url_for('index') }}" class="back-link">← 메인으로 돌아가기</a>
+        
+        <table class="expressions-table">
+            <thead>
+                <tr>
+                    <th>영어 표현</th>
+                    <th>한글 표현</th>
+                    <th>상세 설명</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for expression in expressions %}
+                <tr ondblclick="editExpression(this)" data-row-id="{{ loop.index }}">
+                    <td>{{ expression[0] }}</td>
+                    <td>{{ expression[1] }}</td>
+                    <td>{{ expression[2] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
+
+    <script>
+        function editExpression(row) {
+            document.getElementById('rowId').value = row.dataset.rowId;
+            document.getElementById('english').value = row.cells[0].textContent;
+            document.getElementById('korean').value = row.cells[1].textContent;
+            document.getElementById('description').value = row.cells[2].textContent;
+            document.querySelector('.submit-button').textContent = '수정';
+            window.scrollTo(0, 0);
+        }
+
+        // 폼 제출 후 성공 시 테이블 업데이트
+        document.getElementById('expressionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            try {
+                const response = await fetch('{{ url_for("save_expression") }}', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        location.reload();
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    </script>
 </body>
 </html> 
