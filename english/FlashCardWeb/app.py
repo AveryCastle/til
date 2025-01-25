@@ -267,6 +267,28 @@ def add_expression_form():
         return redirect(url_for('login'))
     return render_template('add_expression.html')
 
+@app.route('/save_expression', methods=['POST'])
+def save_expression():
+    if 'email' not in session:
+        return redirect(url_for('login'))
+    
+    try:
+        credentials = flow.credentials
+        sheets_service = create_sheets_service(credentials)
+        sheet_manager = SpreadsheetManager(sheets_service, session['spreadsheet_id'])
+        
+        english = request.form.get('english')
+        korean = request.form.get('korean')
+        description = request.form.get('description', '')
+        
+        # '1일' 시트에 데이터 추가
+        sheet_manager.append_to_sheet('1일', english, korean, description)
+        
+        return redirect(url_for('index'))
+    except Exception as error:
+        logging.error(f"표현 저장 중 에러: {str(error)}", exc_info=True)
+        return redirect(url_for('add_expression_form'))
+
 if __name__ == "__main__":
     app.debug = True
     app.run()

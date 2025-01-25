@@ -105,9 +105,9 @@ class SpreadsheetManager:
         except HttpError as error:
             raise Exception(f'데이터 조회 중 오류 발생: {error}')
 
-    def append_to_sheet(self, english, korean, description):
+    def append_to_sheet(self, sheet_name, english, korean, description):
         try:
-            range_name = '1일!A:C'
+            range_name = f"{sheet_name}!A:C"
             values = [[english, korean, description]]
             body = {
                 'values': values
@@ -119,5 +119,5 @@ class SpreadsheetManager:
                 insertDataOption='INSERT_ROWS',
                 body=body
             ).execute()
-        except HttpError as error:
-            raise Exception(f'데이터 저장 중 오류 발생: {error}') 
+        except Exception as e:
+            raise Exception(f"데이터 추가 중 오류 발생: {str(e)}") 
