@@ -112,7 +112,10 @@
         <button class="toggle-btn" onclick="toggleLanguage('english')">영어</button>
     </div>
     <div class="study-button-container">
-        <a href="{{ url_for('flashcard') }}" class="study-button">학습 시작</a>
+        <form action="{{ url_for('study') }}" method="POST" style="display: inline;">
+            <input type="hidden" name="selected_language" id="selected_language" value="korean">
+            <button type="submit" class="study-button">학습 시작</button>
+        </form>
         <a href="{{ url_for('add_expression_form') }}" class="add-button">표현 등록</a>
     </div>
 {% else %}
