@@ -197,6 +197,7 @@
 
 {% block content %}
 <div class="flashcard-container">
+    <button class="nav-btn prev-btn" onclick="navigate('prev')"></button>
     <div class="card-wrapper">
         <div class="flashcard" onclick="flipCard()">
             <div class="front">
@@ -211,6 +212,7 @@
             <div class="hint-tooltip">{{ hint_text }}</div>
         </div>
     </div>
+    <button class="nav-btn next-btn" onclick="navigate('next')"></button>
 </div>
 
 <div class="celebration-message" id="celebrationMessage">
