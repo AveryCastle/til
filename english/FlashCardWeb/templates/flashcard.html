@@ -12,12 +12,14 @@
     width: 100%;
     height: calc(100vh - 90px);
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 0;
+    gap: 20px;
 }
 
 .flashcard {
+    position: relative;
     width: 600px;
     height: 400px;
     perspective: 1000px;
@@ -144,44 +146,47 @@
     transition: opacity 0.5s ease-out, visibility 0.5s;
 }
 
-.hint-button {
-  position: absolute;
-  bottom: 100px;
-  right: 100px;
-  padding: 10px 20px;
-  background-color: #4285f4;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1rem;
-  opacity: 0.8;
-  transition: opacity 0.3s, transform 0.3s;
+.card-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 600px;  /* flashcard와 동일한 너비 */
 }
 
-.hint-button:hover {
-  opacity: 1;
-  transform: scale(1.1);
+.button-container {
+    display: flex;
+    justify-content: flex-end;  /* 우측 정렬 */
+    width: 100%;
+    position: relative;  /* 툴팁 위치의 기준점 */
+}
+
+.hint-button {
+    padding: 10px 20px;
+    background-color: #4285f4;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    opacity: 0.8;
+    transition: opacity 0.3s, transform 0.3s;
 }
 
 .hint-tooltip {
-  display: none;
-  position: absolute;
-  bottom: 60px;
-  right: 20px;
-  background-color: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 10px;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  line-height: 1.4;
-  white-space: nowrap;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  z-index: 10;
-}
-
-.hint-button:hover + .hint-tooltip {
-  display: block;
+    position: absolute;
+    top: 100%;  /* 버튼 바로 아래에 위치 */
+    right: 20px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    white-space: nowrap;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+    display: none;
+    margin-top: 10px;  /* 버튼과의 간격 */
 }
 
 @keyframes fadeIn {
@@ -192,28 +197,20 @@
 
 {% block content %}
 <div class="flashcard-container">
-    <button class="nav-btn prev-btn {% if current_index == 0 %}hidden{% endif %}" 
-            onclick="navigate('prev')" 
-            aria-label="이전 카드">
-    </button>
-    
-    <div class="flashcard" onclick="flipCard()">
-        <div class="front">
-            <p>{{ front_text }}</p>
+    <div class="card-wrapper">
+        <div class="flashcard" onclick="flipCard()">
+            <div class="front">
+                <p>{{ front_text }}</p>
+            </div>
+            <div class="back">
+                <p>{{ back_text }}</p>
+            </div>
         </div>
-        <div class="back">
-            <p>{{ back_text }}</p>
+        <div class="button-container">
+            <button class="hint-button">힌트</button>
+            <div class="hint-tooltip">{{ hint_text }}</div>
         </div>
     </div>
-    
-    <button class="nav-btn next-btn {% if current_index >= all_data|length - 1 %}hidden{% endif %}" 
-            onclick="navigate('next')" 
-            aria-label="다음 카드">
-    </button>
-
-    <!-- 힌트 버튼과 말풍선 추가 -->
-    <button class="hint-button">힌트</button>
-    <div class="hint-tooltip">{{ all_data[current_index].description }}</div>
 </div>
 
 <div class="celebration-message" id="celebrationMessage">
@@ -359,31 +356,27 @@
     }
 
     function updateTooltipContent(index) {
-      const tooltip = document.querySelector('.hint-tooltip');
-      if (tooltip) {
-          tooltip.textContent = allData[index].description || '상세 설명이 없습니다.';
-      }
+        const tooltip = document.querySelector('.hint-tooltip');
+        if (tooltip) {
+            tooltip.textContent = allData[index].description || '힌트가 존재하지 않습니다.';
+        }
     }
 
-    function navigate(direction) {
-      clearTimers();
-      const newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
+    // 힌트 버튼 hover 이벤트 추가
+    document.querySelector('.hint-button').addEventListener('mouseenter', function() {
+        const tooltip = document.querySelector('.hint-tooltip');
+        tooltip.style.display = 'block';
+    });
 
-      if (newIndex >= 0 && newIndex < totalCards) {
-          if (isFlipped) {
-              flipCard();
-          }
-          currentIndex = newIndex;
-          updateCardContent(currentIndex);
-          updateNavigationButtons();
-          updateTooltipContent(currentIndex);
-          startTimers();
-      }
-    }
+    document.querySelector('.hint-button').addEventListener('mouseleave', function() {
+        const tooltip = document.querySelector('.hint-tooltip');
+        tooltip.style.display = 'none';
+    });
 
     // 페이지 로드시 초기화
     window.onload = function() {
         updateNavigationButtons();
+        updateTooltipContent(currentIndex);  // 초기 힌트 내용 설정
         startTimers();
     };
 </script>
