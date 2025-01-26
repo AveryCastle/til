@@ -330,9 +330,8 @@ korea_tz = pytz.timezone('Asia/Seoul')
 def move_data_job():
     try:
         # 모든 활성 사용자의 스프레드시트에 대해 데이터 이동 실행
-        # 실제 구현에서는 데이터베이스에서 활성 사용자 목록을 가져와야 함
         for user_email, spreadsheet_id in active_users_spreadsheets():
-            credentials = get_user_credentials(user_email)  # 사용자의 credentials 가져오기
+            credentials = get_user_credentials(user_email)
             sheets_service = create_sheets_service(credentials)
             sheet_manager = SpreadsheetManager(sheets_service, spreadsheet_id)
             sheet_manager.move_data_to_next_day()
@@ -350,6 +349,16 @@ scheduler.add_job(
 
 # Flask 앱 시작 시 스케줄러 시작
 scheduler.start()
+
+def active_users_spreadsheets():
+    # For now, return current user's data if they're in session
+    if 'email' in session and 'spreadsheet_id' in session:
+        return [(session['email'], session['spreadsheet_id'])]
+    return []
+
+def get_user_credentials(user_email):
+    # For now, just return the current flow's credentials
+    return flow.credentials
 
 if __name__ == "__main__":
     app.debug = True
