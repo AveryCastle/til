@@ -4,7 +4,11 @@ class SpreadsheetManager:
     def __init__(self, sheets_service, spreadsheet_id):
         self.service = sheets_service
         self.spreadsheet_id = spreadsheet_id
-        self.sheet_names = ['1일', '2일', '3일', '5일', '7일', '15일', '30일']
+        self.sheet_names = [
+            '1일', '2일', '3일', '4일', '5일', '6일', '7일', '8일', '9일', '10일',
+            '11일', '12일', '13일', '14일', '15일', '16일', '17일', '18일', '19일', '20일',
+            '21일', '22일', '23일', '24일', '25일', '26일', '27일', '28일', '29일', '30일'
+        ]
         self.headers = [['영어', '한글', '상세설명']]
 
     def get_all_sheets(self):
