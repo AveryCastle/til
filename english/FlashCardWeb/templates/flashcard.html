@@ -332,15 +332,16 @@
                                                     text: '시트가 성공적으로 이동되었습니다.',
                                                     icon: 'success'
                                                 }).then(() => {
-                                                    window.location.href = '/';  // 메인 페이지로 리다이렉트
+                                                    window.location.href = '/';
                                                 });
                                             } else {
                                                 Swal.fire({
                                                     title: '오류',
                                                     text: moveData.error || '시트 이동 중 오류가 발생했습니다.',
                                                     icon: 'error'
+                                                }).then(() => {
+                                                    window.location.href = '/';
                                                 });
-                                                flashcardContainer.classList.remove('hide');
                                             }
                                         } catch (error) {
                                             console.error('Error moving sheets:', error);
@@ -348,19 +349,34 @@
                                                 title: '오류',
                                                 text: '시트 이동 중 오류가 발생했습니다.',
                                                 icon: 'error'
+                                            }).then(() => {
+                                                window.location.href = '/';
                                             });
-                                            flashcardContainer.classList.remove('hide');
                                         }
                                     } else {
-                                        flashcardContainer.classList.remove('hide');
+                                        // 취소를 눌렀을 때도 홈으로 이동
+                                        window.location.href = '/';
                                     }
                                 });
                             } else {
-                                flashcardContainer.classList.remove('hide');
+                                // 이미 시트를 이동한 경우
+                                Swal.fire({
+                                    title: '학습 완료',
+                                    text: '오늘의 학습을 완료했습니다!',
+                                    icon: 'success'
+                                }).then(() => {
+                                    window.location.href = '/';
+                                });
                             }
                         } catch (error) {
                             console.error('Error checking move status:', error);
-                            flashcardContainer.classList.remove('hide');
+                            Swal.fire({
+                                title: '오류',
+                                text: '상태 확인 중 오류가 발생했습니다.',
+                                icon: 'error'
+                            }).then(() => {
+                                window.location.href = '/';
+                            });
                         }
                     }, 5000);
                 }, 5000);
