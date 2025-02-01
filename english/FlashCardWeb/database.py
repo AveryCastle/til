@@ -68,4 +68,22 @@ def get_user_credentials(email):
     ).fetchone()
     if result and result[0]:
         return pickle.loads(result[0])
-    return None 
+    return None
+
+def get_user_last_move_date(email):
+    """사용자의 마지막 시트 이동 날짜 조회"""
+    db = get_db()
+    user = db.execute(
+        'SELECT last_move_date FROM active_users WHERE email = ?',
+        (email,)
+    ).fetchone()
+    return user['last_move_date'] if user else None
+
+def update_last_move_date(email, move_date):
+    """사용자의 마지막 시트 이동 날짜 업데이트"""
+    db = get_db()
+    db.execute(
+        'UPDATE active_users SET last_move_date = ? WHERE email = ?',
+        (move_date, email)
+    )
+    db.commit() 

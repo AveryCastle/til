@@ -8,9 +8,9 @@ from googleapiclient.errors import HttpError
 from spreadsheet_manager import SpreadsheetManager
 import logging  # 새로 추가
 # from apscheduler.schedulers.background import BackgroundScheduler
-from datetime import datetime
+from datetime import datetime, date
 import pytz
-from database import get_db, init_db, add_active_user  # add_active_user 추가
+from database import get_db, init_db, add_active_user, get_user_last_move_date, update_last_move_date
 import traceback
 
 # 로깅 설정 추가
@@ -334,20 +334,58 @@ def create_app():
             logging.error(f"표현 삭제 중 에러: {str(error)}", exc_info=True)
             return jsonify({'success': False, 'error': str(error)})
 
+    @app.route('/check_move_status', methods=['POST'])
+    def check_move_status():
+        if 'email' not in session:
+            return jsonify({'success': False, 'error': 'Not logged in'})
+        
+        try:
+            user_email = session['email']
+            korea_tz = pytz.timezone('Asia/Seoul')
+            today = datetime.now(korea_tz).date()
+            
+            # 사용자의 마지막 이동 날짜 확인
+            last_move_date = get_user_last_move_date(user_email)
+            already_moved = last_move_date == today.isoformat()
+            
+            return jsonify({
+                'success': True,
+                'already_moved': already_moved
+            })
+            
+        except Exception as error:
+            logging.error(f"이동 상태 확인 중 에러: {str(error)}", exc_info=True)
+            return jsonify({'success': False, 'error': str(error)})
+
     @app.route('/complete_study', methods=['POST'])
     def complete_study():
         if 'email' not in session:
             return jsonify({'success': False, 'error': 'Not logged in'})
         
         try:
+            user_email = session['email']
+            korea_tz = pytz.timezone('Asia/Seoul')
+            today = datetime.now(korea_tz).date()
+            
+            # 사용자의 마지막 이동 날짜 확인
+            last_move_date = get_user_last_move_date(user_email)
+            if last_move_date == today.isoformat():
+                return jsonify({
+                    'success': False, 
+                    'error': '오늘은 이미 학습을 완료하셨습니다. 내일 다시 시도해주세요.'
+                })
+            
+            # 데이터 이동 실행
             credentials = flow.credentials
             sheets_service = create_sheets_service(credentials)
             sheet_manager = SpreadsheetManager(sheets_service, session['spreadsheet_id'])
-            
-            # 데이터 이동 실행
             sheet_manager.move_data_to_next_day()
             
+            # 마지막 이동 날짜 업데이트 (한국 시간 기준)
+            update_last_move_date(user_email, today.isoformat())
+            
             return jsonify({'success': True})
+            
         except Exception as error:
             logging.error(f"학습 완료 처리 중 에러: {str(error)}", exc_info=True)
             return jsonify({'success': False, 'error': str(error)})
