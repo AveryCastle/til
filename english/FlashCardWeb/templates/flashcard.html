@@ -283,89 +283,6 @@
         }, 250);
     }
 
-    function showCelebration() {
-        fetch('/check_move_status', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Move status check:', data); // 디버깅용 로그
-            
-            if (!data.success) {
-                Swal.fire({
-                    title: '오류',
-                    text: data.error || '상태 확인 중 오류가 발생했습니다.',
-                    icon: 'error',
-                    confirmButtonText: '확인'
-                });
-                return;
-            }
-
-            if (data.already_moved) {
-                Swal.fire({
-                    title: '학습 완료!',
-                    text: '오늘은 이미 학습을 완료하셨습니다. 내일 다시 시도해주세요.',
-                    icon: 'info',
-                    confirmButtonText: '확인'
-                }).then(() => {
-                    window.location.href = '/';
-                });
-                return;
-            }
-
-            // 아직 이동하지 않은 경우에만 완료 확인 대화상자 표시
-            Swal.fire({
-                title: '학습 완료하기',
-                text: '학습을 완료하시겠습니까? 모든 카드가 다음 단계로 이동됩니다.',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: '완료',
-                cancelButtonText: '취소'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetch('/complete_study', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            Swal.fire({
-                                title: '성공!',
-                                text: '학습이 완료되었습니다. 카드들이 다음 단계로 이동되었습니다.',
-                                icon: 'success',
-                                confirmButtonText: '확인'
-                            }).then(() => {
-                                window.location.href = '/';
-                            });
-                        } else {
-                            Swal.fire({
-                                title: '오류',
-                                text: data.error || '오류가 발생했습니다.',
-                                icon: 'error',
-                                confirmButtonText: '확인'
-                            });
-                        }
-                    });
-                }
-            });
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            Swal.fire({
-                title: '오류',
-                text: '상태 확인 중 오류가 발생했습니다.',
-                icon: 'error',
-                confirmButtonText: '확인'
-            });
-        });
-    }
-
     function startTimers() {
         clearTimers();
         autoFlipTimer = setTimeout(() => {
@@ -379,13 +296,43 @@
                     const flashcardContainer = document.querySelector('.flashcard-container');
                     const celebrationMessage = document.getElementById('celebrationMessage');
                     
-                    flashcardContainer.classList.add('hide');  // 플래시카드 컨테이너 숨기기
-                    celebrationMessage.classList.add('show');
+                    flashcardContainer.classList.add('hide');
+                    celebrationMessage.style.display = 'block';
+                    showCelebration();  // 폭죽 애니메이션 시작
                     
-                    setTimeout(() => {
-                        celebrationMessage.classList.remove('show');
-                        showCelebration();
-                    }, 3000);
+                    // 폭죽 애니메이션이 끝나갈 때 check_move_status 호출
+                    setTimeout(async () => {
+                        celebrationMessage.style.display = 'none';
+                        
+                        try {
+                            const response = await fetch('/check_move_status');
+                            const data = await response.json();
+                            console.log(data);
+                            if (!data.moved_today) {
+                                // 오늘 시트 이동을 하지 않은 경우
+                                Swal.fire({
+                                    title: '시트 이동하기',
+                                    text: '오늘의 학습을 완료했습니다. 다음 시트로 이동하시겠습니까?',
+                                    icon: 'question',
+                                    showCancelButton: true,
+                                    confirmButtonText: '이동',
+                                    cancelButtonText: '취소'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        window.location.href = '/';
+                                    } else {
+                                        flashcardContainer.classList.remove('hide');
+                                    }
+                                });
+                            } else {
+                                // 이미 시트 이동을 한 경우
+                                flashcardContainer.classList.remove('hide');
+                            }
+                        } catch (error) {
+                            console.error('Error checking move status:', error);
+                            flashcardContainer.classList.remove('hide');
+                        }
+                    }, 5000);  // 폭죽 애니메이션이 끝날 때쯤
                 }, 5000);
             }
         }, 5000);
@@ -468,5 +415,37 @@
 
     // Complete Study 버튼에 대한 이벤트 리스너
     document.getElementById('completeStudy').addEventListener('click', showCelebration);
+
+    function showCelebration() {
+        const duration = 5 * 1000;  // 5초 동안 폭죽 지속
+        const animationEnd = Date.now() + duration;
+        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+        function randomInRange(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        const interval = setInterval(function() {
+            const timeLeft = animationEnd - Date.now();
+
+            if (timeLeft <= 0) {
+                return clearInterval(interval);
+            }
+
+            const particleCount = 50 * (timeLeft / duration);
+            
+            // 폭죽을 여러 위치에서 발사
+            confetti({
+                ...defaults,
+                particleCount,
+                origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+            });
+            confetti({
+                ...defaults,
+                particleCount,
+                origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+            });
+        }, 250);
+    }
 </script>
 {% endblock %} 

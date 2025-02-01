@@ -334,35 +334,24 @@ def create_app():
             logging.error(f"표현 삭제 중 에러: {str(error)}", exc_info=True)
             return jsonify({'success': False, 'error': str(error)})
 
-    @app.route('/check_move_status', methods=['POST'])
+    @app.route('/check_move_status', methods=['GET'])
     def check_move_status():
         if 'email' not in session:
-            return jsonify({'success': False, 'error': 'Not logged in'})
+            return jsonify({'error': 'Not logged in'}), 401
         
         try:
-            user_email = session['email']
-            korea_tz = pytz.timezone('Asia/Seoul')
-            today = datetime.now(korea_tz).date()
+            last_move_date = get_user_last_move_date(session['email'])
+            today = datetime.now().strftime('%Y-%m-%d')
             
-            # database.py의 함수 호출
-            last_move_date = get_user_last_move_date(user_email)
-            
-            # 디버깅을 위한 로그 추가
-            logging.info(f"Last move date: {last_move_date}, Today: {today.strftime('%Y-%m-%d')}")
-            
-            already_moved = last_move_date == today.strftime('%Y-%m-%d')
-            logging.info(f"Already moved today: {already_moved}")
-            
+            moved_today = (last_move_date == today)
             return jsonify({
-                'success': True,
-                'already_moved': already_moved,
-                'last_move_date': last_move_date,
-                'today': today.strftime('%Y-%m-%d')
+                'moved_today': moved_today,
+                'last_move_date': last_move_date
             })
             
-        except Exception as error:
-            logging.error(f"이동 상태 확인 중 에러: {str(error)}", exc_info=True)
-            return jsonify({'success': False, 'error': str(error)})
+        except Exception as e:
+            logging.error(f"Error checking move status: {str(e)}")
+            return jsonify({'error': str(e)}), 500
 
     @app.route('/complete_study', methods=['POST'])
     def complete_study():
