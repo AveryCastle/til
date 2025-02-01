@@ -2,6 +2,7 @@ import sqlite3
 import click
 from flask import current_app, g
 import pickle
+import logging
 
 DATABASE = 'flashcard.db'
 
@@ -71,13 +72,29 @@ def get_user_credentials(email):
     return None
 
 def get_user_last_move_date(email):
-    """사용자의 마지막 시트 이동 날짜 조회"""
-    db = get_db()
-    user = db.execute(
-        'SELECT last_move_date FROM active_users WHERE email = ?',
-        (email,)
-    ).fetchone()
-    return user['last_move_date'] if user else None
+    """
+    사용자의 마지막 시트 이동 날짜를 조회합니다.
+    Args:
+        email (str): 사용자 이메일
+    Returns:
+        str or None: 'YYYY-MM-DD' 형식의 날짜 문자열 또는 None
+    """
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        
+        cursor.execute("""
+            SELECT strftime('%Y-%m-%d', last_move_date)
+            FROM active_users 
+            WHERE email = ?
+        """, (email,))
+        
+        result = cursor.fetchone()
+        return result[0] if result else None
+        
+    except Exception as e:
+        logging.error(f"Error getting last move date: {str(e)}")
+        return None
 
 def update_last_move_date(email, move_date):
     """사용자의 마지막 시트 이동 날짜 업데이트"""

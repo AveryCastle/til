@@ -115,7 +115,7 @@ def create_app():
             sheet_manager = SpreadsheetManager(sheets_service, session['spreadsheet_id'])
             
             all_data = []
-            for sheet_name in ['30일', '15일', '7일', '5일', '3일', '2일', '1일']:
+            for sheet_name in ['30일', '15일', '10일', '7일', '5일', '3일', '2일', '1일']:
                 sheet_data = sheet_manager.get_sheet_data(sheet_name)
                 if sheet_data:
                     for row in sheet_data:
@@ -344,13 +344,20 @@ def create_app():
             korea_tz = pytz.timezone('Asia/Seoul')
             today = datetime.now(korea_tz).date()
             
-            # 사용자의 마지막 이동 날짜 확인
+            # database.py의 함수 호출
             last_move_date = get_user_last_move_date(user_email)
-            already_moved = last_move_date == today.isoformat()
+            
+            # 디버깅을 위한 로그 추가
+            logging.info(f"Last move date: {last_move_date}, Today: {today.strftime('%Y-%m-%d')}")
+            
+            already_moved = last_move_date == today.strftime('%Y-%m-%d')
+            logging.info(f"Already moved today: {already_moved}")
             
             return jsonify({
                 'success': True,
-                'already_moved': already_moved
+                'already_moved': already_moved,
+                'last_move_date': last_move_date,
+                'today': today.strftime('%Y-%m-%d')
             })
             
         except Exception as error:

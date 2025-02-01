@@ -4,6 +4,7 @@
 
 {% block head_scripts %}
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 {% endblock %}
 
 {% block styles %}
@@ -144,6 +145,7 @@
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.5s ease-out, visibility 0.5s;
+    pointer-events: none;  /* 숨김 상태에서 클릭 방지 */
 }
 
 .card-wrapper {
@@ -282,7 +284,6 @@
     }
 
     function showCelebration() {
-        // 먼저 당일 이동 여부 체크
         fetch('/check_move_status', {
             method: 'POST',
             headers: {
@@ -291,22 +292,40 @@
         })
         .then(response => response.json())
         .then(data => {
-            if (data.already_moved) {
-                alert('오늘은 이미 학습을 완료하셨습니다. 내일 다시 시도해주세요.');
-                window.location.href = '/';
+            console.log('Move status check:', data); // 디버깅용 로그
+            
+            if (!data.success) {
+                Swal.fire({
+                    title: '오류',
+                    text: data.error || '상태 확인 중 오류가 발생했습니다.',
+                    icon: 'error',
+                    confirmButtonText: '확인'
+                });
                 return;
             }
 
-            // 아직 이동하지 않은 경우에만 축하 메시지와 이동 프로세스 실행
-            const message = document.getElementById('celebrationMessage');
-            const container = document.querySelector('.flashcard-container');
-            
-            container.classList.add('hide');
-            message.classList.add('show');
-            startConfetti();
+            if (data.already_moved) {
+                Swal.fire({
+                    title: '학습 완료!',
+                    text: '오늘은 이미 학습을 완료하셨습니다. 내일 다시 시도해주세요.',
+                    icon: 'info',
+                    confirmButtonText: '확인'
+                }).then(() => {
+                    window.location.href = '/';
+                });
+                return;
+            }
 
-            setTimeout(() => {
-                if (confirm('학습을 완료하시겠습니까? 모든 카드가 다음 단계로 이동됩니다.')) {
+            // 아직 이동하지 않은 경우에만 완료 확인 대화상자 표시
+            Swal.fire({
+                title: '학습 완료하기',
+                text: '학습을 완료하시겠습니까? 모든 카드가 다음 단계로 이동됩니다.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: '완료',
+                cancelButtonText: '취소'
+            }).then((result) => {
+                if (result.isConfirmed) {
                     fetch('/complete_study', {
                         method: 'POST',
                         headers: {
@@ -316,22 +335,34 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            alert('학습이 완료되었습니다. 카드들이 다음 단계로 이동되었습니다.');
-                            window.location.href = '/';
+                            Swal.fire({
+                                title: '성공!',
+                                text: '학습이 완료되었습니다. 카드들이 다음 단계로 이동되었습니다.',
+                                icon: 'success',
+                                confirmButtonText: '확인'
+                            }).then(() => {
+                                window.location.href = '/';
+                            });
                         } else {
-                            alert('오류가 발생했습니다: ' + data.error);
+                            Swal.fire({
+                                title: '오류',
+                                text: data.error || '오류가 발생했습니다.',
+                                icon: 'error',
+                                confirmButtonText: '확인'
+                            });
                         }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('오류가 발생했습니다.');
                     });
                 }
-            }, 3000);
+            });
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('오류가 발생했습니다.');
+            Swal.fire({
+                title: '오류',
+                text: '상태 확인 중 오류가 발생했습니다.',
+                icon: 'error',
+                confirmButtonText: '확인'
+            });
         });
     }
 
@@ -344,9 +375,17 @@
                     navigate('next');
                 }, 5000);
             } else if (isFlipped) {
-                // 마지막 카드가 뒤집힌 후 5초 뒤에 축하 메시지 표시
                 setTimeout(() => {
-                    showCelebration();
+                    const flashcardContainer = document.querySelector('.flashcard-container');
+                    const celebrationMessage = document.getElementById('celebrationMessage');
+                    
+                    flashcardContainer.classList.add('hide');  // 플래시카드 컨테이너 숨기기
+                    celebrationMessage.classList.add('show');
+                    
+                    setTimeout(() => {
+                        celebrationMessage.classList.remove('show');
+                        showCelebration();
+                    }, 3000);
                 }, 5000);
             }
         }, 5000);
@@ -427,28 +466,7 @@
         startTimers();
     };
 
-    document.getElementById('completeStudy').addEventListener('click', function() {
-        if (confirm('학습을 완료하시겠습니까? 모든 카드가 다음 단계로 이동됩니다.')) {
-            fetch('/complete_study', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('학습이 완료되었습니다. 카드들이 다음 단계로 이동되었습니다.');
-                    window.location.href = '/';  // 메인 페이지로 리디렉션
-                } else {
-                    alert('오류가 발생했습니다: ' + data.error);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('오류가 발생했습니다.');
-            });
-        }
-    });
+    // Complete Study 버튼에 대한 이벤트 리스너
+    document.getElementById('completeStudy').addEventListener('click', showCelebration);
 </script>
 {% endblock %} 
