@@ -298,9 +298,8 @@
                     
                     flashcardContainer.classList.add('hide');
                     celebrationMessage.style.display = 'block';
-                    showCelebration();  // 폭죽 애니메이션 시작
-                    
-                    // 폭죽 애니메이션이 끝나갈 때 check_move_status 호출
+                    showCelebration();
+
                     setTimeout(async () => {
                         celebrationMessage.style.display = 'none';
                         
@@ -309,7 +308,6 @@
                             const data = await response.json();
                             console.log(data);
                             if (!data.moved_today) {
-                                // 오늘 시트 이동을 하지 않은 경우
                                 Swal.fire({
                                     title: '시트 이동하기',
                                     text: '오늘의 학습을 완료했습니다. 다음 시트로 이동하시겠습니까?',
@@ -317,22 +315,54 @@
                                     showCancelButton: true,
                                     confirmButtonText: '이동',
                                     cancelButtonText: '취소'
-                                }).then((result) => {
+                                }).then(async (result) => {
                                     if (result.isConfirmed) {
-                                        window.location.href = '/';
+                                        try {
+                                            const moveResponse = await fetch('/complete_study', {
+                                                method: 'POST',
+                                                headers: {
+                                                    'Content-Type': 'application/json'
+                                                }
+                                            });
+                                            const moveData = await moveResponse.json();
+                                            
+                                            if (moveData.success) {
+                                                Swal.fire({
+                                                    title: '성공!',
+                                                    text: '시트가 성공적으로 이동되었습니다.',
+                                                    icon: 'success'
+                                                }).then(() => {
+                                                    window.location.href = '/';  // 메인 페이지로 리다이렉트
+                                                });
+                                            } else {
+                                                Swal.fire({
+                                                    title: '오류',
+                                                    text: moveData.error || '시트 이동 중 오류가 발생했습니다.',
+                                                    icon: 'error'
+                                                });
+                                                flashcardContainer.classList.remove('hide');
+                                            }
+                                        } catch (error) {
+                                            console.error('Error moving sheets:', error);
+                                            Swal.fire({
+                                                title: '오류',
+                                                text: '시트 이동 중 오류가 발생했습니다.',
+                                                icon: 'error'
+                                            });
+                                            flashcardContainer.classList.remove('hide');
+                                        }
                                     } else {
                                         flashcardContainer.classList.remove('hide');
                                     }
                                 });
                             } else {
-                                // 이미 시트 이동을 한 경우
                                 flashcardContainer.classList.remove('hide');
                             }
                         } catch (error) {
                             console.error('Error checking move status:', error);
                             flashcardContainer.classList.remove('hide');
                         }
-                    }, 5000);  // 폭죽 애니메이션이 끝날 때쯤
+                    }, 5000);
                 }, 5000);
             }
         }, 5000);

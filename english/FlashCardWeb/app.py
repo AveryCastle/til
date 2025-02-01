@@ -344,6 +344,7 @@ def create_app():
             today = datetime.now().strftime('%Y-%m-%d')
             
             moved_today = (last_move_date == today)
+            print(f"moved_today: {moved_today}, last_move_date: {last_move_date}, today: {today}")
             return jsonify({
                 'moved_today': moved_today,
                 'last_move_date': last_move_date
