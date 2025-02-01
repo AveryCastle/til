@@ -155,77 +155,53 @@ class SpreadsheetManager:
             raise Exception(f"데이터 삭제 중 오류 발생: {str(e)}")
 
     def move_data_to_next_day(self):
-        try:
-            # 30일차 데이터 삭제
-            day_30_data = self.get_sheet_data('30일')
-            if day_30_data:
-                self.clear_sheet_data('30일')
-
-            # 역순으로 데이터 이동 (29일 -> 30일, 28일 -> 29일, ...)
-            days = ['30일', '15일', '7일', '5일', '3일', '2일', '1일']
-            hidden_days = ['29일', '28일', '27일', '26일', '25일', '24일', '23일', '22일', '21일', '20일', 
-                           '19일', '18일', '17일', '16일', '14일', '13일', '12일', '11일', '10일', '9일', 
-                           '8일', '6일', '4일']  # 숨겨진 시트들
+        """각 시트의 데이터를 다음 단계로 이동"""
+        sheets = ['1일', '2일', '3일', '5일', '7일', '15일', '30일']
+        
+        # 30일 시트의 데이터는 삭제
+        self.clear_sheet('30일')
+        
+        # 나머지 시트들의 데이터를 다음 시트로 이동 (역순으로 진행)
+        for i in range(len(sheets)-1, 0, -1):
+            current_sheet = sheets[i-1]
+            next_sheet = sheets[i]
             
-            # 숨겨진 시트 생성 (없는 경우)
-            existing_sheets = self.get_all_sheets()
-            for hidden_day in hidden_days:
-                if hidden_day not in existing_sheets:
-                    self.create_sheet(hidden_day)
-                    self.format_headers(hidden_day)
-                    self.hide_sheet(hidden_day)
-
-            # 데이터 이동
-            for i in range(len(days) - 1):
-                current_day = days[i]
-                prev_day = days[i + 1]
+            # 현재 시트의 데이터 가져오기
+            current_data = self.get_sheet_data(current_sheet)
+            
+            if current_data:
+                # 다음 시트에 데이터 추가
+                self.append_multiple_rows(next_sheet, current_data)
                 
-                # 7일차 -> 8일차(숨김), 15일차 -> 16일차(숨김) 등의 특수 케이스 처리
-                if current_day in ['7일', '15일']:
-                    hidden_next_day = f"{int(current_day.replace('일', '')) + 1}일"
-                    if hidden_next_day not in existing_sheets:
-                        self.create_sheet(hidden_next_day)
-                        self.format_headers(hidden_next_day)
-                        self.hide_sheet(hidden_next_day)
-                    self.copy_data_between_sheets(current_day, hidden_next_day)
-                
-                # 일반적인 데이터 이동
-                prev_data = self.get_sheet_data(prev_day)
-                if prev_data:
-                    self.clear_sheet_data(current_day)
-                    self.write_data_to_sheet(current_day, prev_data)
-                    self.clear_sheet_data(prev_day)
+            # 현재 시트 비우기
+            self.clear_sheet(current_sheet)
 
-        except Exception as e:
-            raise Exception(f"데이터 이동 중 오류 발생: {str(e)}")
-
-    def clear_sheet_data(self, sheet_name):
+    def clear_sheet(self, sheet_name):
+        """시트의 모든 데이터 삭제"""
         try:
-            range_name = f"{sheet_name}!A2:C"  # 헤더 제외
-            body = {
-                'values': []
-            }
             self.service.spreadsheets().values().clear(
                 spreadsheetId=self.spreadsheet_id,
-                range=range_name
+                range=f'{sheet_name}!A2:D',  # 헤더를 제외한 모든 데이터
+                body={}
             ).execute()
         except Exception as e:
-            raise Exception(f"데이터 삭제 중 오류 발생: {str(e)}")
+            raise Exception(f"시트 클리어 중 오류 발생: {str(e)}")
 
-    def write_data_to_sheet(self, sheet_name, data):
+    def append_multiple_rows(self, sheet_name, data):
+        """여러 행을 한 번에 추가"""
         try:
-            range_name = f"{sheet_name}!A2:C"  # 헤더 제외
             body = {
                 'values': data
             }
-            self.service.spreadsheets().values().update(
+            self.service.spreadsheets().values().append(
                 spreadsheetId=self.spreadsheet_id,
-                range=range_name,
+                range=f'{sheet_name}!A1',
                 valueInputOption='RAW',
+                insertDataOption='INSERT_ROWS',
                 body=body
             ).execute()
         except Exception as e:
-            raise Exception(f"데이터 쓰기 중 오류 발생: {str(e)}")
+            raise Exception(f"데이터 추가 중 오류 발생: {str(e)}")
 
     def hide_sheet(self, sheet_name):
         try:
