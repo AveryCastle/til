@@ -1,6 +1,7 @@
 import sqlite3
 import click
 from flask import current_app, g
+import pickle
 
 DATABASE = 'flashcard.db'
 
@@ -44,4 +45,27 @@ def add_active_user(email, spreadsheet_id):
         'INSERT OR REPLACE INTO active_users (email, spreadsheet_id) VALUES (?, ?)',
         (email, spreadsheet_id)
     )
-    db.commit() 
+    db.commit()
+
+def save_user_credentials(email, credentials):
+    """사용자의 credentials를 데이터베이스에 저장"""
+    db = get_db()
+    # credentials 객체를 바이너리로 직렬화
+    pickled_credentials = pickle.dumps(credentials)
+    db.execute('''
+        UPDATE active_users 
+        SET credentials = ? 
+        WHERE email = ?
+    ''', (pickled_credentials, email))
+    db.commit()
+
+def get_user_credentials(email):
+    """데이터베이스에서 사용자의 credentials 조회"""
+    db = get_db()
+    result = db.execute(
+        'SELECT credentials FROM active_users WHERE email = ?', 
+        (email,)
+    ).fetchone()
+    if result and result[0]:
+        return pickle.loads(result[0])
+    return None 

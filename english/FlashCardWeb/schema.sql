@@ -1,5 +1,7 @@
 CREATE TABLE IF NOT EXISTS active_users (
-    email TEXT PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT NOT NULL,
     spreadsheet_id TEXT NOT NULL,
+    credentials BLOB,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-); 
+);
