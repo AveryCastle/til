@@ -10,7 +10,7 @@ import logging  # 새로 추가
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
 import pytz
-from database import get_db
+from database import get_db, init_db, add_active_user  # add_active_user 추가
 import traceback
 
 # 로깅 설정 추가
@@ -161,7 +161,6 @@ def create_app():
         authorization_url, _ = flow.authorization_url(prompt="consent")
         return redirect(authorization_url)
 
-
     @app.route("/callback")
     def callback():
         flow.fetch_token(authorization_response=request.url)
@@ -177,15 +176,15 @@ def create_app():
         session["email"] = id_info.get("email")
 
         try:
-            # 서비스 초기화
+            with app.app_context():
+                init_db()
+
             drive_service = create_drive_service(credentials)
             sheets_service = create_sheets_service(credentials)
 
-            # 폴더 확인 및 생성
             folder_id = check_and_create_folder(drive_service, 'FlashCardWeb_English')
             session['folder_id'] = folder_id
 
-            # 스프레드시트 확인 및 생성
             spreadsheet_id = check_and_create_spreadsheet(
                 drive_service, 
                 sheets_service, 
@@ -193,6 +192,9 @@ def create_app():
                 'English'
             )
             session['spreadsheet_id'] = spreadsheet_id
+
+            # database.py의 함수를 사용하여 사용자 정보 저장
+            add_active_user(session['email'], spreadsheet_id)
 
             return redirect(url_for('index'))
 
@@ -351,8 +353,8 @@ def create_app():
     scheduler.add_job(
         move_data_job,
         'cron',
-        hour=11,
-        minute=10,
+        hour=0,
+        minute=30,
         timezone=korea_tz
     )
 
