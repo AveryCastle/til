@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, session, request, render_template, jsonify, current_app
+from flask import Flask, redirect, url_for, session, request, render_template, jsonify, current_app, make_response, send_from_directory
 from google.oauth2 import id_token
 from google_auth_oauthlib.flow import Flow
 import google.auth.transport.requests
@@ -404,6 +404,12 @@ def create_app():
     def get_user_credentials(user_email):
         # For now, just return the current flow's credentials
         return flow.credentials
+
+    @app.route('/static/sw.js')
+    def sw():
+        response = make_response(send_from_directory('static', 'sw.js'))
+        response.headers['Content-Type'] = 'application/javascript'
+        return response
 
     return app
 
