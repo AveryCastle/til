@@ -12,6 +12,7 @@ from datetime import datetime, date
 import pytz
 from database import get_db, init_db, add_active_user, get_user_last_move_date, update_last_move_date
 import traceback
+from flask_talisman import Talisman  # pip install flask-talisman
 
 # 로깅 설정 추가
 logging.basicConfig(
@@ -27,7 +28,15 @@ def create_app():
     global flask_app
     app = Flask(__name__)
     flask_app = app
-    app.secret_key = "your_secret_key"  # 안전한 임의의 문자열로 변경하세요.
+    app.secret_key = "1q2w3e4r5t6y7u8i9o0p"  # 안전한 임의의 문자열로 변경하세요.
+    Talisman(app, 
+        content_security_policy={
+            'default-src': "'self'",
+            'style-src': ["'self'", "'unsafe-inline'"],
+            'script-src': ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net"],
+            'img-src': ["'self'", 'data:', 'https:']
+        }
+    )
 
     # Google OAuth 2.0 클라이언트 구성
     os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"  # HTTPS가 아닌 경우 활성화 (개발용)
@@ -416,4 +425,4 @@ def create_app():
 if __name__ == "__main__":
     app = create_app()
     app.debug = True
-    app.run()
+    app.run(ssl_context='adhoc')  # pip install pyOpenSSL
