@@ -113,7 +113,7 @@ def create_app():
         except HttpError as error:
             raise Exception(f'스프레드시트 생성 중 오류 발생: {error}')
 
-    @app.route("/")
+    @app.route('/', methods=['GET'])
     def index():
         if 'email' not in session:
             return redirect(url_for('login'))
@@ -143,34 +143,12 @@ def create_app():
             session.clear()
             return redirect(url_for('login'))
 
-    @app.route("/save", methods=['POST'])
-    def save():
-        if 'google_id' not in session:
-            authorization_url, _ = flow.authorization_url(prompt="consent")
-            return redirect(authorization_url)
-
-        try:
-            credentials = flow.credentials
-            sheets_service = create_sheets_service(credentials)
-            sheet_manager = SpreadsheetManager(sheets_service, session['spreadsheet_id'])
-
-            english = request.form.get('english')
-            korean = request.form.get('korean')
-            description = request.form.get('description', '')
-
-            sheet_manager.append_to_sheet(english, korean, description)
-            return redirect('/')
-        except Exception as error:
-            logging.error(f"저장 중 에러: {str(error)}", exc_info=True)
-            session.clear()
-            return redirect(url_for('login'))
-
-    @app.route("/login")
+    @app.route('/login', methods=['GET'])
     def login():
         authorization_url, _ = flow.authorization_url(prompt="consent")
         return redirect(authorization_url)
 
-    @app.route("/callback")
+    @app.route('/callback', methods=['GET'])
     def callback():
         flow.fetch_token(authorization_response=request.url)
 
@@ -414,15 +392,27 @@ def create_app():
         # For now, just return the current flow's credentials
         return flow.credentials
 
-    @app.route('/static/sw.js')
-    def sw():
+    @app.route('/static/sw.js', methods=['GET'])
+    def serve_sw():
         response = make_response(send_from_directory('static', 'sw.js'))
         response.headers['Content-Type'] = 'application/javascript'
+        return response
+
+    # manifest.json을 서빙하기 위한 라우트 추가
+    @app.route('/static/manifest.json', methods=['GET'])
+    def serve_manifest():
+        response = make_response(send_from_directory('static', 'manifest.json'))
+        response.headers['Content-Type'] = 'application/json'
         return response
 
     return app
 
 if __name__ == "__main__":
-    app = create_app()
-    app.debug = True
-    app.run(ssl_context='adhoc')  # pip install pyOpenSSL
+     app = create_app()
+     # 로컬 개발 환경에서만 실행되는 코드
+     if os.environ.get('FLASK_ENV') == 'development' or os.environ.get('FLASK_ENV'):
+         app.debug = True
+         app.run(ssl_context='adhoc')
+     else:
+         # Production 환경(Python Anywhere)에서는 이 부분이 실행되지 않음
+         app.run()
