@@ -8,10 +8,9 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/users")
-class UserController(private val userService: UserService) {
-
+class UserController(
+    private val userService: UserService,
+) {
     @GetMapping
-    fun searchUser(username: String): User? {
-        return userService.searchUserByUsername(username)
-    }
+    fun searchUser(username: String): User? = userService.searchUserByUsername(username)
 }

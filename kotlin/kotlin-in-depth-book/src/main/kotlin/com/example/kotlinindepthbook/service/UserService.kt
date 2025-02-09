@@ -9,8 +9,9 @@ import org.springframework.stereotype.Service
 
 @Slf4j
 @Service
-class UserService(private val userRepository: UserRepository) {
-
+class UserService(
+    private val userRepository: UserRepository,
+) {
     companion object {
         private val log: Logger = LoggerFactory.getLogger(UserService::class.java)
     }
