@@ -74,3 +74,7 @@ ktlint {
         reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.JSON)
     }
 }
+
+tasks.named("build") {
+    dependsOn("ktlintCheck")
+}
