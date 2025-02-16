@@ -1,35 +1,174 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#4285f4">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192x192.png') }}">
+    
     <title>FlashCard Web - 로그인</title>
+    
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            height: 100%;
+            height: -webkit-fill-available;
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
             background-color: #f5f5f5;
+            padding: clamp(1rem, 3vw, 2rem);
         }
+
         .login-container {
-            text-align: center;
-            padding: 40px;
+            width: 100%;
+            max-width: 400px;
             background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: clamp(12px, 3vw, 16px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: clamp(2rem, 5vw, 3rem);
+            text-align: center;
+            animation: fadeIn 0.5s ease-out;
         }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #333;
+            font-size: clamp(1.8rem, 5vw, 2.5rem);
+            margin-bottom: clamp(0.8rem, 2vw, 1.2rem);
+            font-weight: 700;
+        }
+
+        p {
+            color: #666;
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            line-height: 1.5;
+            margin-bottom: clamp(2rem, 5vw, 3rem);
+        }
+
         .login-btn {
-            display: inline-block;
-            padding: 12px 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(0.8rem, 2vw, 1rem);
+            padding: clamp(0.8rem, 2.5vw, 1.2rem) clamp(1.5rem, 4vw, 2rem);
             background-color: #4285f4;
             color: white;
             text-decoration: none;
-            border-radius: 4px;
-            font-weight: bold;
+            border-radius: clamp(6px, 1.5vw, 8px);
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            min-width: clamp(200px, 50vw, 250px);
         }
+
         .login-btn:hover {
             background-color: #357abd;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Google 로고 아이콘 */
+        .google-icon {
+            width: clamp(20px, 5vw, 24px);
+            height: clamp(20px, 5vw, 24px);
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="%23FFF" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="%23FFF" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="%23FFF" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="%23FFF" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+
+        /* 모바일 최적화 */
+        @media (max-width: 480px) {
+            .login-container {
+                padding: clamp(1.5rem, 4vw, 2rem);
+            }
+
+            .login-btn {
+                width: 100%;
+            }
+        }
+
+        /* iOS 안전 영역 대응 */
+        @supports (padding: max(0px)) {
+            body {
+                padding-left: max(1rem, env(safe-area-inset-left));
+                padding-right: max(1rem, env(safe-area-inset-right));
+                padding-bottom: max(1rem, env(safe-area-inset-bottom));
+                padding-top: max(1rem, env(safe-area-inset-top));
+            }
+        }
+
+        /* 다크 모드 대응 */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #1a1a1a;
+            }
+
+            .login-container {
+                background-color: #2d2d2d;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            }
+
+            h1 {
+                color: #ffffff;
+            }
+
+            p {
+                color: #cccccc;
+            }
+
+            .login-btn {
+                background-color: #5c9cf5;
+            }
+
+            .login-btn:hover {
+                background-color: #4285f4;
+            }
+        }
+
+        /* 터치 최적화 */
+        @media (hover: none) {
+            .login-btn {
+                touch-action: manipulation;
+            }
+
+            .login-btn:hover {
+                transform: none;
+                box-shadow: none;
+            }
         }
     </style>
 </head>
@@ -37,7 +176,10 @@
     <div class="login-container">
         <h1>FlashCard Web</h1>
         <p>영어 단어 학습을 위한 플래시카드 웹 서비스</p>
-        <a href="/login" class="login-btn">Google 계정으로 로그인</a>
+        <a href="/login" class="login-btn">
+            <span class="google-icon"></span>
+            Google 계정으로 로그인
+        </a>
     </div>
 </body>
 </html> 

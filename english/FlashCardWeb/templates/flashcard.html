@@ -8,21 +8,37 @@
 {% endblock %}
 
 {% block styles %}
+<style>
 .flashcard-container {
     position: relative;
     width: 100%;
-    height: calc(100vh - 90px);
+    height: calc(100vh - var(--nav-header-height)); /* nav-header 높이를 제외한 전체 높이 */
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
+    padding: 0;
+    margin: 0;
+    overflow-y: auto;
+}
+
+.card-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* 세로 중앙 정렬 */
+    align-items: center; /* 가로 중앙 정렬 */
     gap: 20px;
+    width: 100%;
+    max-width: 600px;
+    padding: 0 40px;
+    height: 100%; /* 컨테이너 전체 높이 사용 */
 }
 
 .flashcard {
     position: relative;
-    width: 600px;
-    height: 400px;
+    width: 100%;
+    min-height: 400px;
+    height: auto;
     perspective: 1000px;
     cursor: pointer;
 }
@@ -31,7 +47,8 @@
 .flashcard .back {
     position: absolute;
     width: 100%;
-    height: 100%;
+    min-height: 100%;
+    height: auto;
     backface-visibility: hidden;
     transition: transform 0.6s;
     display: flex;
@@ -40,14 +57,18 @@
     background-color: white;
     border-radius: 15px;
     box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    padding: clamp(30px, 5vw, 40px);
 }
 
 .flashcard .front p,
 .flashcard .back p {
-    font-size: 2.5rem;
-    padding: 2rem;
-    text-align: center;
+    font-size: clamp(1.2rem, 4vw, 2.5rem);
     line-height: 1.4;
+    text-align: center;
+    margin: 0;
+    width: 100%;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .flashcard .back {
@@ -62,62 +83,90 @@
     transform: rotateY(0deg);
 }
 
-.nav-btn {
+.card-nav-btn {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: 50px;
-    height: 50px;
+    width: 30px;
+    height: 30px;
     border: none;
     background: none;
     cursor: pointer;
     opacity: 0.7;
     transition: opacity 0.3s;
     padding: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.nav-btn:hover {
+.card-nav-btn:hover {
     opacity: 1;
 }
 
-.nav-btn::before {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 0;
-    border-style: solid;
-}
-
 .prev-btn {
-    left: 100px;
+    left: 0;
 }
 
 .next-btn {
-    right: 100px;
+    right: 0;
 }
 
 .prev-btn::before {
-    border-width: 20px 25px 20px 0;
+    content: '';
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 8px 12px 8px 0;
     border-color: transparent #4285f4 transparent transparent;
-    position: absolute;
-    content: '';
-    top: 50%;
-    left: 50%;
-    transform: translate(-25%, -50%);
 }
 
-.next-btn::before {
-    border-width: 20px 0 20px 25px;
+.next-btn::after {
+    content: '';
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 8px 0 8px 12px;
     border-color: transparent transparent transparent #4285f4;
-    position: absolute;
-    content: '';
-    top: 50%;
-    left: 50%;
-    transform: translate(-75%, -50%);
 }
 
-.hidden {
+.button-container {
+    position: relative;
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    margin-top: 20px; /* 힌트 버튼과 카드 사이 간격 */
+}
+
+.hint-button {
+    padding: clamp(8px, 2vw, 10px) clamp(15px, 3vw, 20px);
+    background-color: #4285f4;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: clamp(0.8rem, 2vw, 1rem);
+    opacity: 0.8;
+    transition: opacity 0.3s;
+}
+
+.hint-tooltip {
+    position: absolute;
+    top: 100%;
+    right: 20px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: clamp(0.8rem, 2vw, 0.9rem);
+    line-height: 1.4;
+    white-space: normal;  /* 모바일에서 줄바꿈 허용 */
+    max-width: 90vw;  /* 모바일에서 최대 너비 제한 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 10;
     display: none;
+    margin-top: 10px;
 }
 
 .celebration-message {
@@ -126,81 +175,87 @@
     left: 50%;
     transform: translate(-50%, -50%);
     background-color: white;
-    padding: 2rem;
+    padding: clamp(1rem, 4vw, 2rem);
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     text-align: center;
-    font-size: 1.5rem;
+    font-size: clamp(1rem, 3vw, 1.5rem);
     color: #4285f4;
     z-index: 1000;
     display: none;
+    width: clamp(200px, 80vw, 400px);  /* 반응형 너비 */
 }
 
-.celebration-message.show {
-    display: block;
-    animation: fadeIn 0.5s ease-in;
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+    .flashcard {
+        min-height: 300px;
+    }
+
+    .flashcard .front,
+    .flashcard .back {
+        padding: clamp(20px, 4vw, 30px);
+    }
+
+    .flashcard .front p,
+    .flashcard .back p {
+        font-size: clamp(1rem, 3.5vw, 1.8rem);
+    }
+
+    .card-wrapper {
+        padding: 0 35px;
+    }
+
+    .card-nav-btn {
+        width: 25px;
+        height: 25px;
+    }
+
+    .prev-btn::before {
+        border-width: 15px 15px 15px 0;
+    }
+
+    .next-btn::after {
+        border-width: 15px 0 15px 15px;
+    }
 }
 
-.flashcard-container.hide {
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.5s ease-out, visibility 0.5s;
-    pointer-events: none;  /* 숨김 상태에서 클릭 방지 */
+/* iOS 안전 영역 대응 */
+@supports (padding: max(0px)) {
+    .flashcard-container {
+        padding-left: max(0px, env(safe-area-inset-left));
+        padding-right: max(0px, env(safe-area-inset-right));
+        padding-bottom: max(0px, env(safe-area-inset-bottom));
+        padding-top: max(0px, env(safe-area-inset-top));
+    }
 }
 
-.card-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    width: 600px;  /* flashcard와 동일한 너비 */
+/* 다크 모드 대응 */
+@media (prefers-color-scheme: dark) {
+    .prev-btn::before {
+        border-color: transparent #5c9cf5 transparent transparent;
+    }
+
+    .next-btn::after {
+        border-color: transparent transparent transparent #5c9cf5;
+    }
 }
 
-.button-container {
-    display: flex;
-    justify-content: flex-end;  /* 우측 정렬 */
-    width: 100%;
-    position: relative;  /* 툴팁 위치의 기준점 */
+/* JavaScript로 높이 계산을 위한 클래스 */
+.measuring {
+    position: absolute !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
 }
-
-.hint-button {
-    padding: 10px 20px;
-    background-color: #4285f4;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1rem;
-    opacity: 0.8;
-    transition: opacity 0.3s, transform 0.3s;
-}
-
-.hint-tooltip {
-    position: absolute;
-    top: 100%;  /* 버튼 바로 아래에 위치 */
-    right: 20px;
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 10px;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    line-height: 1.4;
-    white-space: nowrap;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    z-index: 10;
-    display: none;
-    margin-top: 10px;  /* 버튼과의 간격 */
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
+</style>
 {% endblock %}
 
 {% block content %}
 <div class="flashcard-container">
-    <button class="nav-btn prev-btn" onclick="navigate('prev')"></button>
     <div class="card-wrapper">
+        <!-- 항상 버튼을 렌더링하고 JavaScript로 제어 -->
+        <button class="card-nav-btn prev-btn" onclick="navigate('prev')" aria-label="이전 카드"></button>
+        
         <div class="flashcard" onclick="flipCard()">
             <div class="front">
                 <p>{{ front_text }}</p>
@@ -213,16 +268,14 @@
             <button class="hint-button">힌트</button>
             <div class="hint-tooltip">{{ hint_text }}</div>
         </div>
+        
+        <button class="card-nav-btn next-btn" onclick="navigate('next')" aria-label="다음 카드"></button>
     </div>
-    <button class="nav-btn next-btn" onclick="navigate('next')"></button>
 </div>
 
-<div class="celebration-message" id="celebrationMessage">
+<div class="celebration-message" id="celebrationMessage" style="display: none;">
     오늘 공부를 모두 마쳤습니다! 축하드립니다! 🎉
 </div>
-
-<!-- 학습 완료 버튼 추가 -->
-<button id="completeStudy" class="btn btn-success">학습 완료</button>
 {% endblock %}
 
 {% block scripts %}
@@ -234,6 +287,61 @@
     const totalCards = {{ all_data|length }};
     const selectedLanguage = "{{ selected_language }}";
     const allData = {{ all_data|tojson|safe }};
+    let isLastCardFlipped = false;
+
+    function updateNavigationButtons() {
+        const prevBtn = document.querySelector('.prev-btn');
+        const nextBtn = document.querySelector('.next-btn');
+        
+        // 첫 번째 카드에서만 이전 버튼 숨김
+        if (prevBtn) {
+            prevBtn.style.display = currentIndex === 0 ? 'none' : 'flex';
+        }
+        
+        // 마지막 카드에서는 다음 버튼 숨김
+        if (nextBtn) {
+            nextBtn.style.display = currentIndex >= totalCards - 1 ? 'none' : 'flex';
+        }
+    }
+
+    function navigate(direction) {
+        const oldIndex = currentIndex;
+        
+        if (direction === 'prev' && currentIndex > 0) {
+            currentIndex--;
+        } else if (direction === 'next' && currentIndex < totalCards - 1) {
+            currentIndex++;
+        }
+        
+        if (oldIndex !== currentIndex) {
+            // 카드 내용 변경 시 항상 뒤집힘 상태 초기화
+            const flashcard = document.querySelector('.flashcard');
+            flashcard.classList.remove('flipped');
+            isFlipped = false;
+            isLastCardFlipped = false;
+            
+            updateCardContent(currentIndex);
+            updateNavigationButtons(); // 네비게이션 버튼 상태 업데이트
+            updateTooltipContent(currentIndex);
+            startTimers();
+        }
+    }
+
+    function flipCard() {
+        const card = document.querySelector('.flashcard');
+        card.classList.toggle('flipped');
+        isFlipped = !isFlipped;
+        
+        // 마지막 카드에서 뒤집힘 상태 체크
+        if (currentIndex === totalCards - 1) {
+            if (isFlipped && !isLastCardFlipped) {
+                isLastCardFlipped = true;
+                setTimeout(() => {
+                    showCompletionCelebration();
+                }, 5000);
+            }
+        }
+    }
 
     function updateCardContent(index) {
         const card = allData[index];
@@ -248,6 +356,7 @@
                 frontElement.textContent = card.english;
                 backElement.textContent = card.korean;
             }
+            adjustCardHeight();
         }
     }
 
@@ -269,7 +378,6 @@
 
             const particleCount = 50 * (timeLeft / duration);
             
-            // 왼쪽과 오른쪽에서 폭죽 발사
             confetti({
                 ...defaults,
                 particleCount,
@@ -283,155 +391,114 @@
         }, 250);
     }
 
-    function startTimers() {
-        clearTimers();
-        autoFlipTimer = setTimeout(() => {
-            flipCard();
-            if (currentIndex < totalCards - 1) {
-                autoNextTimer = setTimeout(() => {
-                    navigate('next');
-                }, 5000);
-            } else if (isFlipped) {
-                setTimeout(() => {
-                    const flashcardContainer = document.querySelector('.flashcard-container');
-                    const celebrationMessage = document.getElementById('celebrationMessage');
-                    
-                    flashcardContainer.classList.add('hide');
-                    celebrationMessage.style.display = 'block';
-                    showCelebration();
+    async function showCompletionCelebration() {
+        // 플래시카드 컨테이너 숨기기
+        document.querySelector('.card-wrapper').style.display = 'none';
+        
+        // 축하 메시지 표시
+        const celebrationMessage = document.getElementById('celebrationMessage');
+        celebrationMessage.style.display = 'block';
+        
+        // 폭죽 애니메이션 시작
+        startConfetti();
 
-                    setTimeout(async () => {
-                        celebrationMessage.style.display = 'none';
-                        
-                        try {
-                            const response = await fetch('/check_move_status');
-                            const data = await response.json();
-                            console.log(data);
-                            if (!data.moved_today) {
-                                Swal.fire({
-                                    title: '시트 이동하기',
-                                    text: '오늘의 학습을 완료했습니다. 다음 시트로 이동하시겠습니까?',
-                                    icon: 'question',
-                                    showCancelButton: true,
-                                    confirmButtonText: '이동',
-                                    cancelButtonText: '취소'
-                                }).then(async (result) => {
-                                    if (result.isConfirmed) {
-                                        try {
-                                            const moveResponse = await fetch('/complete_study', {
-                                                method: 'POST',
-                                                headers: {
-                                                    'Content-Type': 'application/json'
-                                                }
-                                            });
-                                            const moveData = await moveResponse.json();
-                                            
-                                            if (moveData.success) {
-                                                Swal.fire({
-                                                    title: '성공!',
-                                                    text: '시트가 성공적으로 이동되었습니다.',
-                                                    icon: 'success'
-                                                }).then(() => {
-                                                    window.location.href = '/';
-                                                });
-                                            } else {
-                                                Swal.fire({
-                                                    title: '오류',
-                                                    text: moveData.error || '시트 이동 중 오류가 발생했습니다.',
-                                                    icon: 'error'
-                                                }).then(() => {
-                                                    window.location.href = '/';
-                                                });
-                                            }
-                                        } catch (error) {
-                                            console.error('Error moving sheets:', error);
-                                            Swal.fire({
-                                                title: '오류',
-                                                text: '시트 이동 중 오류가 발생했습니다.',
-                                                icon: 'error'
-                                            }).then(() => {
-                                                window.location.href = '/';
-                                            });
-                                        }
-                                    } else {
-                                        // 취소를 눌렀을 때도 홈으로 이동
-                                        window.location.href = '/';
+        // 3초 후 시트 이동 확인 다이얼로그 표시
+        setTimeout(async () => {
+            try {
+                const response = await fetch('/check_move_status');
+                const data = await response.json();
+                
+                if (!data.moved_today) {
+                    Swal.fire({
+                        title: '시트 이동하기',
+                        text: '오늘의 학습을 완료했습니다. 다음 시트로 이동하시겠습니까?',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: '이동',
+                        cancelButtonText: '취소'
+                    }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            try {
+                                const moveResponse = await fetch('/complete_study', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
                                     }
                                 });
-                            } else {
-                                // 이미 시트를 이동한 경우
+                                const moveData = await moveResponse.json();
+                                
+                                if (moveData.success) {
+                                    Swal.fire({
+                                        title: '성공!',
+                                        text: '시트가 성공적으로 이동되었습니다.',
+                                        icon: 'success'
+                                    }).then(() => {
+                                        window.location.href = '/';
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        title: '오류',
+                                        text: moveData.error || '시트 이동 중 오류가 발생했습니다.',
+                                        icon: 'error'
+                                    }).then(() => {
+                                        window.location.href = '/';
+                                    });
+                                }
+                            } catch (error) {
+                                console.error('Error moving sheets:', error);
                                 Swal.fire({
-                                    title: '학습 완료',
-                                    text: '오늘의 학습을 완료했습니다!',
-                                    icon: 'success'
+                                    title: '오류',
+                                    text: '시트 이동 중 오류가 발생했습니다.',
+                                    icon: 'error'
                                 }).then(() => {
                                     window.location.href = '/';
                                 });
                             }
-                        } catch (error) {
-                            console.error('Error checking move status:', error);
-                            Swal.fire({
-                                title: '오류',
-                                text: '상태 확인 중 오류가 발생했습니다.',
-                                icon: 'error'
-                            }).then(() => {
-                                window.location.href = '/';
-                            });
+                        } else {
+                            window.location.href = '/';
                         }
-                    }, 5000);
+                    });
+                } else {
+                    Swal.fire({
+                        title: '학습 완료',
+                        text: '오늘의 학습을 완료했습니다!',
+                        icon: 'success'
+                    }).then(() => {
+                        window.location.href = '/';
+                    });
+                }
+            } catch (error) {
+                console.error('Error checking move status:', error);
+                Swal.fire({
+                    title: '오류',
+                    text: '상태 확인 중 오류가 발생했습니다.',
+                    icon: 'error'
+                }).then(() => {
+                    window.location.href = '/';
+                });
+            }
+        }, 3000);
+    }
+
+    function startTimers() {
+        clearTimers();
+        autoFlipTimer = setTimeout(() => {
+            if (currentIndex === totalCards - 1 && !isFlipped) {
+                // 마지막 카드에서는 자동 플립만 실행
+                flipCard();
+            } else if (currentIndex < totalCards - 1) {
+                // 마지막 카드가 아닐 때는 플립과 다음 카드 이동 모두 실행
+                flipCard();
+                autoNextTimer = setTimeout(() => {
+                    navigate('next');
                 }, 5000);
             }
         }, 5000);
     }
 
     function clearTimers() {
-        clearTimeout(autoFlipTimer);
-        clearTimeout(autoNextTimer);
-    }
-
-    function flipCard() {
-        const card = document.querySelector('.flashcard');
-        card.classList.toggle('flipped');
-        isFlipped = !isFlipped;
-    }
-
-    function updateNavigationButtons() {
-        const prevBtn = document.querySelector('.prev-btn');
-        const nextBtn = document.querySelector('.next-btn');
-        
-        // 이전 버튼은 currentIndex가 0보다 크면 표시
-        if (prevBtn) {
-            prevBtn.classList.toggle('hidden', currentIndex <= 0);
-        }
-        
-        // 다음 버튼은 currentIndex가 마지막 인덱스보다 작으면 표시
-        if (nextBtn) {
-            nextBtn.classList.toggle('hidden', currentIndex >= totalCards - 1);
-        }
-    }
-
-    async function navigate(direction) {
-        clearTimers();
-        const newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
-        
-        if (newIndex >= 0 && newIndex < totalCards) {
-            // 카드를 앞면으로 리셋
-            if (isFlipped) {
-                flipCard();
-            }
-            
-            // 현재 인덱스 업데이트
-            currentIndex = newIndex;
-            
-            // 카드 내용 업데이트
-            updateCardContent(currentIndex);
-            
-            // 네비게이션 버튼 상태 업데이트
-            updateNavigationButtons();
-            
-            // 타이머 다시 시작
-            startTimers();
-        }
+        if (autoFlipTimer) clearTimeout(autoFlipTimer);
+        if (autoNextTimer) clearTimeout(autoNextTimer);
     }
 
     function updateTooltipContent(index) {
@@ -452,46 +519,45 @@
         tooltip.style.display = 'none';
     });
 
-    // 페이지 로드시 초기화
-    window.onload = function() {
+    // 페이지 로드 시 초기화
+    window.addEventListener('load', () => {
         updateNavigationButtons();
-        updateTooltipContent(currentIndex);  // 초기 힌트 내용 설정
+        updateTooltipContent(currentIndex);
         startTimers();
-    };
+    });
 
-    // Complete Study 버튼에 대한 이벤트 리스너
-    document.getElementById('completeStudy').addEventListener('click', showCelebration);
+    function adjustCardHeight() {
+        const card = document.querySelector('.flashcard');
+        const front = card.querySelector('.front');
+        const back = card.querySelector('.back');
+        const frontText = front.querySelector('p');
+        const backText = back.querySelector('p');
 
-    function showCelebration() {
-        const duration = 5 * 1000;  // 5초 동안 폭죽 지속
-        const animationEnd = Date.now() + duration;
-        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+        // 임시 측정용 요소 생성
+        const measureFront = front.cloneNode(true);
+        const measureBack = back.cloneNode(true);
+        measureFront.classList.add('measuring');
+        measureBack.classList.add('measuring');
+        document.body.appendChild(measureFront);
+        document.body.appendChild(measureBack);
 
-        function randomInRange(min, max) {
-            return Math.random() * (max - min) + min;
-        }
+        // 실제 높이 계산
+        const frontHeight = measureFront.offsetHeight;
+        const backHeight = measureBack.offsetHeight;
+        const maxHeight = Math.max(frontHeight, backHeight);
 
-        const interval = setInterval(function() {
-            const timeLeft = animationEnd - Date.now();
+        // 임시 요소 제거
+        measureFront.remove();
+        measureBack.remove();
 
-            if (timeLeft <= 0) {
-                return clearInterval(interval);
-            }
-
-            const particleCount = 50 * (timeLeft / duration);
-            
-            // 폭죽을 여러 위치에서 발사
-            confetti({
-                ...defaults,
-                particleCount,
-                origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
-            });
-            confetti({
-                ...defaults,
-                particleCount,
-                origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
-            });
-        }, 250);
+        // 카드 높이 설정
+        card.style.height = `${maxHeight}px`;
+        front.style.height = `${maxHeight}px`;
+        back.style.height = `${maxHeight}px`;
     }
+
+    // 페이지 로드 및 카드 내용 변경 시 높이 조정
+    window.addEventListener('load', adjustCardHeight);
+    window.addEventListener('resize', adjustCardHeight);
 </script>
 {% endblock %} 

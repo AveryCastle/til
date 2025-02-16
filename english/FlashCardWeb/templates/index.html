@@ -3,127 +3,208 @@
 {% block title %}영어 학습{% endblock %}
 
 {% block styles %}
-.language-toggle {
-    display: inline-flex;
-    border-radius: 4px;
-    overflow: hidden;
-}
+<style>
+    .main-container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: clamp(1rem, 3vw, 2rem);
+    }
 
-.toggle-btn {
-    padding: 10px 20px;
-    border: none;
-    cursor: pointer;
-    margin: 0;
-    transition: all 0.3s ease;
-    background-color: white;
-    color: #2196F3;
-    border: 2px solid #2196F3;
-}
+    /* 언어 토글 버튼 */
+    .language-toggle {
+        display: flex;
+        justify-content: center;
+        margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+    }
 
-.toggle-btn:hover:not(.active) {
-    background-color: #f8f9fa;
-    color: #3367d6;
-    border-color: #3367d6;
-}
+    .toggle-btn {
+        padding: clamp(0.8rem, 2vw, 1.2rem) clamp(1.5rem, 3vw, 2.5rem);
+        font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+        border: 2px solid #4285f4;
+        background-color: white;
+        color: #4285f4;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: clamp(80px, 20vw, 120px);
+    }
 
-.toggle-btn.active {
-    background-color: #4285f4;
-    color: white;
-    border: 2px solid #4285f4;
-}
+    .toggle-btn:first-child {
+        border-top-left-radius: 8px;
+        border-bottom-left-radius: 8px;
+        border-right: 1px solid #4285f4;
+    }
 
-.toggle-btn.active:hover {
-    background-color: #3367d6;
-    border-color: #3367d6;
-}
+    .toggle-btn:last-child {
+        border-top-right-radius: 8px;
+        border-bottom-right-radius: 8px;
+        border-left: 1px solid #4285f4;
+    }
 
-.toggle-btn:first-child {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-}
+    .toggle-btn:hover:not(.active) {
+        background-color: #f8f9fa;
+    }
 
-.toggle-btn:last-child {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    border-left: none;
-}
+    .toggle-btn.active {
+        background-color: #4285f4;
+        color: white;
+    }
 
-.toggle-btn:last-child.active {
-    border-left: 2px solid #4285f4;
-}
+    /* 버튼 컨테이너 */
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: clamp(1rem, 3vw, 2rem);
+        flex-wrap: wrap;
+        margin-top: clamp(2rem, 5vw, 3rem);
+    }
 
-.study-btn {
-    display: block;
-    width: 200px;
-    margin: 20px auto;
-    padding: 15px 30px;
-    font-size: 1.2em;
-    background-color: #4285f4;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
+    .action-btn {
+        padding: clamp(0.8rem, 2vw, 1.2rem) clamp(2rem, 4vw, 3rem);
+        font-size: clamp(1rem, 2.5vw, 1.2rem);
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        text-align: center;
+        min-width: clamp(120px, 30vw, 200px);
+    }
 
-.study-btn:hover {
-    background-color: #3367d6;
-}
+    .study-button {
+        background-color: #4CAF50;
+        color: white;
+    }
 
-.empty-message {
-    text-align: center;
-    margin: 20px;
-    font-size: 18px;
-}
+    .study-button:hover {
+        background-color: #45a049;
+    }
 
-.study-button-container {
-    text-align: center;
-    margin: 30px 0;
-}
+    .add-button {
+        background-color: #2196F3;
+        color: white;
+    }
 
-.study-button, .add-button {
-    display: inline-block;
-    padding: 15px 40px;
-    font-size: 20px;
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    transition: background-color 0.3s;
-    margin: 0 10px;
-}
+    .add-button:hover {
+        background-color: #1e88e5;
+    }
 
-.study-button {
-    background-color: #4CAF50;
-    border: none;
-}
+    /* 빈 메시지 */
+    .empty-message {
+        text-align: center;
+        margin: clamp(2rem, 5vw, 4rem) auto;
+        font-size: clamp(1.1rem, 3vw, 1.5rem);
+        color: #666;
+        padding: clamp(1rem, 3vw, 2rem);
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        max-width: 90%;
+    }
 
-.add-button {
-    background-color: #2196F3;
-}
+    /* 모바일 최적화 */
+    @media (max-width: 768px) {
+        .action-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
 
-.study-button:hover, .add-button:hover {
-    opacity: 0.9;
-}
+        .action-btn {
+            width: 100%;
+            max-width: 300px;
+        }
+    }
+
+    /* 작은 모바일 화면 최적화 */
+    @media (max-width: 480px) {
+        .main-container {
+            padding: 0.8rem;
+        }
+
+        .toggle-btn {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+        }
+
+        .action-btn {
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+        }
+    }
+
+    /* iOS 안전 영역 대응 */
+    @supports (padding: max(0px)) {
+        .main-container {
+            padding-left: max(1rem, env(safe-area-inset-left));
+            padding-right: max(1rem, env(safe-area-inset-right));
+            padding-bottom: max(1rem, env(safe-area-inset-bottom));
+        }
+    }
+
+    /* 다크 모드 대응 */
+    @media (prefers-color-scheme: dark) {
+        .toggle-btn {
+            background-color: #2d2d2d;
+            border-color: #5c9cf5;
+            color: #5c9cf5;
+        }
+
+        .toggle-btn.active {
+            background-color: #5c9cf5;
+            color: #ffffff;
+        }
+
+        .study-button {
+            background-color: #43a047;
+        }
+
+        .study-button:hover {
+            background-color: #388e3c;
+        }
+
+        .add-button {
+            background-color: #1e88e5;
+        }
+
+        .add-button:hover {
+            background-color: #1976d2;
+        }
+
+        .empty-message {
+            background-color: #2d2d2d;
+            color: #ffffff;
+        }
+    }
+
+    /* 터치 최적화 */
+    @media (hover: none) {
+        .toggle-btn, .action-btn {
+            touch-action: manipulation;
+        }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-{% if all_data %}
-    <div class="language-toggle">
-        <button class="toggle-btn active" onclick="toggleLanguage('korean')">한글</button>
-        <button class="toggle-btn" onclick="toggleLanguage('english')">영어</button>
-    </div>
-    <div class="study-button-container">
-        <form action="{{ url_for('study') }}" method="POST" style="display: inline;">
-            <input type="hidden" name="selected_language" id="selected_language" value="korean">
-            <button type="submit" class="study-button">학습 시작</button>
-        </form>
-        <a href="{{ url_for('add_expression_form') }}" class="add-button">표현 등록</a>
-    </div>
-{% else %}
-    <div class="empty-message">
-        영어 공부 새로 시작할까요?
-    </div>
-{% endif %}
+<div class="main-container">
+    {% if all_data %}
+        <div class="language-toggle">
+            <button class="toggle-btn active" onclick="toggleLanguage('korean')">한글</button>
+            <button class="toggle-btn" onclick="toggleLanguage('english')">영어</button>
+        </div>
+        <div class="action-buttons">
+            <form action="{{ url_for('study') }}" method="POST" style="display: contents;">
+                <input type="hidden" name="selected_language" id="selected_language" value="korean">
+                <button type="submit" class="action-btn study-button">학습 시작</button>
+            </form>
+            <a href="{{ url_for('add_expression_form') }}" class="action-btn add-button">표현 등록</a>
+        </div>
+    {% else %}
+        <div class="empty-message">
+            영어 공부 새로 시작할까요?
+        </div>
+    {% endif %}
+</div>
 {% endblock %}
 
 {% block scripts %}
