@@ -63,13 +63,14 @@
             gap: clamp(0.5rem, 2vw, 1rem);
             font-size: clamp(0.8rem, 2.5vw, 1rem);
             flex-wrap: wrap;
+            flex: 4; /* 전체 공간의 3/7 차지 */
         }
 
         .user-info span {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: clamp(100px, 30vw, 200px);
+            max-width: clamp(300px, 40vw, 150px);
         }
 
         /* 네비게이션 버튼 */
@@ -77,6 +78,8 @@
             display: flex;
             gap: clamp(0.5rem, 2vw, 1rem);
             align-items: center;
+            flex: 3; /* 전체 공간의 3/7 차지 */
+            justify-content: flex-end;
         }
 
         .nav-btn {
@@ -132,6 +135,14 @@
             .content {
                 padding: 1rem;
             }
+
+            .user-email {
+                display: none;
+            }
+
+            .user-info span {
+                max-width: clamp(200px, 35vw, 120px); /* 모바일에서 이름 표시 공간 조정 */
+            }
         }
 
         /* 작은 모바일 화면 최적화 */
@@ -147,6 +158,14 @@
             .nav-btn {
                 padding: 0.3rem 0.6rem;
                 font-size: 0.8rem;
+            }
+
+            .user-email {
+                display: none;
+            }
+
+            .user-info span {
+                max-width: clamp(200px, 35vw, 120px); /* 모바일에서 이름 표시 공간 조정 */
             }
         }
 
@@ -201,7 +220,7 @@
     <div class="nav-header">
         <div class="user-info">
             <span>안녕하세요, {{ session.name }}님!</span>
-            <span>({{ session.email }})</span>
+            <span class="user-email">({{ session.email }})</span>
         </div>
         <div class="nav-buttons">
             <a href="{{ url_for('index') }}" class="nav-btn home-btn">처음으로</a>
