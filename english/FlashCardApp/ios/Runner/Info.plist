@@ -1,0 +1,10 @@
+<key>CFBundleURLTypes</key>
+<array>
+    <dict>
+        <key>CFBundleURLSchemes</key>
+        <array>
+            <!-- iOS 클라이언트 ID의 역방향 DNS 표기 -->
+            <string>com.googleusercontent.apps.15020443312-kji0bs11r7ct46gr48mmn796p3o1d5p9</string>
+        </array>
+    </dict>
+</array> 
