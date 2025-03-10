@@ -30,7 +30,6 @@ class Flashcard {
       'id': id,
       'english': english,
       'korean': korean,
-      'isLearned': isLearned ? 1 : 0,
     };
   }
 
@@ -39,7 +38,6 @@ class Flashcard {
       id: map['id'],
       english: map['english'],
       korean: map['korean'],
-      isLearned: map['isLearned'] == 1,
     );
   }
 } 

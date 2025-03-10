@@ -10,6 +10,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final flashcardProvider = Provider.of<FlashcardProvider>(context);
+    final isAuthenticated = flashcardProvider.isAuthenticated;
     
     return Scaffold(
       appBar: AppBar(
@@ -58,53 +59,104 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // 구글 로그인 상태 표시
+            // 구글 로그인 상태 표시 - 더 눈에 띄게 수정
             _buildGoogleLoginStatus(context, flashcardProvider),
             const SizedBox(height: 16),
             
-            // 상단 정보 카드
-            Card(
-              elevation: 3,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    const Text(
-                      '학습 현황',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+            // 상단 정보 카드 - 로그인했을 때만 표시
+            if (isAuthenticated) 
+              Card(
+                elevation: 3,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      const Text(
+                        '학습 현황',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    _buildStatCard(
-                      context,
-                      '총 단어/문장 수',
-                      '${flashcardProvider.flashcards.length}',
-                      Icons.library_books,
-                    ),
-                  ],
+                      const SizedBox(height: 16),
+                      _buildStatCard(
+                        context,
+                        '총 단어/문장 수',
+                        '${flashcardProvider.flashcards.length}',
+                        Icons.library_books,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
+            
+            if (!isAuthenticated)
+              // 로그인 안 된 경우 안내 메시지
+              Card(
+                elevation: 3,
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    children: [
+                      const Icon(
+                        Icons.info_outline,
+                        size: 48,
+                        color: Colors.blue,
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        '서비스 이용을 위해 로그인이 필요합니다',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        '구글 계정으로 로그인하면 플래시카드를 사용할 수 있습니다.',
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.login),
+                        label: const Text('구글 로그인'),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 24,
+                          ),
+                        ),
+                        onPressed: () => _showLoginDialog(context),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            
             const SizedBox(height: 32),
             
-            // 메인 버튼들
+            // 메인 버튼들 - 로그인 상태에 따라 활성화/비활성화
             ElevatedButton.icon(
               icon: const Icon(Icons.school),
               label: const Text('플래시카드 학습하기'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.all(16),
                 textStyle: const TextStyle(fontSize: 18),
+                // 비활성화 시 색상 설정
+                disabledBackgroundColor: Colors.grey.shade300,
+                disabledForegroundColor: Colors.grey.shade600,
               ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const FlashcardScreen(),
-                  ),
-                );
-              },
+              onPressed: isAuthenticated && flashcardProvider.flashcards.isNotEmpty
+                  ? () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const FlashcardScreen(),
+                        ),
+                      );
+                    }
+                  : null, // 로그인 안 되어 있으면 비활성화
             ),
             const SizedBox(height: 16),
             ElevatedButton.icon(
@@ -113,54 +165,83 @@ class HomeScreen extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.all(16),
                 textStyle: const TextStyle(fontSize: 18),
+                disabledBackgroundColor: Colors.grey.shade300,
+                disabledForegroundColor: Colors.grey.shade600,
               ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AddCardScreen(),
-                  ),
-                );
-              },
+              onPressed: isAuthenticated
+                  ? () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AddCardScreen(),
+                        ),
+                      );
+                    }
+                  : null, // 로그인 안 되어 있으면 비활성화
             ),
             const SizedBox(height: 16),
             OutlinedButton.icon(
-              icon: const Icon(Icons.refresh),
-              label: const Text('학습 상태 초기화'),
+              icon: const Icon(Icons.sync_alt),  // 아이콘 변경: refresh → sync_alt
+              label: const Text('단어/문장 동기화'),  // 라벨 변경: '학습 상태 초기화' → '단어/문장 동기화'
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.all(16),
                 textStyle: const TextStyle(fontSize: 18),
+                disabledForegroundColor: Colors.grey.shade400,
               ),
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('학습 상태 초기화'),
-                    content: const Text('모든 단어의 학습 상태를 초기화하시겠습니까?'),
-                    actions: [
-                      TextButton(
-                        child: const Text('취소'),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                      TextButton(
-                        child: const Text('초기화'),
-                        onPressed: () async {
-                          Navigator.of(context).pop();
-                          await flashcardProvider.resetLearningStatus();
-                          if (!context.mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('학습 상태가 초기화되었습니다.'),
+              onPressed: isAuthenticated
+                  ? () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('단어/문장 동기화'),
+                          content: const Text(
+                            '앱 데이터와 구글 스프레드시트의 데이터를 양방향으로 동기화합니다.\n\n'
+                            '- 앱에만 있는 데이터는 스프레드시트에 추가됩니다.\n'
+                            '- 스프레드시트에만 있는 데이터는 앱에 추가됩니다.\n\n'
+                            '진행하시겠습니까?'
+                          ),
+                          actions: [
+                            TextButton(
+                              child: const Text('취소'),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
                             ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                );
-              },
+                            TextButton(
+                              child: const Text('동기화'),
+                              onPressed: () async {
+                                Navigator.of(context).pop();
+                                
+                                // 로딩 다이얼로그 표시
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (context) => const Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                );
+                                
+                                // 양방향 동기화 실행
+                                await flashcardProvider.syncBidirectional();
+                                
+                                // 로딩 다이얼로그 닫기
+                                if (!context.mounted) return;
+                                Navigator.of(context).pop();
+                                
+                                // 결과 메시지 표시
+                                if (!context.mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('단어/문장 동기화가 완료되었습니다.'),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                  : null, // 로그인 안 되어 있으면 비활성화
             ),
           ],
         ),
@@ -174,38 +255,60 @@ class HomeScreen extends StatelessWidget {
     
     return Card(
       color: isAuthenticated ? Colors.green.shade50 : Colors.orange.shade50,
+      elevation: 4, // 더 눈에 띄게 그림자 강화
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: isAuthenticated ? Colors.green.shade300 : Colors.orange.shade300,
+          width: 1.5,
+        ),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
         child: Row(
           children: [
             Icon(
               isAuthenticated ? Icons.cloud_done : Icons.cloud_off,
               color: isAuthenticated ? Colors.green : Colors.orange,
-              size: 28,
+              size: 32, // 아이콘 크기 증가
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 16),
             Expanded(
-              child: Text(
-                isAuthenticated 
-                    ? '구글 스프레드시트에 연결됨' 
-                    : '구글 스프레드시트에 연결되지 않음',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    isAuthenticated 
+                        ? '구글 스프레드시트에 연결됨' 
+                        : '구글 스프레드시트에 연결되지 않음',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  if (!isAuthenticated)
+                    const Text(
+                      '서비스 이용을 위해 로그인이 필요합니다',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.black54,
+                      ),
+                    ),
+                ],
               ),
             ),
             if (syncStatus == SyncStatus.syncing)
               const SizedBox(
-                width: 20,
-                height: 20,
+                width: 24,
+                height: 24,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
                 ),
               )
             else if (!isAuthenticated)
-              TextButton(
-                child: const Text('로그인'),
+              TextButton.icon(
+                icon: const Icon(Icons.login),
+                label: const Text('로그인'),
                 onPressed: () => _showLoginDialog(context),
               ),
           ],
@@ -230,8 +333,9 @@ class HomeScreen extends StatelessWidget {
               Navigator.of(context).pop(false);
             },
           ),
-          TextButton(
-            child: const Text('로그인'),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.login),
+            label: const Text('로그인'),
             onPressed: () async {
               final provider = Provider.of<FlashcardProvider>(context, listen: false);
               await provider.authenticate();

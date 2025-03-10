@@ -94,8 +94,46 @@ class _FlashcardContentState extends State<_FlashcardContent> with SingleTickerP
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<FlashcardProvider>(context);
-    final currentCard = provider.currentCard;
     final flashcards = provider.flashcards;
+    
+    // 카드가 없는 경우 처리
+    if (flashcards.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.info_outline,
+              size: 64,
+              color: Colors.blue,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              '등록된 플래시카드가 없습니다',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              '새 단어/문장 추가하기 버튼을 통해\n학습할 내용을 추가해보세요.',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.add),
+              label: const Text('새 단어/문장 추가하기'),
+              onPressed: () {
+                Navigator.pop(context); // 이전 화면으로 돌아가기
+              },
+            ),
+          ],
+        ),
+      );
+    }
+    
+    final currentCard = provider.currentCard!;
     final currentIndex = provider.currentIndex;
 
     return Padding(
@@ -167,7 +205,7 @@ class _FlashcardContentState extends State<_FlashcardContent> with SingleTickerP
             ),
           ),
           
-          // 하단 컨트롤 버튼 - '학습 완료' 버튼 제거
+          // 하단 컨트롤 버튼
           const SizedBox(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
