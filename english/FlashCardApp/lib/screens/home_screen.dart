@@ -77,22 +77,11 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _buildStatCard(
-                          context,
-                          '총 단어 수',
-                          '${flashcardProvider.flashcards.length}',
-                          Icons.library_books,
-                        ),
-                        _buildStatCard(
-                          context,
-                          '학습 완료',
-                          '${flashcardProvider.learnedCount}',
-                          Icons.check_circle,
-                        ),
-                      ],
+                    _buildStatCard(
+                      context,
+                      '총 단어/문장 수',
+                      '${flashcardProvider.flashcards.length}',
+                      Icons.library_books,
                     ),
                   ],
                 ),
@@ -120,7 +109,7 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 16),
             ElevatedButton.icon(
               icon: const Icon(Icons.add),
-              label: const Text('새 단어 추가하기'),
+              label: const Text('새 단어/문장 추가하기'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.all(16),
                 textStyle: const TextStyle(fontSize: 18),
@@ -274,7 +263,7 @@ class HomeScreen extends StatelessWidget {
     IconData icon,
   ) {
     return Container(
-      width: 140,
+      width: double.infinity, // 전체 폭 사용
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.blue.withOpacity(0.1),

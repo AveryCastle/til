@@ -167,7 +167,7 @@ class _FlashcardContentState extends State<_FlashcardContent> with SingleTickerP
             ),
           ),
           
-          // 하단 컨트롤 버튼
+          // 하단 컨트롤 버튼 - '학습 완료' 버튼 제거
           const SizedBox(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -186,25 +186,8 @@ class _FlashcardContentState extends State<_FlashcardContent> with SingleTickerP
                     : null,
                 color: Colors.blue,
               ),
-              ElevatedButton.icon(
-                icon: const Icon(Icons.check),
-                label: const Text('학습 완료'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
-                  ),
-                ),
-                onPressed: () {
-                  provider.markAsLearned();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('학습 완료로 표시되었습니다!'),
-                      duration: Duration(seconds: 1),
-                    ),
-                  );
-                },
-              ),
+              // '학습 완료' 버튼 제거 - 가운데 공간 유지
+              const SizedBox(width: 100),
               IconButton(
                 icon: const Icon(Icons.arrow_forward),
                 iconSize: 32,

@@ -31,7 +31,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('새 단어가 추가되었습니다!'),
+          content: Text('새 단어/문장이 추가되었습니다!'),
           duration: Duration(seconds: 2),
         ),
       );
@@ -43,9 +43,12 @@ class _AddCardScreenState extends State<AddCardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // 화면 높이를 구하기 위한 MediaQuery
+    final screenHeight = MediaQuery.of(context).size.height;
+    
     return Scaffold(
       appBar: AppBar(
-        title: const Text('새 단어 추가'),
+        title: const Text('새 단어/문장 추가하기'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -54,7 +57,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // 영어 입력 필드
+              // 영어 입력 필드 - 높이를 화면의 약 1/4로 설정
               TextFormField(
                 controller: _englishController,
                 decoration: InputDecoration(
@@ -64,6 +67,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   prefixIcon: const Icon(Icons.language),
+                  alignLabelWithHint: true, // 레이블이 큰 텍스트필드에서도 정렬되도록
                 ),
                 textCapitalization: TextCapitalization.sentences,
                 validator: (value) {
@@ -72,10 +76,13 @@ class _AddCardScreenState extends State<AddCardScreen> {
                   }
                   return null;
                 },
+                maxLines: null, // 여러 줄 입력 가능
+                minLines: 5, // 최소 5줄
+                textAlignVertical: TextAlignVertical.top, // 텍스트를 상단에서 시작
               ),
               const SizedBox(height: 16),
 
-              // 한글 입력 필드
+              // 한글 입력 필드 - 높이를 화면의 약 1/4로 설정
               TextFormField(
                 controller: _koreanController,
                 decoration: InputDecoration(
@@ -85,6 +92,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   prefixIcon: const Icon(Icons.translate),
+                  alignLabelWithHint: true, // 레이블이 큰 텍스트필드에서도 정렬되도록
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -92,13 +100,16 @@ class _AddCardScreenState extends State<AddCardScreen> {
                   }
                   return null;
                 },
+                maxLines: null, // 여러 줄 입력 가능
+                minLines: 5, // 최소 5줄
+                textAlignVertical: TextAlignVertical.top, // 텍스트를 상단에서 시작
               ),
               const SizedBox(height: 32),
 
               // 추가 버튼
               ElevatedButton.icon(
                 icon: const Icon(Icons.add),
-                label: const Text('단어 추가하기'),
+                label: const Text('단어/문장 추가하기'),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.all(16),
                   textStyle: const TextStyle(fontSize: 18),
