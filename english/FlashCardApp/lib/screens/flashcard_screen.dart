@@ -263,17 +263,41 @@ class _FlashcardContentState extends State<_FlashcardContent> with SingleTickerP
         width: double.infinity,
         padding: const EdgeInsets.all(16),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              text,
-              style: const TextStyle(
-                fontSize: 36,
-                fontWeight: FontWeight.bold,
+            // 스크롤 가능한 텍스트 영역 (수직, 수평 정중앙에 배치)
+            Expanded(
+              child: Center(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Container(
+                    // 전체 높이를 활용하기 위한 Container
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    child: Center(
+                      child: Text(
+                        text,
+                        style: const TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          height: 1.3, // 줄 간격 조정
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ),
               ),
-              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 40),
+            // 스크롤 힌트 표시기
+            Container(
+              height: 4,
+              width: 40,
+              margin: const EdgeInsets.only(top: 8, bottom: 16),
+              decoration: BoxDecoration(
+                color: Colors.grey.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            // 도움말 텍스트
             Text(
               helpText,
               style: TextStyle(
