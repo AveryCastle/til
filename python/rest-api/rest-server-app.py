@@ -1,9 +1,15 @@
 from flask import Flask, jsonify, abort, make_response, request, url_for
 from flask.ext.httpauth import HTTPBasicAuth
+from flask.ext.sqlalchemy import SQLAlchemy
 
 
 app = Flask(__name__)
+app.config.from_object('config')
 auth = HTTPBasicAuth()
+db = SQLAlchemy(app)
+
+
+from app import vies, models
 
 
 tasks = [
